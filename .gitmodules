@@ -1,0 +1,3 @@
+[submodule "themes/karzok"]
+	path = themes/karzok
+	url = https://git.sr.ht/~kogeletey/karzok
