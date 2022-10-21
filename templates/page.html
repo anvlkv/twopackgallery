@@ -1,16 +1,5 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 
-{% block content %}
-  <header>
-    {% include "common/header.html" %}
-  </header>
-  <main>
-    {% if page.content %}
-    {{ page.content | safe }}
-    {% endif %}
-    {% block page_content %}{% endblock %}
-  </main>
-  <footer>
-    {% include "common/navs.html" %}
-  </footer>
-{% endblock content %}
+{% block page_content %}
+{{ page.content | safe }}
+{% endblock page_content%}

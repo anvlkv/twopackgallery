@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block page_content %}
+<form class="Contact" name="contact" data-netlify="true" method="POST">
+  <legend class="Contact__legend">
+    {{page.content | safe}}
+  </legend>
+  <label class="Contact__label" for="name">Name</label>
+  <input class="Contact__input" type="text" name="name" max="500" placeholder="What's your name?" />
+  <label class="Contact__label" for="email">Email</label>
+  <input class="Contact__input" type="email" required max="500" name="email" placeholder="How to contact you?" />
+  <label class="Contact__label" for="message">Message</label>
+  <textarea class="Contact__input Contact__input--textarea" name="message" max="5000" required
+    placeholder="What's the matter?"></textarea>
+  <button class="Contact__submit" type="submit">Send</button>
+</form>
+{% endblock page_content%}

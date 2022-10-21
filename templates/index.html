@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <header>
-    <a href="/">
+  <div class="Landing">
+    <header class="Landing__header">
       <h1>twopack.gallery</h1>
-    </a>
-  </header>
-  <main>
-    {% include "common/twopackgallery.html" %}
-  </main>
-  <footer>
-    {% include "common/navs.html" %}
-  </footer>
+    </header>
+    <main>
+      {% include "common/twopackgallery.html" %}
+    </main>
+    <footer>
+      {% include "common/navs.html" %}
+    </footer>
+  </div>
 {% endblock content %}

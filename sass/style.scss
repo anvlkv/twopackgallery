@@ -3,6 +3,9 @@
 @import "./components/logo";
 @import "./components/artwork";
 @import "./components/gallery";
+@import "./components/error";
+@import "./components/contact";
+@import "./components/landing";
 
 
 body {
@@ -13,6 +16,9 @@ body {
   flex-direction: column;
   justify-content: space-between;
   align-content: center;
+  &, * {
+    box-sizing: border-box;
+  }
   header, footer {
     flex-shrink: 0;
     flex-grow: 0;
@@ -49,5 +55,16 @@ body {
   font-family: monospace;
   color: $c-black;
   background-color: $c-white;
+}
+
+a, a:visited {
+  color: inherit;
+  transition: color 150ms ease-in;
+  &:hover, &:focus, &:active {
+    color: $c-success;
+    &:visited {
+      color: $c-danger;
+    }
+  }
 }
 

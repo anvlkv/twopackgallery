@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header>
+  {% include "common/header.html" %}
+</header>
+<main>
+  {% block page_content %}{% endblock %}
+</main>
+<footer>
+  {% include "common/navs.html" %}
+</footer>
+{% endblock content %}
