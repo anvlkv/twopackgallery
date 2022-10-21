@@ -13,7 +13,12 @@
     <div class="Gallery">
       <nav class="Gallery__nav">
         <a href="#all">All</a>
-        
+        {% for artist in artists.pages %}
+        <a href="artists/{{artist.slug}}">{{artist.title}}</a>
+        {% endfor %}
+        {% for gallery in galleries.pages %}
+        <a href="galleries/{{gallery.slug}}">{{gallery.title}}</a>
+        {% endfor %}
       </nav>
       <div class="Gallery__grid">
         {% for artwork in artworks.pages %}
