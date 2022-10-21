@@ -1,55 +1,68 @@
 @import "./normalize";
 @import "./variables";
+@import "./components/header";
 @import "./components/logo";
+@import "./components/error";
 @import "./components/artwork";
 @import "./components/gallery";
-@import "./components/error";
 @import "./components/contact";
 @import "./components/landing";
+@import "./components/artist";
 
 
 body {
+  position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-content: center;
+  display: grid;
+  grid-template-areas: "h h h h"
+                       "s m m m"
+                       "f f f f";
+  grid-template-rows: 3.5rem calc(100vh - 7rem) 3.5rem;
+
+  // grid-template-columns: 100% 10vw auto 100%;
+  // grid-template-rows: 2.5rem calc(100vw - 5rem) 2.5rem;
+
   &, * {
     box-sizing: border-box;
   }
-  header, footer {
-    flex-shrink: 0;
-    flex-grow: 0;
+  header {
+    grid-area: h;
+  }
+  footer {
+    grid-area: f;
+    padding: 1rem;
   }
   main {
+    grid-area: m;
     overflow: auto;
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: 100%;
+    padding-top: 2rem;
   }
-}
-
-footer {
-  padding: 1rem;
-}
-
-header {
-  padding: 1rem;
-  a {
-    display: inline-flex;
-  }
-  h1 {
-    margin: 0;
-  }
-  .Logo {
-    height: 40px;
-    path {
-      stroke-width: 30px;
+  aside {
+    grid-area: s;
+    display: flex;
+    nav {
+      display: flex;
+      flex-direction: column;
+      > a, > h2 {
+        margin: 1rem;
+      }
     }
   }
 }
+
+footer, main {
+  padding: 1rem;
+}
+
+footer {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+
+
 
 body {
   font-family: monospace;
@@ -67,4 +80,6 @@ a, a:visited {
     }
   }
 }
+
+p, h1, h2, h3, h4, h5, h6 {margin-top: 0;}
 

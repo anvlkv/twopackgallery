@@ -4,10 +4,13 @@
 <header>
   {% include "common/header.html" %}
 </header>
+<aside>
+  {% block aside_content %}{% endblock %}
+</aside>
 <main>
   {% block page_content %}{% endblock %}
 </main>
 <footer>
-  {% include "common/navs.html" %}
+  <a href="/license"><small>CC BY-NC-SA twopack.gallery</small></a>
 </footer>
 {% endblock content %}

@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block page_content %}
-{% set artist = get_page(path="galleries/"~term.slug~".md") %}
+{% set artist = get_page(path="gallery/"~term.slug~".md") %}
 <div>
   {{artist.title}} {{artist.slug}} {{artist.assets | json_encode()}}
 </div>

@@ -13,7 +13,7 @@
 
 {% macro artwork_thumbnail(id) %}
 {% set artwork = get_page(path="artworks/"~id~"/index.md") %}
-<a class="Artwork--thumbnail" href="artworks/{{artwork.slug}}">
+<a class="Artwork--thumbnail" href="/artworks/{{artwork.slug}}">
   <div class="Artwork__gallery">
     {% for asset in artwork.assets %}
     {% set thumbnail = resize_image(path=asset, width=200, height=200, op="fit")%}
@@ -23,7 +23,7 @@
   <div class="Artwork__plate">
     <h4 class="Artwork__title">{{artwork.title}}</h4>
     <div class="Artwork__authors">
-      {% for artist in artwork.taxonomies.artists %}
+      {% for artist in artwork.taxonomies.artist %}
       <span class="Artwork__artist">
         {{artist}}
       </span>

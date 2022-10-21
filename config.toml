@@ -8,8 +8,8 @@ compile_sass = true
 build_search_index = true
 
 taxonomies=[
-  {name="artists", feed=true},
-  {name="galleries", feed=true},
+  {name="artist", feed=true},
+  {name="gallery", feed=true},
 ]
 
 [markdown]

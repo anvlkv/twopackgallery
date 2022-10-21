@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{%block aside_content%}
+      {% include "common/navs.html" %}
+{% endblock aside_content%}
+
 {% block page_content %}
 {{ page.content | safe }}
 {% endblock page_content%}

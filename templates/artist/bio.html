@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% import "common/macros.html" as macros%}
+
+
+{% block aside_content %}
+{% set artist = get_page(path="artist/"~page.components[1]~"/index.md") %}
+{% set galleries = get_section(path="gallery/_index.md") %}
+<nav class="Artist__nav">
+  <div class="Artist__plate">
+    <a class="Artist__leave" href="/artist/{{artist.slug}}">&larr;</a>
+    <h2>{{artist.title}}</h2>
+  </div>
+  <nav class="Artist__nav">
+    <a href="/artist/{{artist.slug}}/#all">All</a>
+    {% for gallery in galleries.pages %}
+    <a href="/artist/{{artist.slug}}#{{gallery.slug}}">{{gallery.title}}</a>
+    {% endfor %}
+  </nav>
+  <div class="Artist__plate">
+    <h3>bio</h3>
+  </div>
+  <a href="/artist/{{artist.slug}}/contact">contact</a>
+</nav>
+<div class="Artist__pic">
+  {% set pic = resize_image(path=artist.assets[0], width=200, op="fit_width")%}
+        {{macros::picture(image=pic, alt=artist.title)}}
+</div>
+{% endblock aside_content%}
+
+{% block page_content %}
+{{page.content | safe}}
+{% endblock page_content%}

@@ -4,11 +4,15 @@
   @extend body;
   position: relative;
   &__header {
+    grid-area: auto !important;
     position: absolute;
     top: 40%;
     text-align: center;
     width: 100%;
     background-color: rgba($c-white, $ca-lg);
+    h1 {
+      margin-bottom: 2rem;
+    }
   }
   .Logo {
     width: 100%;

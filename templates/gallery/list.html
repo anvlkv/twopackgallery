@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% import "common/macros.html" as macros %}
+
+{% block aside_content %}
+{% set artists = get_section(path="artist/_index.md") %}
+{% set galleries = get_section(path="gallery/_index.md") %}
+<nav>
+  <h2>Gallery</h2>
+  <nav class="Gallery__nav">
+    <a href="/agllery/#all">All</a>
+    {% for artist in artists.pages %}
+    <a href="/artist/{{artist.slug}}">{{artist.title}}</a>
+    {% endfor %}
+    {% for gallery in galleries.pages %}
+    <a href="/gallery#{{gallery.slug}}">{{gallery.title}}</a>
+    {% endfor %}
+  </nav>
+  <a href="/about">about</a>
+  <a href="/contact">contact</a>
+</nav>
+{% endblock aside_content%}
+
+{% block page_content %}
+{% set artworks = get_section(path="artworks/_index.md") %}
+<div class="Gallery">
+  <div class="Gallery__grid">
+    {% for artwork in artworks.pages %}
+    {{macros::artwork_thumbnail(id=artwork.extra.id)}}
+    {% endfor %}
+  </div>
+</div>
+{% endblock page_content %}
