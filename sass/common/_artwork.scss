@@ -1,0 +1,64 @@
+@import "../variables";
+
+
+
+.Artwork {
+  &--thumbnail {
+    position: relative;
+    height: 200px;
+    width: 200px;
+    overflow: hidden;
+    &:hover, &:focus {
+      .Artwork {
+        &__gallery {
+          animation-name: artwork-gallery-hover-animation;
+          animation-duration: 1s;
+          animation-iteration-count: infinite;
+          animation-timing-function: ease-in;
+          transition-property: grid-template-columns;
+        }
+        &__plate {
+          bottom: -100%;
+          transition: bottom 100ms ease-out;
+        }
+      }      
+    }
+    
+    .Artwork {
+      &__gallery {
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+      &__plate {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        padding: .5rem;
+        background-color: rgba($color: $c-white, $alpha: $ca-lg);
+      }
+    }
+    
+  }
+
+  &__gallery {
+    
+  }
+}
+
+@keyframes artwork-gallery-hover-animation {
+  0%, 100%{
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+  25% {
+    grid-template-columns: 0 1fr 1fr 1fr;
+  }
+  50% {
+    grid-template-columns: 0 0 1fr 1fr;
+  }
+  75% {
+    grid-template-columns: 0 0 0 1fr;
+  }
+}

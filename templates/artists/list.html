@@ -1,0 +1,11 @@
+{% extends "page.html" %}
+
+{% block page_content %}
+  <ul>
+  {% for term in terms %}
+    <li>
+      {{loop.index}}. {{term | json_encode()}}
+    </li> 
+  {% endfor %}
+  </ul>>
+{% endblock page_content %}

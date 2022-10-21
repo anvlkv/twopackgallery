@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">
-  This is my blog made with Zola.
-</h1>
+  <header>
+    <a href="/">
+      <h1>twopack.gallery</h1>
+    </a>
+  </header>
+  <main>
+    {% include "common/twopackgallery.html" %}
+  </main>
+  <footer>
+    {% include "common/navs.html" %}
+  </footer>
 {% endblock content %}

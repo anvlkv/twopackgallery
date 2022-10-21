@@ -1,0 +1,34 @@
+{% macro picture(image, alt) %}
+<picture>
+  {% for media in [430, 834, 1280, 1440] %}
+  {% if image.width >= media %}
+  {% set source = resize_image(path=image.static_path, width=media, op="fit_width") %}
+  <source media="(max-width: {{media}}px" srcset="{{source.url}}" />
+  {% endif %}
+  {% endfor %}
+  <img src="{{image.url}}" alt="{{alt}}" style="width: auto" />
+</picture>
+{% endmacro picture %}
+
+
+{% macro artwork_thumbnail(id) %}
+{% set artwork = get_page(path="artworks/"~id~"/index.md") %}
+<div class="Artwork--thumbnail">
+  <div class="Artwork__gallery">
+    {% for asset in artwork.assets %}
+    {% set thumbnail = resize_image(path=asset, width=200, height=200, op="fit")%}
+    {{ self::picture(image=thumbnail, alt=artwork.title) }}
+    {% endfor %}
+  </div>
+  <div class="Artwork__plate">
+    <h4 class="Artwork__title">{{artwork.title}}</h4>
+    <div class="Artwork__authors">
+      {% for artist in artwork.taxonomies.artists %}
+      <span class="Artwork__artist">
+        {{artist}}
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endmacro artwork_thumbnail%}
