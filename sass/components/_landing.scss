@@ -3,16 +3,23 @@
 .Landing {
   @extend body;
   position: relative;
-  &__header {
-    grid-area: auto !important;
-    position: absolute;
-    top: 40%;
-    text-align: center;
-    width: 100%;
-    background-color: rgba($c-white, $ca-lg);
-    h1 {
-      margin-bottom: 2rem;
+  @media (max-width: $screen-md) {
+    grid-template-rows: 10rem calc(100vh - 14rem) 3.5rem !important;
+    grid-template-areas: "h h" "m m" "f f" !important;
+  }
+  
+  @media (min-width: $screen-md) {
+    &__header {
+      grid-area: auto !important;
+      position: absolute;
+      top: 40%;
+      text-align: center;
+      width: 100%;
+      background-color: rgba($c-white, $ca-lg);
     }
+  }
+  h1 {
+    margin-bottom: 2rem;
   }
   .Logo {
     width: 100%;

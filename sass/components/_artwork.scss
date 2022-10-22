@@ -46,6 +46,62 @@
   &__gallery {
     
   }
+
+  &__plate {
+    display: flex;
+    margin: 1rem;
+    margin-left: 0;
+    align-items: center;
+    .Artwork__title {
+      margin: 0;
+    }
+    .Artwork__leave {
+      height: 100%;
+      display: inline-block;
+      text-decoration: none;
+      margin-right: 1rem;
+      padding-left: 1rem;
+      font-size: 3em;
+      line-height: 2;
+    }
+  }
+
+  &__nav {
+    flex-wrap: wrap;
+  }
+  &__by {
+    flex-basis: 100%;
+    padding-left: 1rem;
+    padding-top: 1rem;
+    width: 0;
+  }
+  &__date {
+    margin: 1rem;
+  }
+
+  &__gallery {
+    display: grid;
+    row-gap: 2rem;
+    grid-auto-rows: calc(100vh - 15rem);;
+    grid-template-columns: 100%;
+  }
+
+  &__picture {
+    overflow: hidden;
+    grid-column: 1;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    background-color: rgba($color: $c-black, $alpha: $ca-sm);
+    padding: 2rem;
+    box-shadow: 0 0 1px  rgba($color: $c-black, $alpha: $ca-base);
+    picture {
+      display: contents;
+      img{
+      width: auto;
+      max-height: 100%;
+    }}
+  }
 }
 
 @keyframes artwork-gallery-hover-animation {

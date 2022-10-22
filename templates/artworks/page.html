@@ -2,10 +2,29 @@
 {% import "common/macros.html" as macros %}
 
 {% block aside_content %}
-{{macros::navs(artwork=page.components[1])}}
+{{macros::navs(artwork=page.extra.id)}}
 {% endblock aside_content%}
 
 {% block page_content %}
-artwork
-{{page.content}}
+<div class="Artwork">
+  <div class="Artwork__gallery">
+    <div class="Artwork__picture">
+      {% set pic = resize_image(path=page.assets[0], width=1440, op="fit_width")%}
+      {# zola has to run twice to generate this... #}
+      {{macros::picture(image=pic, alt=page.title)}}
+    </div>
+    {% if page.content %}
+    <div class="Artwork__content">
+      {{page.content | safe}}
+    </div>
+    {% endif %}
+    {% for asset in page.assets | slice(start=1) %}
+    <div class="Artwork__picture">
+      {% set pic = resize_image(path=asset, width=1440, op="fit_width")%}
+      {# zola has to run twice to generate this... #}
+      {{macros::picture(image=pic, alt=page.title)}}
+    </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock page_content %}

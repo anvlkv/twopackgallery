@@ -1,7 +1,16 @@
+@import "../variables";
+
 .Artist {
   &__plate {
     display: flex;
     align-items: center;
+    text-decoration: none;
+    @media (max-width: $screen-md) {
+      position: fixed;
+      background-color: rgba($color: $c-white, $alpha: $ca-base);
+      margin: 0;
+      width: 50%;
+    }
     .Artist__leave {
       height: 100%;
       display: inline-block;
@@ -26,7 +35,7 @@
     grid-row: span 10;
     overflow: hidden;
     padding-top: 1rem;
-    height: calc(100vh - 7rem);
+    min-height: calc(100vh - 7rem);
     picture img {
       height: 100%;
       width: auto;

@@ -6,7 +6,7 @@
   <source media="(max-width: {{media}}px" srcset="{{source.url}}" />
   {% endif %}
   {% endfor %}
-  <img src="{{image.url}}" alt="{{alt}}" style="width: auto" />
+  <img src="{{image.url}}" alt="{{alt}}" />
 </picture>
 {% endmacro picture %}
 
@@ -44,20 +44,25 @@
       {% set pic = resize_image(path=artist_page.assets[0], width=200, op="fit_width")%}
       {{macros::picture(image=pic, alt=artist_page.title)}}
     </div>
+    {% if slug %}
+    <a href="/artist/{{artist_page.slug}}" class="Artist__plate">
+      <div class="Artist__leave">&larr; </div>
+      <h2>{{artist_page.title}}</h2>
+    </a>
+    {% else %}
     <div class="Artist__plate">
-      {% if slug %}
-      <a class="Artist__leave" href="/artist/{{artist_page.slug}}">&larr;</a>
-      {% else %}
       <a class="Artist__leave" href="/gallery">&larr;</a>
-      {% endif %}
       <h2>{{artist_page.title}}</h2>
     </div>
+    {% endif %}
+    {% if galleries.pages %}
+    <h4>Exhibitions</h4>
     <nav>
-      <a href="/artist/{{artist_page.slug}}/#all">All</a>
       {% for gallery_page in galleries.pages %}
       <a href="/artist/{{artist_page.slug}}#{{gallery_page.slug}}">{{gallery_page.title}}</a>
       {% endfor %}
     </nav>
+    {% endif %}
     {% if slug == "bio" %}
     <h3>bio</h3>
     {%else%}
@@ -74,19 +79,48 @@
   {% set galleries = get_section(path="gallery/_index.md") %}
   <h2>Gallery</h2>
   <nav class="Gallery__nav">
-    <a href="/gallery/#all">All</a>
+    {% if artists.pages %}
+    <h4>Artists</h4>
+    {% endif %}
     {% for artist_page in artists.pages %}
     <a href="/artist/{{artist_page.slug}}">{{artist_page.title}}</a>
     {% endfor %}
+    {% if galleries.pages %}
+    <h4>Exhibitions</h4>
+    {% endif %}
     {% for gallery_page in galleries.pages %}
-    <a href="/gallery#{{gallery_page.slug}}">{{gallery_page.title}}</a>
+    <a href="/gallery/{{gallery_page.slug}}">{{gallery_page.title}}</a>
     {% endfor %}
     <hr />
     <a href="/about">about</a>
     <a href="/contact">contact</a>
   </nav>
   {% elif artwork%}
-  {{artwork}}
+  {% set artwork_page = get_page(path="artworks/"~artwork~"/index.md")%}
+  <div class="Artwork__plate">
+    <a class="Artwork__leave" href="javascript:history.back()">&larr;</a>
+    {% if artwork_page.title %}
+    <h2 class="Artwork__title">{{artwork_page.title}}</h2>
+    {% else %}
+    <h2 class="Artwork__title Artwork__title--untitled">Artwork</h2>
+    {%endif%}
+  </div>
+  <nav class="Artwork__nav">
+    <div class="Artwork__by">
+      by
+    </div>
+    {% for artist in artwork_page.taxonomies.artist %}
+    {% set url = get_taxonomy_url(kind="artist", name=artist)%}
+    <a href="{{url}}">{{artist}}</a>
+    {% endfor %}
+    {% for gallery in artwork_page.taxonomies.gallery %}
+    {% set url = get_taxonomy_url(kind="gallery", name=gallery)%}
+    <a href="{{url}}">{{gallery}}</a>
+    {% endfor %}
+    <div class="Artwork__date">
+      {{artwork_page.date | date(format="%m, %Y")}}
+    </div>
+  </nav>
   {% else %}
   <a href="/gallery">gallery</a>
 
