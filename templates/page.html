@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% import "common/macros.html" as macros %}
+
+{%block aside_content%}
+      {% set slug = page.components | slice(start=-1) %}
+      {{macros::navs(slug=slug[0])}}
+{% endblock aside_content%}
+
+{% block page_content %}
+<div class="Page">
+      {{ page.content | safe }}
+</div>
+{% endblock page_content%}

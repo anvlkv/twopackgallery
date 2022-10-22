@@ -1,0 +1,20 @@
+@import "../variables";
+
+.Contact {
+  display: flex;
+  flex-direction: column;
+  width: $screen-sm;
+  margin-top: 2rem;
+  &__label, &__input, &__submit {
+    width: 100%;
+  }
+  &__input {
+    margin-bottom: 2rem;
+    &--textarea{
+      height: 10rem;
+    }
+  }
+  &__label {
+    margin-bottom: .75rem;
+  }
+}

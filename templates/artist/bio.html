@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% import "common/macros.html" as macros%}
+
+
+{% block aside_content %}
+{{macros::navs(artist=page.components[1], slug=page.components[2])}}
+{% endblock aside_content%}
+
+{% block page_content %}
+{{page.content | safe}}
+{% endblock page_content%}

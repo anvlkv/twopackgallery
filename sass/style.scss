@@ -1,0 +1,110 @@
+@import "./normalize";
+@import "./variables";
+@import "./components/header";
+@import "./components/logo";
+@import "./components/error";
+@import "./components/artwork";
+@import "./components/gallery";
+@import "./components/contact";
+@import "./components/landing";
+@import "./components/artist";
+@import "./components/page";
+
+body {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+
+  grid-template-areas:
+    "h h"
+    "s s"
+    "m m"
+    "f f";
+  grid-template-rows: 3.5rem calc(100vh - 20rem) auto 3.5rem;
+
+  @media (min-width: $screen-md) {
+    overflow: hidden;
+    grid-template-areas:
+      "h h h h"
+      "s m m m"
+      "f f f f";
+    grid-template-rows: 3.5rem calc(100vh - 7rem) 3.5rem;
+  }
+
+  &,
+  * {
+    box-sizing: border-box;
+  }
+  header {
+    grid-area: h;
+  }
+  footer {
+    grid-area: f;
+    padding: 1rem;
+  }
+  main {
+    grid-area: m;
+    padding-top: 1rem;
+    @media (min-width: $screen-md) {
+    overflow: auto;
+    }
+  }
+  aside {
+    grid-area: s;
+    display: flex;
+    nav {
+      display: flex;
+      
+      @media (min-width: $screen-md) {
+        flex-direction: column;
+      }
+      > a,
+      > h2,
+      > h3,
+      > h4 {
+        margin: 1rem;
+      }
+    }
+  }
+}
+
+footer,
+main {
+  padding: 1rem;
+}
+
+footer {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+body {
+  font-family: monospace;
+  color: $c-black;
+  background-color: $c-white;
+}
+
+a,
+a:visited {
+  color: inherit;
+  transition: color 150ms ease-in;
+  &:hover,
+  &:focus,
+  &:active {
+    color: $c-success;
+    &:visited {
+      color: $c-danger;
+    }
+  }
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+}

@@ -1,0 +1,8 @@
+.Error {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  &__logo {
+    max-width: 300px;
+  }
+}

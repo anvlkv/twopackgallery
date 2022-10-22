@@ -1,0 +1,120 @@
+@import "../variables";
+
+
+
+.Artwork {
+  &--thumbnail {
+    position: relative;
+    height: 200px;
+    width: 200px;
+    overflow: hidden;
+    &:hover, &:focus {
+      .Artwork {
+        &__gallery {
+          animation-name: artwork-gallery-hover-animation;
+          animation-duration: 1s;
+          animation-iteration-count: infinite;
+          animation-timing-function: ease-in;
+          transition-property: grid-template-columns;
+        }
+        &__plate {
+          bottom: -100%;
+          transition: bottom 100ms ease-out;
+        }
+      }      
+    }
+    
+    .Artwork {
+      &__gallery {
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+      &__plate {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        padding: .5rem;
+        background-color: rgba($color: $c-white, $alpha: $ca-lg);
+      }
+    }
+    
+  }
+
+  &__gallery {
+    
+  }
+
+  &__plate {
+    display: flex;
+    margin: 1rem;
+    margin-left: 0;
+    align-items: center;
+    .Artwork__title {
+      margin: 0;
+    }
+    .Artwork__leave {
+      height: 100%;
+      display: inline-block;
+      text-decoration: none;
+      margin-right: 1rem;
+      padding-left: 1rem;
+      font-size: 3em;
+      line-height: 2;
+    }
+  }
+
+  &__nav {
+    flex-wrap: wrap;
+  }
+  &__by {
+    flex-basis: 100%;
+    padding-left: 1rem;
+    padding-top: 1rem;
+    width: 0;
+  }
+  &__date {
+    margin: 1rem;
+  }
+
+  &__gallery {
+    display: grid;
+    row-gap: 2rem;
+    grid-auto-rows: calc(100vh - 15rem);;
+    grid-template-columns: 100%;
+  }
+
+  &__picture {
+    overflow: hidden;
+    grid-column: 1;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    background-color: rgba($color: $c-black, $alpha: $ca-sm);
+    padding: 2rem;
+    box-shadow: 0 0 1px  rgba($color: $c-black, $alpha: $ca-base);
+    picture {
+      display: contents;
+      img{
+      width: auto;
+      max-height: 100%;
+    }}
+  }
+}
+
+@keyframes artwork-gallery-hover-animation {
+  0%, 100%{
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+  25% {
+    grid-template-columns: 0 1fr 1fr 1fr;
+  }
+  50% {
+    grid-template-columns: 0 0 1fr 1fr;
+  }
+  75% {
+    grid-template-columns: 0 0 0 1fr;
+  }
+}
