@@ -21,9 +21,6 @@ body {
                        "f f f f";
   grid-template-rows: 3.5rem calc(100vh - 7rem) 3.5rem;
 
-  // grid-template-columns: 100% 10vw auto 100%;
-  // grid-template-rows: 2.5rem calc(100vw - 5rem) 2.5rem;
-
   &, * {
     box-sizing: border-box;
   }
@@ -37,7 +34,7 @@ body {
   main {
     grid-area: m;
     overflow: auto;
-    padding-top: 2rem;
+    padding-top: 1rem;
   }
   aside {
     grid-area: s;
@@ -45,7 +42,7 @@ body {
     nav {
       display: flex;
       flex-direction: column;
-      > a, > h2 {
+      > a, > h2, > h3 {
         margin: 1rem;
       }
     }

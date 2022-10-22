@@ -32,3 +32,75 @@
   </div>
 </a>
 {% endmacro artwork_thumbnail%}
+
+
+{% macro navs(gallery=false, artist=false, artwork=false, slug=false) %}
+<nav>
+  {% if artist %}
+  {% set artist_page = get_page(path="artist/"~artist~"/index.md") %}
+  {% set galleries = get_section(path="gallery/_index.md") %}
+  <nav class="Artist__nav">
+    <div class="Artist__pic">
+      {% set pic = resize_image(path=artist_page.assets[0], width=200, op="fit_width")%}
+      {{macros::picture(image=pic, alt=artist_page.title)}}
+    </div>
+    <div class="Artist__plate">
+      {% if slug %}
+      <a class="Artist__leave" href="/artist/{{artist_page.slug}}">&larr;</a>
+      {% else %}
+      <a class="Artist__leave" href="/gallery">&larr;</a>
+      {% endif %}
+      <h2>{{artist_page.title}}</h2>
+    </div>
+    <nav>
+      <a href="/artist/{{artist_page.slug}}/#all">All</a>
+      {% for gallery_page in galleries.pages %}
+      <a href="/artist/{{artist_page.slug}}#{{gallery_page.slug}}">{{gallery_page.title}}</a>
+      {% endfor %}
+    </nav>
+    {% if slug == "bio" %}
+    <h3>bio</h3>
+    {%else%}
+    <a href="/artist/{{artist_page.slug}}/bio">bio</a>
+    {%endif%}
+    {% if slug == "contact" %}
+    <h3>contact</h3>
+    {%else%}
+    <a href="/artist/{{artist_page.slug}}/contact">contact</a>
+    {%endif%}
+  </nav>
+  {% elif gallery %}
+  {% set artists = get_section(path="artist/_index.md") %}
+  {% set galleries = get_section(path="gallery/_index.md") %}
+  <h2>Gallery</h2>
+  <nav class="Gallery__nav">
+    <a href="/gallery/#all">All</a>
+    {% for artist_page in artists.pages %}
+    <a href="/artist/{{artist_page.slug}}">{{artist_page.title}}</a>
+    {% endfor %}
+    {% for gallery_page in galleries.pages %}
+    <a href="/gallery#{{gallery_page.slug}}">{{gallery_page.title}}</a>
+    {% endfor %}
+    <hr />
+    <a href="/about">about</a>
+    <a href="/contact">contact</a>
+  </nav>
+  {% elif artwork%}
+  {{artwork}}
+  {% else %}
+  <a href="/gallery">gallery</a>
+
+  {% if slug == "about" %}
+  <h3>about</h3>
+  {%else%}
+  <a href="/about">about</a>
+  {%endif%}
+  {% if slug == "contact" %}
+  <h3>contact</h3>
+  {%else%}
+  <a href="/contact">contact</a>
+  {%endif%}
+
+  {% endif %}
+</nav>
+{% endmacro navs%}

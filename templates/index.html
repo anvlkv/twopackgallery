@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% import "common/macros.html" as macros %}
 
 {% block content %}
   <div class="Landing">
     <header class="Landing__header">
       <h1>twopack.gallery</h1>
-      {% include "common/navs.html" %}
+      {{macros::navs()}}
     </header>
     <main>
       {% include "common/twopackgallery.html" %}
