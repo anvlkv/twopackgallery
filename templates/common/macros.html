@@ -68,11 +68,6 @@
     {%else%}
     <a href="/artist/{{artist_page.slug}}/bio">bio</a>
     {%endif%}
-    {% if slug == "contact" %}
-    <h3>contact</h3>
-    {%else%}
-    <a href="/artist/{{artist_page.slug}}/contact">contact</a>
-    {%endif%}
   </nav>
   {% elif gallery %}
   {% set artists = get_section(path="artist/_index.md") %}

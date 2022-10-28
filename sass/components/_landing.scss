@@ -7,12 +7,17 @@
     grid-template-rows: 10rem calc(100vh - 14rem) 3.5rem !important;
     grid-template-areas: "h h" "m m" "f f" !important;
   }
+  @media (min-width: $screen-md) {
+    grid-template-rows: calc(100vh - 3.5rem) 3.5rem !important;
+    grid-template-areas: "m m" "f f" !important;
+
+  }
   
   @media (min-width: $screen-md) {
     &__header {
       grid-area: auto !important;
       position: absolute;
-      top: 40%;
+      top: 35%;
       text-align: center;
       width: 100%;
       background-color: rgba($c-white, $ca-lg);
