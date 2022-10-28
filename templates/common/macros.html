@@ -63,11 +63,6 @@
       {% endfor %}
     </nav>
     {% endif %}
-    {% if slug == "bio" %}
-    <h3>bio</h3>
-    {%else%}
-    <a href="/artist/{{artist_page.slug}}/bio">bio</a>
-    {%endif%}
   </nav>
   {% elif gallery %}
   {% set artists = get_section(path="artist/_index.md") %}
