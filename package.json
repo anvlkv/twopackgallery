@@ -1,0 +1,16 @@
+{
+  "name": "twopackgallery",
+  "version": "1.0.0",
+  "source": "./scripts/index.js",
+  "distDir": "./static/scripts/",
+  "repository": "https://github.com/anvlkv/twopackgallery.git",
+  "author": "a.nvlkv <a.nvlkv@protonmail.ch>",
+  "license": "MIT",
+  "devDependencies": {
+    "parcel": "^2.7.0"
+  },
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "dependencies": {
+    "three": "^0.146.0"
+  }
+}
