@@ -10,6 +10,7 @@ import * as THREE from "three";
 //   EffectPass,
 //   RenderPass,
 // } from "postprocessing";
+import * as TWEEN from "@tweenjs/tween.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
 
@@ -160,17 +161,38 @@ function init() {
   });
   const house = randomHouse()
   scene.add(house)
+
+  animateCameraBreathing()
   
 
-  animate();
-
-
-  function animate() {
+  requestAnimationFrame(function animate(time) {
     requestAnimationFrame(animate);
-
+  
+    TWEEN.update(time)
+  
     renderer.render(scene, camera)
-    // composer.render();
-  }
+  })
+}
+
+function animateCameraBreathing(height = .5, duration = 700) {
+  const exhale = new TWEEN.Tween({y: camera.position.y+height})
+  .easing(TWEEN.Easing.Cubic.Out)
+  .to({ y: camera.position.y-height}, duration)
+  .onUpdate(({y}) => {
+    camera.position.y = y
+  })
+
+  const inhale = new TWEEN.Tween({y: camera.position.y-height})
+    .to({ y: camera.position.y + height}, duration)
+    .easing(TWEEN.Easing.Cubic.In)
+    .onUpdate(({y}) => {
+      camera.position.y = y
+    })
+    .chain(exhale)
+
+  exhale.chain(inhale)
+
+  return inhale.start()
 }
 
 function randomHouse(mx=200, my=200, mz=200) {

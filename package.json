@@ -7,10 +7,12 @@
   "author": "a.nvlkv <a.nvlkv@protonmail.ch>",
   "license": "MIT",
   "devDependencies": {
-    "parcel": "^2.7.0"
+    "parcel": "^2.7.0",
+    "process": "^0.11.10"
   },
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "dependencies": {
+    "@tweenjs/tween.js": "^18.6.4",
     "three": "^0.146.0"
   },
   "scripts": {
