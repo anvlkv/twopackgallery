@@ -674,20 +674,32 @@ function init() {
         renderer.render(scene, camera);
     });
 }
-function animateCameraBreathing(height = .5, duration = 700) {
+function animateCameraBreathing(height = .5, duration = 1000, rotate = .001) {
     const exhale = new _tweenJs.Tween({
-        y: camera.position.y + height
+        y: camera.position.y,
+        xa: camera.rotation.x,
+        za: camera.rotation.z
     }).easing(_tweenJs.Easing.Cubic.Out).to({
-        y: camera.position.y - height
-    }, duration).onUpdate(({ y  })=>{
+        y: camera.position.y - height,
+        xa: camera.rotation.x + rotate,
+        za: camera.rotation.z - rotate
+    }, duration).onUpdate(({ y , xa , za  })=>{
         camera.position.y = y;
+        camera.rotation.x = xa;
+        camera.rotation.z = za;
     });
     const inhale = new _tweenJs.Tween({
-        y: camera.position.y - height
+        y: camera.position.y - height,
+        xa: camera.rotation.x + rotate,
+        za: camera.rotation.z - rotate
     }).to({
-        y: camera.position.y + height
-    }, duration).easing(_tweenJs.Easing.Cubic.In).onUpdate(({ y  })=>{
+        y: camera.position.y,
+        xa: camera.rotation.x,
+        za: camera.rotation.z
+    }, duration).repeatDelay(duration / 8).easing(_tweenJs.Easing.Cubic.Out).onUpdate(({ y , xa , za  })=>{
         camera.position.y = y;
+        camera.rotation.x = xa;
+        camera.rotation.z = za;
     }).chain(exhale);
     exhale.chain(inhale);
     return inhale.start();

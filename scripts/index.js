@@ -174,19 +174,24 @@ function init() {
   })
 }
 
-function animateCameraBreathing(height = .5, duration = 700) {
-  const exhale = new TWEEN.Tween({y: camera.position.y+height})
+function animateCameraBreathing(height = .5, duration = 1000, rotate = .001) {
+  const exhale = new TWEEN.Tween({y: camera.position.y, xa: camera.rotation.x, za: camera.rotation.z})
   .easing(TWEEN.Easing.Cubic.Out)
-  .to({ y: camera.position.y-height}, duration)
-  .onUpdate(({y}) => {
+  .to({ y: camera.position.y-height, xa: camera.rotation.x +rotate, za: camera.rotation.z - rotate}, duration)
+  .onUpdate(({y, xa, za}) => {
     camera.position.y = y
+    camera.rotation.x = xa
+    camera.rotation.z = za
   })
 
-  const inhale = new TWEEN.Tween({y: camera.position.y-height})
-    .to({ y: camera.position.y + height}, duration)
-    .easing(TWEEN.Easing.Cubic.In)
-    .onUpdate(({y}) => {
+  const inhale = new TWEEN.Tween({y: camera.position.y-height, xa: camera.rotation.x +rotate, za: camera.rotation.z - rotate})
+    .to({ y: camera.position.y, xa: camera.rotation.x, za: camera.rotation.z}, duration)
+    .repeatDelay(duration/8)
+    .easing(TWEEN.Easing.Cubic.Out)
+    .onUpdate(({y, xa, za}) => {
       camera.position.y = y
+      camera.rotation.x = xa
+      camera.rotation.z = za
     })
     .chain(exhale)
 
