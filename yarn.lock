@@ -1270,6 +1270,11 @@ posthtml@^0.16.4, posthtml@^0.16.5:
     posthtml-parser "^0.11.0"
     posthtml-render "^3.0.0"
 
+postprocessing@^6.29.1:
+  version "6.29.1"
+  resolved "https://registry.yarnpkg.com/postprocessing/-/postprocessing-6.29.1.tgz#169b48cca498a52d3ee4b8960645b089cc7f64b3"
+  integrity sha512-w+XoL2Z7YpVDsHbIeg6sldMMmDqZS4Hul1FDq3TjOeXZ0Wnp0Qy1EvR7QmYJxyWBux1cKQx/k3XO7LxfvPsZyg==
+
 react-error-overlay@6.0.9:
   version "6.0.9"
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.9.tgz#3c743010c9359608c375ecd6bc76f35d93995b0a"

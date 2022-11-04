@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% import "common/macros.html" as macros %}
 
 {% block content %}
 <header>
   <a href="/">
-    {% include "common/twopackgallery.html" %}
+    {{macros::twopacks()}}
     <h1>twopack.gallery</h1>
   </a>
 </header>

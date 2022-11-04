@@ -1,38 +1,51 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
+
+const white = 0xf9f9f9;
+const in_white = 0x060606;
+const black = 0x7e7f7a;
+const in_black = 0x818085;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
-  75,
+  90,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000
+  10000
 );
-
+const fillMaterial = new THREE.MeshBasicMaterial({ color: "#F3FBFB" });
+const stokeMaterial = new THREE.MeshPhongMaterial({
+  color: white,
+  specular: white,
+  shininess: 30,
+  transparent: false,
+});
 init();
 function init() {
+  const canvas = document.getElementById("three-window");
   const renderer = new THREE.WebGLRenderer({
-    canvas: document.getElementById("three-window"),
+    canvas,
   });
+  const control = new OrbitControls(camera, renderer.domElement);
+
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.shadowMap.enabled = true;
   renderer.antialias = true;
-  // scene.background = new THREE.Color(0xffffff);
-  // scene.fog = new THREE.Fog(0xffffff, 2, 500);
+  scene.background = new THREE.Color(in_white);
+  scene.fog = new THREE.Fog(in_white, 2, 500);
 
-  const control = new OrbitControls(camera, renderer.domElement)
+  // const light = new THREE.HemisphereLight(white, black, 0.2);
+  // // light.color.setHSL(0.6, 1, 0);
+  // // light.groundColor.setHSL(0.095, 1, 0.75);
+  // light.position.set(0, 50, 0);
 
-  const light = new THREE.HemisphereLight(0x000000, 0xffffff, 0.2);
-  light.color.setHSL(0.6, 1, 0);
-  light.groundColor.setHSL(0.095, 1, 0.75);
-  light.position.set(0, 50, 0);
+  // const hemiLightHelper = new THREE.HemisphereLightHelper( light, 10 );
+  // 		scene.add( hemiLightHelper );
+  // scene.add(light);
 
-  const hemiLightHelper = new THREE.HemisphereLightHelper( light, 10 );
-  		scene.add( hemiLightHelper );
-  scene.add(light);
-
-  const dirLight = new THREE.DirectionalLight(0x000000, 1);
+  const dirLight = new THREE.DirectionalLight(in_black, 1);
   dirLight.color.setHSL(0.1, 1, 0.95);
   dirLight.position.set(-1, 1.75, 1);
   dirLight.position.multiplyScalar(30);
@@ -53,46 +66,128 @@ function init() {
   dirLight.shadow.camera.far = 3500;
   dirLight.shadow.bias = -0.0001;
 
-  const dirLightHelper = new THREE.DirectionalLightHelper( dirLight, 10 );
-  scene.add( dirLightHelper );
+  const dirLightHelper = new THREE.DirectionalLightHelper(dirLight, 10);
+  scene.add(dirLightHelper);
 
-  const geometry = new THREE.CylinderGeometry(500, 500, 1);
+  const geometry = new THREE.CylinderGeometry(20, 20, 500);
   const material = new THREE.MeshPhongMaterial({
-    color: 0xdddddd,
-    specular: 0x009900,
+    color: black,
+    specular: black,
     shininess: 30,
     transparent: false,
   });
-  const cube = new THREE.Mesh(geometry, material);
-  scene.add(cube);
+  const stage = new THREE.Mesh(geometry, material);
+  scene.add(stage);
 
-  camera.position.x = 450;
+  camera.position.x = 20;
   camera.position.y = 20;
   camera.position.z = 90;
 
   camera.rotation.x = -0.2;
   camera.rotation.y = 0.7;
   camera.rotation.z = 0.2;
-  control.update()
+  control.update();
   // camera.position.x = -500;
 
-  scene.add(new THREE.GridHelper(500, 500))
-  scene.add(new THREE.AxesHelper(10))
+  // scene.add(new THREE.GridHelper(500, 500));
+  scene.add(new THREE.AxesHelper(10));
   const loader = new THREE.TextureLoader()
   const pic = new THREE.PlaneGeometry(1100, 1280)
-  const pic_face = new THREE.MeshBasicMaterial({map: loader.load('/artworks/6ba2aaee-35f7-4695-b627-fa7b076a011a/IMAGE 2022-10-21 12:10:59.jpg')})
+  const pic_face = new THREE.MeshBasicMaterial({map: loader.load('/artworks/6ba2aaee-35f7-4695-b627-fa7b076a011a/inverted.jpg')})
   const pic_mesh = new THREE.Mesh(pic, pic_face)
+  pic_mesh.scale.set(0.1, 0.1, 0.1)
+  pic_mesh.position.set(-60, 20, 10)
   scene.add(pic_mesh)
 
-
+  const url = "/twopacks.svg";
+  const svgLoader = new SVGLoader();
+  svgLoader.load(url, (d) => {
+    const { object, update } = loadSVGData(6, d);
+    object.scale.set(0.1, -0.1, 0.1);
+    object.position.set(0, 100, 20);
+    scene.add(object);
+  });
 
   animate();
 
   function animate() {
     requestAnimationFrame(animate);
 
-    // s
-
     renderer.render(scene, camera);
   }
+}
+
+function loadSVGData(extrusion, svgData) {
+  const svgGroup = new THREE.Group();
+  const updateMap = [];
+
+  svgData.paths.forEach((path) => {
+    path.currentPath.curves.forEach((c2) => {
+      let c3;
+      switch (c2.type) {
+        case "LineCurve": {
+          c3 = new THREE.LineCurve3(
+            new THREE.Vector3(c2.v1.x, c2.v1.y, 0),
+            new THREE.Vector3(c2.v2.x, c2.v2.y, 0)
+          );
+          break;
+        }
+        case "QuadraticBezierCurve": {
+          c3 = new THREE.QuadraticBezierCurve3(
+            new THREE.Vector3(c2.v0.x, c2.v0.y, 0),
+            new THREE.Vector3(c2.v1.x, c2.v1.y, 0),
+            new THREE.Vector3(c2.v2.x, c2.v2.y, 0)
+          );
+          break;
+        }
+        case "CubicBezierCurve": {
+          c3 = new THREE.CubicBezierCurve3(
+            new THREE.Vector3(c2.v0.x, c2.v0.y, 0),
+            new THREE.Vector3(c2.v1.x, c2.v1.y, 0),
+            new THREE.Vector3(c2.v2.x, c2.v2.y, 0),
+            new THREE.Vector3(c2.v3.x, c2.v3.y, 0)
+          );
+          break;
+        }
+      }
+      const geometry = new THREE.TubeGeometry(
+        c3,
+        undefined,
+        extrusion,
+        extrusion,
+        path.autoClose
+      );
+      const mesh = new THREE.Mesh(geometry, stokeMaterial);
+      svgGroup.add(mesh);
+    });
+
+    const box = new THREE.Box3().setFromObject(svgGroup);
+    const size = box.getSize(new THREE.Vector3());
+    const yOffset = size.y / -2;
+    const xOffset = size.x / -2;
+
+    // Offset all of group's elements, to center them
+    svgGroup.children.forEach((item) => {
+      item.position.x = xOffset;
+      item.position.y = yOffset;
+    });
+    svgGroup.rotateX(-Math.PI / 2);
+  });
+  return {
+    object: svgGroup,
+    update(extrusion) {
+      // updateMap.forEach((updateDetails) => {
+      //   const meshGeometry = new THREE.ExtrudeGeometry(updateDetails.shape, {
+      //     depth: extrusion,
+      //     bevelEnabled: false,
+      //   });
+      //   const linesGeometry = new THREE.EdgesGeometry(meshGeometry);
+
+      //   updateDetails.mesh.geometry.dispose();
+      //   updateDetails.lines.geometry.dispose();
+      //   updateDetails.mesh.geometry = meshGeometry;
+      //   updateDetails.lines.geometry = linesGeometry;
+      // });
+    },
+  };
 }
