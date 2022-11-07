@@ -5,3 +5,4 @@ export function degToRad(deg: number) {
 export function radToDeg(rad: number) {
   return rad / (Math.PI/180)
 }
+

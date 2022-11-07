@@ -4,16 +4,7 @@ import { createStateContext } from "react-use";
 import Marseille from "./Marseille";
 import styleVars from "../../sass/_variables.module.scss";
 import * as THREE from "three";
-import { getProject } from '@theatre/core'
-import studio from '@theatre/studio'
-import extension from '@theatre/r3f/dist/extension'
-import { SheetProvider } from '@theatre/r3f'
 
-
-studio.initialize()
-studio.extend(extension)
-
-const demoSheet = getProject('Demo Project').sheet('Demo Sheet')
 
 export const COLORS = {
   black: styleVars.cBlack,
@@ -48,10 +39,8 @@ function ThreeAppInner() {
   return (
     <>
       <Canvas className="ThreeApp" style={style}>
-        <SheetProvider sheet={demoSheet}>
           <Marseille />
           <primitive object={new THREE.AxesHelper(5000)} />
-        </SheetProvider>
       </Canvas>
     </>
   );

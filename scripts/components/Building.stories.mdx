@@ -1,0 +1,17 @@
+import { Meta, Story } from "@storybook/addon-docs";
+import Building from "./Building";
+
+<Meta title="Building" component={Building} />
+
+export const Template = (args) => <Building {...args} />;
+
+<Story
+  name="Building"
+  args={{
+    atrium:[1, 1, 1], 
+    boundaries:[1, 1, 1], 
+    levels:4
+  }}
+>
+  {Template.bind({})}
+</Story>

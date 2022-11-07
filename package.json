@@ -7,16 +7,27 @@
   "author": "a.nvlkv <a.nvlkv@protonmail.ch>",
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.20.2",
     "@parcel/transformer-sass": "2.7.0",
     "@parcel/transformer-svg-react": "^2.7.0",
+    "@storybook/addon-actions": "^6.5.13",
+    "@storybook/addon-essentials": "^6.5.13",
+    "@storybook/addon-interactions": "^6.5.13",
+    "@storybook/addon-links": "^6.5.13",
+    "@storybook/builder-webpack5": "^6.5.13",
+    "@storybook/manager-webpack5": "^6.5.13",
+    "@storybook/react": "^6.5.13",
+    "@storybook/testing-library": "^0.0.13",
     "@types/node-sass": "^4.11.3",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
+    "babel-loader": "^8.3.0",
     "buffer": "^6.0.3",
     "parcel": "^2.7.0",
     "postcss": "^8.2.1",
     "postcss-modules": "^4.3.0",
     "process": "^0.11.10",
+    "sass-loader": "^13.1.0",
     "typescript-plugin-css-modules": "^3.4.0"
   },
   "browserslist": "> 0.5%, last 2 versions, not dead",
@@ -38,6 +49,8 @@
     "three": "^0.146.0"
   },
   "scripts": {
-    "dev": "parcel watch --dist-dir ./static/scripts/"
+    "dev": "parcel watch --dist-dir ./static/scripts/",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   }
 }
