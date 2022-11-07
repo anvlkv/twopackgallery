@@ -1,5 +1,5 @@
 @import "./normalize";
-@import "./variables";
+@import "./variables.module";
 @import "./components/header";
 @import "./components/logo";
 @import "./components/error";
@@ -9,6 +9,7 @@
 @import "./components/landing";
 @import "./components/artist";
 @import "./components/page";
+@import "./components/three-app";
 
 body {
   position: relative;

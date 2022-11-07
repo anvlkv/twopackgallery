@@ -1,0 +1,34 @@
+$c-black: #7E7F7A;
+$ci-black: invert($c-black, 100%);
+$c-white: #f9f9f9;
+$ci-white: invert($c-white, 100%);
+$c-success: #C3F302;
+$ci-success: invert($c-success, 100%);
+$c-danger: #5C47AE;
+$ci-danger: invert($c-danger, 100%);
+$ca-sm: .025;
+$ca-base: .5;
+$ca-lg: .75;
+
+$screen-sm: 430px;
+$screen-md: 834px;
+$screen-base: 1280px;
+$screen-lg: 1440px;
+
+:export {
+ cBlack: $c-black;
+ ciBlack: $ci-black;
+ cWhite: $c-white;
+ ciWhite: $ci-white;
+ cSuccess: $c-success;
+ ciSuccess: $ci-success;
+ cDanger: $c-danger;
+ ciDanger: $ci-danger;
+ caSm: $ca-sm;
+ caBase: $ca-base;
+ caLg: $ca-lg;
+ screenSm: $screen-sm;
+ screenMd: $screen-md;
+ screenBase: $screen-base;
+ screenLg: $screen-lg;
+}
