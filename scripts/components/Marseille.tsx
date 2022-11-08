@@ -7,7 +7,6 @@ import { INVERTED_COLORS, COLORS, useCanvasStyle } from "./ThreeApp";
 import { useFrame } from "@react-three/fiber";
 import TwoPacksTube from "./TwoPacksTube";
 import CenteredGroup from "./CenteredGroup";
-import { editable as e } from "@theatre/r3f";
 import RadialLayout from "./RadialLayout";
 import { useInterval } from "react-use";
 import Building from "./Building";
@@ -53,29 +52,20 @@ export default function Marseille() {
       light.current.target = pointsRef.current;
     }
   }, []);
-  const EditableCamera = e(PerspectiveCamera, 'perspectiveCamera')
 
   return (
     <>
-      <ambientLight color={COLORS.white}/>
-      <EditableCamera
-        makeDefault
-        args={[70, undefined, 0.1, 1000]}
-        position={[0, 900, 0]}
-        rotation-x={degToRad(-90)}
-        theatreKey='perspectiveCamera'
-      />
       <CenteredGroup
         ref={cameraGroupRef}
         position={[-450, 12, 5]}
         size={[0.6, 1.64, 0.35]}
         rotation-y={degToRad(-35)}
       >
-        {/* <PerspectiveCamera
+        <PerspectiveCamera
           makeDefault
           args={[45, undefined, 0.1, 230]}
           position={[0, 1.64, 0]}
-        /> */}
+        />
         <points ref={pointsRef} position={[-0.1, 0, -20]} />
         <spotLight
           ref={light}
@@ -108,7 +98,7 @@ export default function Marseille() {
               rotation-y={degToRad(90)}
             />
           </group>
-          <Building atrium={[1, 1, 1]} boundaries={[1, 1, 1]} levels={4}/>
+          {/* <Building atrium={[1, 1, 1]} boundaries={[1, 1, 1]} levels={4}/> */}
           
 
           <group position={[100, 1, 0]}>
@@ -125,7 +115,7 @@ export default function Marseille() {
               rotation-y={degToRad(90)}
             />
           </group>
-          <Building atrium={[10, 10, 10]} boundaries={[10, 10, 10]} levels={4}/>
+          {/* <Building atrium={[10, 10, 10]} boundaries={[10, 10, 10]} levels={4}/> */}
           
           <group position={[100, 1, 0]}>
             <mesh position={[0, 1, 0]}>
@@ -141,7 +131,7 @@ export default function Marseille() {
               rotation-y={degToRad(90)}
             />
           </group>
-          <Building atrium={[100, 100, 100]} boundaries={[100, 100, 100]} levels={4}/>
+          {/* <Building atrium={[100, 100, 100]} boundaries={[100, 100, 100]} levels={4}/> */}
           
         </RadialLayout>
       </CenteredGroup>

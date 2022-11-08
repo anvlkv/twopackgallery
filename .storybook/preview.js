@@ -1,9 +1,8 @@
 import StageDecorator from './stage';
-import TheatreSheetDecorator from './theatre'
 
 import '../public/style.css'
 
-export const decorators = [TheatreSheetDecorator, StageDecorator];
+export const decorators = [StageDecorator];
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },

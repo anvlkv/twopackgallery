@@ -1,6 +1,6 @@
 import { GroupProps, Vector3 } from "@react-three/fiber";
 import React, { forwardRef, useMemo } from "react";
-import THREE from "three";
+import * as THREE from "three";
 
 export interface IProps extends GroupProps {
   size: Vector3;
