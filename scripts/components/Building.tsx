@@ -26,7 +26,7 @@ function Building({
   atrium,
   sides = {},
   light,
-  material = <meshLambertMaterial color={COLORS.danger} />,
+  material = <meshPhongMaterial specular={COLORS.success} color={COLORS.danger} />,
   ...props
 }: IProps) {
   const brushes = useMemo(() => {
