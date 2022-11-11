@@ -1,6 +1,6 @@
 import StageDecorator from './stage';
 
-import '../public/style.css'
+import '../sass/style.scss'
 
 export const decorators = [StageDecorator];
 

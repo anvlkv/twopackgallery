@@ -1,21 +1,60 @@
 import { Meta, Story } from "@storybook/addon-docs";
-import Building from "./Building";
+import Building, { buildingGenerator } from "./Building";
 
 <Meta title="Building" component={Building} />
 
 export const Template = (args) => <Building {...args} />;
+export const GeneratorTemplate = (args) => {
+  const props = buildingGenerator(
+    args.foundation,
+    args.space,
+    args.levels,
+    args.entrance,
+    args.parcel,
+    args.symmetry,
+    args.levelHeight,
+    args.sideRatio,
+    args.seed,
+  );
+  return <Building {...props} />;
+};
 
 <Story
-  name="Building"
+  name="Atrium and sides"
   args={{
-    atrium:[8, 20, 10],
+    atrium: [8, 20, 10],
     sides: {
-      'y': [[7.7, 1, 9.7], 7, [1, 10, 1]],
-      'z': [[2, 10, 2], [3, 18, 2]],
-      '-z': [[2, 10, 2], [3, 18, 2]],
-      '-y': [[14, 2, 10]]
-    }
+      y: [[7.7, 1, 9.7], 7, [1, 10, 1]],
+      z: [
+        [2, 10, 2],
+        [3, 18, 2],
+      ],
+      "-z": [
+        [2, 10, 2],
+        [3, 18, 2],
+      ],
+      "-y": [[14, 2, 10]],
+    },
   }}
 >
   {Template.bind({})}
 </Story>
+
+<Story
+  name="Generator"
+  args={{
+    symmetry: 2,
+    foundation: .13,
+    space: [3, 1, 3],
+    entrance: 0,
+    levels: 8,
+    levelHeight: 2,
+    sideRatio: 0.7,
+    seed: .5,
+    parcel: [20, 10, 20],
+    noGrid: true
+  }}
+>
+  {GeneratorTemplate.bind({})}
+</Story>
+
