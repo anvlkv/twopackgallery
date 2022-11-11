@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
+import * as THREE from "three";
 import { createStateContext } from "react-use";
 import Marseille from "./Marseille";
-import styleVars from "../../sass/_variables.module.scss";
-import * as THREE from "three";
 
+import styleVars from "../../sass/_variables.module.scss";
 
 export const COLORS = {
   black: styleVars.cBlack,
@@ -14,7 +14,7 @@ export const COLORS = {
 };
 export const INVERTED_COLORS = {
   black: styleVars.ciBlack,
-  white: styleVars.ciWHite,
+  white: styleVars.ciWhite,
   success: styleVars.ciSuccess,
   danger: styleVars.ciDanger,
 };
@@ -35,12 +35,11 @@ const [useCanvasStyle, CanvasStyleProvider] = createStateContext(
 
 function ThreeAppInner() {
   const [style] = useCanvasStyle();
- 
+
   return (
     <>
       <Canvas className="ThreeApp" style={style}>
-          <Marseille />
-          <primitive object={new THREE.AxesHelper(5000)} />
+        <Marseille />
       </Canvas>
     </>
   );
@@ -49,7 +48,7 @@ function ThreeAppInner() {
 export default function ThreeApp() {
   return (
     <CanvasStyleProvider>
-        <ThreeAppInner />
+      <ThreeAppInner />
     </CanvasStyleProvider>
   );
 }

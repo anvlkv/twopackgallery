@@ -46,7 +46,8 @@
     "react-router": "^6.4.3",
     "react-router-dom": "^6.4.3",
     "react-use": "^17.4.0",
-    "three": "^0.146.0"
+    "three": "^0.146.0",
+    "uuid": "^9.0.0"
   },
   "scripts": {
     "dev": "parcel watch --dist-dir ./static/scripts/",

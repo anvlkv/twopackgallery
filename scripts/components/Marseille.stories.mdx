@@ -1,0 +1,13 @@
+import { Meta, Story } from "@storybook/addon-docs";
+import Marseille from "./Marseille";
+
+<Meta title="Marseille" component={Marseille} />
+
+export const Template = (args) => <Marseille {...args} />;
+
+<Story
+  name="Marseille"
+  args={{}}
+>
+  {Template.bind({})}
+</Story>

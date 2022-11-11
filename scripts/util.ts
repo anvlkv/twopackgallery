@@ -1,4 +1,4 @@
-import { Vector2, Vector3 } from "@react-three/fiber";
+import { Vector2, Vector3, Vector4 } from "@react-three/fiber";
 import * as THREE from "three";
 
 export function degToRad(deg: number) {
@@ -7,6 +7,14 @@ export function degToRad(deg: number) {
 
 export function radToDeg(rad: number) {
   return rad / (Math.PI / 180);
+}
+
+export function vector4FromProp(prop: Vector4) {
+  return prop instanceof THREE.Vector4
+    ? prop
+    : typeof prop === "number"
+    ? new THREE.Vector4().setScalar(prop)
+    : new THREE.Vector4(...prop);
 }
 
 export function vector3FromProp(prop: Vector3) {

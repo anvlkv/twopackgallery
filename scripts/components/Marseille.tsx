@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as TWEEN from "@tweenjs/tween.js";
 import * as THREE from "three";
 import { PerspectiveCamera, useHelper } from "@react-three/drei";
@@ -9,7 +9,7 @@ import TwoPacksTube from "./TwoPacksTube";
 import CenteredGroup from "./CenteredGroup";
 import RadialLayout from "./RadialLayout";
 import { useInterval } from "react-use";
-import Building from "./Building";
+import Building, { buildingGenerator } from "./Building";
 
 export default function Marseille() {
   const cameraGroupRef = useRef<THREE.Group>(null);
@@ -39,22 +39,34 @@ export default function Marseille() {
     TWEEN.update();
   });
 
-  useHelper(light, THREE.SpotLightHelper);
+  // useHelper(light, THREE.SpotLightHelper);
 
   useInterval(() => {
     if (stageGroupRef.current) {
-      animateStageTurnBy(stageGroupRef.current, 5, 300);
+      
+      animateStageTurnBy(stageGroupRef.current, 5, 900)
     }
-  }, 300);
+  }, 900);
 
   useEffect(() => {
     if (light.current && pointsRef.current) {
       light.current.target = pointsRef.current;
     }
+      if (stageGroupRef.current) {
+      
+    }
   }, []);
 
+  const houses = useMemo(() => new Array(30).fill(null).map((_, i) => {
+    const buildingProps = buildingGenerator(1, [3, 0,3], [3, 8, 3, 1], 3, [30, 20, 30], i % 2, 10, .7, i);
+    return <Building key={i} {...buildingProps} material={<meshLambertMaterial color={COLORS.white}/>}/>
+  }), [])
+
+  console.log(INVERTED_COLORS)
   return (
     <>
+      <color attach="background" args={[INVERTED_COLORS.white]}/>
+      <fog attach="fog" args={[INVERTED_COLORS.white, 10,  300]}/>
       <CenteredGroup
         ref={cameraGroupRef}
         position={[-450, 12, 5]}
@@ -63,14 +75,14 @@ export default function Marseille() {
       >
         <PerspectiveCamera
           makeDefault
-          args={[45, undefined, 0.1, 230]}
+          args={[45, undefined, 0.1, 500]}
           position={[0, 1.64, 0]}
         />
-        <points ref={pointsRef} position={[-0.1, 0, -20]} />
+        <points ref={pointsRef} position={[-0.1, .5, -20]} />
         <spotLight
           ref={light}
-          color={COLORS.white}
-          intensity={0.5}
+          color={COLORS.black}
+          intensity={.5}
           angle={degToRad(17)}
           penumbra={0.4}
           position={[0, 1.2, 0]}
@@ -79,61 +91,13 @@ export default function Marseille() {
       </CenteredGroup>
 
       <CenteredGroup ref={stageGroupRef} size={[500, 0, 500]}>
-        <mesh position={[0, 0, 0]}>
-          <cylinderGeometry args={[500, 15, 1]} />
-          <meshPhongMaterial color={COLORS.white} />
-        </mesh>
-        <RadialLayout face="x" axis="y" radius={250} mode="spread" position={[0, -200, 0]}>
-          <group position={[100, 0, 0]}>
-            <mesh position={[0, 1, 0]}>
-              <boxGeometry args={[2, 2, 1]} />
-              <meshPhongMaterial
-                color={INVERTED_COLORS.white}
-                specular={INVERTED_COLORS.black}
-              />
-            </mesh>
-            <TwoPacksTube
-              scale={[0.01, 0.01, 0.01]}
-              position={[0, 17, 0]}
-              rotation-y={degToRad(90)}
-            />
-          </group>
-          {/* <Building atrium={[1, 1, 1]} boundaries={[1, 1, 1]} levels={4}/> */}
-          
-
-          <group position={[100, 1, 0]}>
-            <mesh position={[0, 1, 0]}>
-              <boxGeometry args={[2, 2, 1]} />
-              <meshPhongMaterial
-                color={INVERTED_COLORS.white}
-                specular={INVERTED_COLORS.black}
-              />
-            </mesh>
-            <TwoPacksTube
-              scale={[0.01, 0.01, 0.01]}
-              position={[0, 17, 0]}
-              rotation-y={degToRad(90)}
-            />
-          </group>
-          {/* <Building atrium={[10, 10, 10]} boundaries={[10, 10, 10]} levels={4}/> */}
-          
-          <group position={[100, 1, 0]}>
-            <mesh position={[0, 1, 0]}>
-              <boxGeometry args={[2, 2, 1]} />
-              <meshPhongMaterial
-                color={INVERTED_COLORS.white}
-                specular={INVERTED_COLORS.black}
-              />
-            </mesh>
-            <TwoPacksTube
-              scale={[0.01, 0.01, 0.01]}
-              position={[0, 17, 0]}
-              rotation-y={degToRad(90)}
-            />
-          </group>
-          {/* <Building atrium={[100, 100, 100]} boundaries={[100, 100, 100]} levels={4}/> */}
-          
+        <RadialLayout face="x" axis="y" radius={250} mode="spread" position={[0, -250+33, 0]}>
+          {houses}
         </RadialLayout>
+        <mesh position={[0, 0, 0]} receiveShadow castShadow={false}>
+          <cylinderGeometry args={[500, 15, 1]} />
+          <meshLambertMaterial color={COLORS.white} />
+        </mesh>
       </CenteredGroup>
     </>
   );
@@ -152,7 +116,7 @@ function animateStageTurnTo(
 ) {
   const tw = new TWEEN.Tween({ ya: obj.rotation.y })
     .to({ ya: degToRad(angle) }, duration)
-    .easing(TWEEN.Easing.Cubic.InOut)
+    // .easing(TWEEN.Easing.Cubic.InOut)
     .onUpdate(({ ya }) => {
       obj.rotation.y = ya;
     });

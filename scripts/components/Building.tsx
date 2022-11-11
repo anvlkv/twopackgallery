@@ -1,8 +1,12 @@
 import React, { forwardRef, useMemo, useRef } from "react";
-import { GroupProps, ThreeElements, Vector3 } from "@react-three/fiber";
-import CenteredGroup from "./CenteredGroup";
+import {
+  GroupProps,
+  ThreeElements,
+  Vector3,
+  Vector4,
+} from "@react-three/fiber";
 import { COLORS } from "./ThreeApp";
-import { mulberry32, vector3FromProp } from "../util";
+import { mulberry32, vector3FromProp, vector4FromProp } from "../util";
 import { Center, useHelper } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -26,7 +30,7 @@ function Building({
   ),
   ...props
 }: IProps) {
-  const brushes = useMemo(() => {
+  const boxes = useMemo(() => {
     const base = vector3FromProp(atrium);
     let iterSide: TSide;
     const iterSidePosition = {} as Record<TSide, number>;
@@ -34,12 +38,12 @@ function Building({
       [
         "z",
         ...(sides["z"] || []),
-        "y",
-        ...(sides["y"] || []),
-        "-x",
-        ...(sides["-x"] || []),
         "-z",
         ...(sides["-z"] || []),
+        "-x",
+        ...(sides["-x"] || []),
+        "y",
+        ...(sides["y"] || []),
         "-y",
         ...(sides["-y"] || []),
         "x",
@@ -55,7 +59,9 @@ function Building({
               </Center>
             );
           } else if (current === "x") {
-            acc = <group position={[0, iterSidePosition["-y"], 0]}>{acc}</group>;
+            acc = (
+              <group position={[0, iterSidePosition["-y"], 0]}>{acc}</group>
+            );
           }
           iterSide = current;
           iterSidePosition[iterSide] = 0;
@@ -95,14 +101,12 @@ function Building({
     );
   }, [atrium, sides, material]);
 
-  const ref = useRef(null);
-  useHelper(ref, THREE.BoxHelper);
+  // const ref = useRef(null);
+  // useHelper(ref, THREE.BoxHelper);
 
   return (
-    <group {...props} ref={ref}>
-      {brushes}
-      {/* <mesh>
-      </mesh> */}
+    <group {...props}>
+      {boxes}
     </group>
   );
 }
@@ -140,7 +144,10 @@ const SideBoxMesh = React.memo(
     switch (side) {
       case "x": {
         z += boxArgs.z - Number.MIN_VALUE * boxArgs.z;
-        x -= sidePosition - Number.MIN_VALUE * sidePosition;
+        x +=
+          (boxArgs.x - baseArgs.x) / 2 -
+          sidePosition -
+          Number.MIN_VALUE * sidePosition;
         y *= -1;
         break;
       }
@@ -191,7 +198,7 @@ export default React.memo(Building);
 export function buildingGenerator(
   foundation: Vector3,
   space: Vector3,
-  levels: Vector3,
+  levels: Vector4,
   entrance: Vector3,
   parcel: Vector3,
   symmetry: number,
@@ -200,7 +207,12 @@ export function buildingGenerator(
   seed: number
 ) {
   const boundaries = vector3FromProp(parcel);
-  const { x: levelsX, y: levelsY, z: levelsZ } = vector3FromProp(levels);
+  const {
+    x: levelsX,
+    y: levelsY,
+    z: levelsZ,
+    w: levelsW,
+  } = vector4FromProp(levels);
   const foundationBoundary = vector3FromProp(foundation);
   const spacing = vector3FromProp(space);
   const atrium = vector3FromProp([
@@ -209,8 +221,6 @@ export function buildingGenerator(
     (boundaries.z - spacing.z) * (1 - sideRatio),
   ] as Vector3);
   const entranceBox = vector3FromProp(entrance);
-  foundationBoundary.x += atrium.x;
-  foundationBoundary.z += atrium.z;
   foundationBoundary.y *= levelHeight;
   const centeredSideBoundary = vector3FromProp([
     (boundaries.x - spacing.x) * sideRatio,
@@ -219,30 +229,17 @@ export function buildingGenerator(
   ]);
   const roofBoundary = vector3FromProp([
     atrium.x + centeredSideBoundary.x * 2,
-    Math.abs(boundaries.y - atrium.y - spacing.y),
-    atrium.z + centeredSideBoundary.x * 2,
+    boundaries.y - atrium.y - spacing.y,
+    centeredSideBoundary.z + entranceBox.z,
+  ]);
+  const backSideBoundary = vector3FromProp([
+    atrium.x,
+    centeredSideBoundary.y,
+    centeredSideBoundary.x,
   ]);
   const rand = mulberry32(seed);
   const sideBoxMap: TSideBoxMap = {
     x: [entranceBox],
-    "-x": buildingSideGenerator(
-      vector3FromProp([
-        atrium.x,
-        centeredSideBoundary.y,
-        centeredSideBoundary.x,
-      ]),
-      levelsX,
-      rand,
-      (symmetry -= 1) >= 0,
-      "x"
-    ),
-    y: buildingSideGenerator(
-      roofBoundary,
-      levelsY,
-      rand,
-      (symmetry -= 1) >= 0,
-      "y"
-    ).sort((a, b) => b.x - a.x),
   };
 
   if (symmetry - 2 >= 0) {
@@ -254,8 +251,7 @@ export function buildingGenerator(
       "z"
     );
     sideBoxMap["-z"] = sideBoxMap["z"] = sharedSide;
-    foundationBoundary.x += centeredSideBoundary.x;
-    foundationBoundary.z += centeredSideBoundary.z * 2;
+    foundationBoundary.z += centeredSideBoundary.z;
   } else {
     const offset1 = rand();
     const offset2 = Math.sin(offset1);
@@ -269,12 +265,11 @@ export function buildingGenerator(
         centeredSideBoundary.y,
         centeredSideBoundary.z + centeredSideBoundary.z * offset2,
       ]);
+    const maxZBoundary = Math.max(mzSideBoundary.z, zSideBoundary.z);
     if ((symmetry -= 1) >= 0) {
-      zSideBoundary.z = mzSideBoundary.z = Math.max(
-        mzSideBoundary.z,
-        zSideBoundary.z
-      );
+      zSideBoundary.z = mzSideBoundary.z = maxZBoundary;
     }
+    backSideBoundary.z = maxZBoundary - atrium.z;
     sideBoxMap["-z"] = buildingSideGenerator(
       mzSideBoundary,
       levelsZ,
@@ -289,12 +284,25 @@ export function buildingGenerator(
       offset2 > 0.5,
       "z"
     );
-    foundationBoundary.x += zSideBoundary.x + mzSideBoundary.x;
-    foundationBoundary.z +=
-      Math.max(mzSideBoundary.z, zSideBoundary.z) - atrium.z;
+    foundationBoundary.z += maxZBoundary;
   }
+  foundationBoundary.x += centeredSideBoundary.x * 2 + atrium.x;
 
+  sideBoxMap["-x"] = buildingSideGenerator(
+    backSideBoundary,
+    levelsX,
+    rand,
+    (symmetry -= 1) >= 0,
+    "x"
+  );
   sideBoxMap["-y"] = [foundationBoundary];
+  sideBoxMap["y"] = buildingSideGenerator(
+    roofBoundary,
+    levelsW,
+    rand,
+    (symmetry -= 1) >= 0,
+    "y"
+  ).sort((a, b) => b.x - a.x);
 
   return { sides: sideBoxMap, atrium };
 }
@@ -313,7 +321,7 @@ function buildingSideGenerator(
 
   let longSideSum = 0;
   for (let lvl = symmetry ? Math.floor(levels / 2) : levels; lvl > 0; lvl--) {
-    const coe = Math.sin(rand());
+    const coe = Math.abs(Math.cos(rand()));
     const box = new THREE.Vector3(
       levelBoundary.x * coe,
       levelBoundary.y * coe,
@@ -325,24 +333,20 @@ function buildingSideGenerator(
   }
 
   if (symmetry) {
-    boxes.push(
-      ...(longSideSum < boundary[longSide] / 2
-        ? [
-            new THREE.Vector3(
-              longSide.includes("x")
-                ? boundary[longSide] / 2 - longSideSum
-                : levelBoundary.x * rand(),
-              longSide.includes("y")
-                ? boundary[longSide] / 2 - longSideSum
-                : levelBoundary.y * rand(),
-              longSide.includes("z")
-                ? boundary[longSide] / 2 - longSideSum
-                : levelBoundary.z * rand()
-            ),
-          ]
-        : []),
-      ...[...boxes].reverse()
-    );
+    if (longSideSum < boundary[longSide] / 2) {
+      const coe = Math.abs(Math.sin(rand()));
+      const box = new THREE.Vector3(
+        levelBoundary.x * coe,
+        levelBoundary.y * coe,
+        levelBoundary.z * coe
+      );
+      box[longSide] = Math.min(
+        boundary[longSide] / 2 - longSideSum,
+        levelBoundary[longSide]
+      );
+      boxes.push(box);
+    }
+    boxes.push(...[...boxes].reverse());
   }
 
   return boxes;
