@@ -29,7 +29,7 @@ function Building({
   const brushes = useMemo(() => {
     const base = vector3FromProp(atrium);
     let iterSide: TSide;
-    let iterSidePosition = 0;
+    const iterSidePosition = {} as Record<TSide, number>;
     return (
       [
         "z",
@@ -48,26 +48,24 @@ function Building({
     ).reduce(
       (acc, current, at, all) => {
         if (typeof current === "string") {
-          iterSide = current;
-          iterSidePosition = 0;
           if (current === "-y") {
-            return (
+            acc = (
               <Center disableY disableZ>
                 {acc}
               </Center>
             );
+          } else if (current === "x") {
+            acc = <group position={[0, iterSidePosition["-y"], 0]}>{acc}</group>;
           }
-          else if (current === "x") {
-
-          }
-          
-          return <group>{acc}</group>;
+          iterSide = current;
+          iterSidePosition[iterSide] = 0;
+          return acc;
         } else {
           const boxArgs = vector3FromProp(current);
           const boxBrush = (
             <SideBoxMesh
               side={iterSide}
-              sidePosition={iterSidePosition}
+              sidePosition={iterSidePosition[iterSide]}
               size={boxArgs}
               material={material}
               base={base}
@@ -79,7 +77,7 @@ function Building({
               {boxBrush}
             </>
           );
-          iterSidePosition +=
+          iterSidePosition[iterSide] +=
             boxArgs[
               iterSide === "x" || iterSide === "-x"
                 ? "x"
@@ -199,7 +197,7 @@ export function buildingGenerator(
   symmetry: number,
   levelHeight: number,
   sideRatio: number,
-  seed: number,
+  seed: number
 ) {
   const boundaries = vector3FromProp(parcel);
   const { x: levelsX, y: levelsY, z: levelsZ } = vector3FromProp(levels);
@@ -210,7 +208,7 @@ export function buildingGenerator(
     levelsY * levelHeight - (foundation ? levelHeight / 3 : 0),
     (boundaries.z - spacing.z) * (1 - sideRatio),
   ] as Vector3);
-  const entranceBox = vector3FromProp(entrance)
+  const entranceBox = vector3FromProp(entrance);
   foundationBoundary.x += atrium.x;
   foundationBoundary.z += atrium.z;
   foundationBoundary.y *= levelHeight;
@@ -226,7 +224,7 @@ export function buildingGenerator(
   ]);
   const rand = mulberry32(seed);
   const sideBoxMap: TSideBoxMap = {
-    "x": [entranceBox],
+    x: [entranceBox],
     "-x": buildingSideGenerator(
       vector3FromProp([
         atrium.x,
