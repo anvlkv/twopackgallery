@@ -1,0 +1,25 @@
+import { Meta, Story } from "@storybook/addon-docs";
+import Cloth from "./Cloth";
+
+<Meta title="Cloth" component={Cloth} />
+
+export const Template = (args) => <Cloth {...args} />;
+
+<Story
+  name="Cloth"
+  args={{
+    size: [2316 * 0.005, 1714 * 0.005],
+    density: 5,
+    weight: .01,
+    staticSide: ["x"],
+    texture: "pic.jpeg",
+    physicsProps: {
+      colliders: "hull",
+    },
+    pattern: '+',
+    noTheatre: true,
+    noDebug: false
+  }}
+>
+  {Template.bind({})}
+</Story>

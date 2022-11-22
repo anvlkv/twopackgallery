@@ -1,0 +1,27 @@
+import { Meta, Story } from "@storybook/addon-docs";
+import Wind from "./Wind";
+import Cloth from "./Cloth";
+import RadialLayout from './RadialLayout'
+
+<Meta title="Wind" component={Wind} />
+
+export const Template = (args) => (<>
+  <Wind {...args} />
+</>);
+
+<Story
+  name="Wind"
+  args={{
+    velocity: [-95, 10, .1],
+    size: 2,
+    volume: 20,
+    noDebug:true,
+    noTheatre: true,
+    position: [0, 0, 0],
+    physicsProps: {
+      colliders: "hull",
+    },
+  }}
+>
+  {Template.bind({})}
+</Story>

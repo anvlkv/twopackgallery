@@ -41,3 +41,10 @@ export function mulberry32(a = 1) {
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
   }
 }
+
+export function mirrorEdge(boundary: Vector3) {
+  const {x: Bx, y: By, z: Bz} = vector3FromProp(boundary)
+  return (x: number, y: number, z: number) => {
+    
+  }
+}

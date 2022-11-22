@@ -1,8 +1,8 @@
-import StageDecorator from './stage';
+import StageDecorator, {CanvasStyleDecorator} from './stage';
 
 import '../sass/style.scss'
 
-export const decorators = [StageDecorator];
+export const decorators = [StageDecorator, CanvasStyleDecorator];
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },

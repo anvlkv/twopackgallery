@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import { createStateContext } from "react-use";
 import Marseille from "./Marseille";
+import { Physics } from "@react-three/rapier";
 
 import styleVars from "../../sass/_variables.module.scss";
 
@@ -29,7 +30,7 @@ export const SCREEN = {
   lg: parseFloat(styleVars.screenLg),
 };
 
-const [useCanvasStyle, CanvasStyleProvider] = createStateContext(
+export const [useCanvasStyle, CanvasStyleProvider] = createStateContext(
   {} as React.CSSProperties
 );
 
@@ -39,7 +40,9 @@ function ThreeAppInner() {
   return (
     <>
       <Canvas className="ThreeApp" style={style}>
-        <Marseille />
+        <Physics>
+          <Marseille />
+        </Physics>
       </Canvas>
     </>
   );
@@ -53,4 +56,3 @@ export default function ThreeApp() {
   );
 }
 
-export { useCanvasStyle };

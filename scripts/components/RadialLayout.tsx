@@ -111,9 +111,17 @@ const RadialSegment = React.memo(
       return vec;
     }, [sweepBefore, axis, mode, totalSegments, index, totalSweep]);
 
+    const de_rotation = useMemo(() => {
+      const vec = rotation.clone()
+      vec.x = -vec.x
+      vec.y = -vec.y
+      vec.z = -vec.z
+      return vec
+    }, [rotation])
+
     return (
       <group rotation={rotation} position={center}>
-        <group position={recenter} ref={ref}>
+        <group position={recenter} rotation={de_rotation} ref={ref}>
           {child}
         </group>
       </group>
@@ -131,9 +139,9 @@ export default function RadialLayout({
 }: IProps) {
   const segmentsCount = React.Children.count(children);
 
-  const ref = useRef(null)
+  // const ref = useRef(null)
 
-  useHelper(ref, BoxHelper, COLORS.danger)
+  // useHelper(ref, BoxHelper, COLORS.danger)s
 
   return (
     <CenteredGroup {...groupProps} size={[radius * 2, radius * 2, radius * 2]} >
@@ -153,10 +161,6 @@ export default function RadialLayout({
             ))}
           </group>
         </SegmentsContextProvider>
-        <mesh ref={ref} position={[0, 1, 0]}>
-          <sphereGeometry args={[10]}/>
-          <meshBasicMaterial color={COLORS.success}/>
-        </mesh>
     </CenteredGroup>
   );
 }

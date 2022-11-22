@@ -18,7 +18,7 @@ export default function Marseille() {
 
   const [_, setCanvasStyle] = useCanvasStyle();
   useEffect(() => {
-    setCanvasStyle({ filter: "invert(100%)" });
+    setCanvasStyle({ filter: "invert(100%) brightness(97.25%)" });
     return () => {
       setCanvasStyle({});
     };
@@ -44,9 +44,9 @@ export default function Marseille() {
   useInterval(() => {
     if (stageGroupRef.current) {
       
-      animateStageTurnBy(stageGroupRef.current, 5, 900)
+      animateStageTurnBy(stageGroupRef.current, 5, 100)
     }
-  }, 900);
+  }, 100);
 
   useEffect(() => {
     if (light.current && pointsRef.current) {
@@ -59,10 +59,9 @@ export default function Marseille() {
 
   const houses = useMemo(() => new Array(30).fill(null).map((_, i) => {
     const buildingProps = buildingGenerator(1, [3, 0,3], [3, 8, 3, 1], 3, [30, 20, 30], i % 2, 10, .7, i);
-    return <Building key={i} {...buildingProps} material={<meshLambertMaterial color={COLORS.white}/>}/>
+    return <Building key={i} {...buildingProps} material={<meshLambertMaterial color={INVERTED_COLORS.black}/>}/>
   }), [])
 
-  console.log(INVERTED_COLORS)
   return (
     <>
       <color attach="background" args={[INVERTED_COLORS.white]}/>
@@ -81,9 +80,9 @@ export default function Marseille() {
         <points ref={pointsRef} position={[-0.1, .5, -20]} />
         <spotLight
           ref={light}
-          color={COLORS.black}
+          color={INVERTED_COLORS.black}
           intensity={.5}
-          angle={degToRad(17)}
+          angle={degToRad(20)}
           penumbra={0.4}
           position={[0, 1.2, 0]}
           castShadow
@@ -94,9 +93,9 @@ export default function Marseille() {
         <RadialLayout face="x" axis="y" radius={250} mode="spread" position={[0, -250+33, 0]}>
           {houses}
         </RadialLayout>
-        <mesh position={[0, 0, 0]} receiveShadow castShadow={false}>
+        <mesh position={[0, 0, 0]} receiveShadow>
           <cylinderGeometry args={[500, 15, 1]} />
-          <meshLambertMaterial color={COLORS.white} />
+          <meshLambertMaterial color={INVERTED_COLORS.black} />
         </mesh>
       </CenteredGroup>
     </>

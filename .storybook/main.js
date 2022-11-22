@@ -12,6 +12,7 @@ module.exports = {
   "core": {
     "builder": "@storybook/builder-webpack5"
   },
+  staticDirs: ['../static'],
   webpackFinal: (config, {configType}) => {
     const path  = require('path');
 
