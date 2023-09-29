@@ -1,0 +1,13 @@
+{
+  "id": "mig_ck9b80tkb1j930n4a9ag",
+  "parentID": "mig_ck9b7udkb1j930n4a950",
+  "checksum": "1:e2598917c0259d08f23eb33a117dba497130b8ed49bcbfa86a585c326591704b",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "title",
+        "table": "points"
+      }
+    }
+  ]
+}

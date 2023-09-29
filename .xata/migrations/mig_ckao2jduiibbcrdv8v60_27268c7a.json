@@ -1,0 +1,18 @@
+{
+  "id": "mig_ckao2jduiibbcrdv8v60",
+  "parentID": "mig_ckao289dbh47tk5ive2g",
+  "checksum": "1:27268c7a1c1438871db8db6a8af5c8ede1c854bdd26ffee91b3c9651e29e3fb1",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "issue",
+          "type": "string",
+          "notNull": true,
+          "defaultValue": "other"
+        },
+        "table": "flags"
+      }
+    }
+  ]
+}

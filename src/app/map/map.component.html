@@ -1,0 +1,40 @@
+<mgl-map
+  [style]="'mapbox://styles/packtwo/cln03jvjy02v001nzceog3kko'"
+  [zoom]="[zoom]"
+  [centerWithPanTo]="true"
+  [interactive]="true"
+  [center]="center"
+  (move)="mapMove($event, false)"
+  (moveEnd)="mapMove($event)"
+  (zoomEvt)="mapZoom($event, false)"
+  (zoomEnd)="mapZoom($event)"
+  (mapLoad)="mapLoad()"
+  (mouseMove)="onMouseMoveMap($event)"
+  [cursorStyle]="cursorStyle"
+  [attributionControl]="false"
+  (mapError)="onMapBoxError($event)"
+  #mapRef
+>
+  <mgl-marker *ngIf="cursor" [lngLat]="cursor">
+    <app-cursor [loading]="loading | async" [tooltip]="hint"></app-cursor>
+  </mgl-marker>
+  <mgl-geojson-source
+    id="allPins"
+    [data]="(geoJsonPoints | async) || undefined"
+    [cluster]="true"
+    [clusterRadius]="50"
+    [clusterMinPoints]="3"
+  >
+  </mgl-geojson-source>
+  <mgl-layer
+    id="pinsLayer"
+    type="symbol"
+    source="allPins"
+    [layout]="{
+    'icon-image': ['image','border-dot-13'],
+    'icon-size': 2,
+  }"
+    (layerClick)="clickPins($event)"
+  >
+  </mgl-layer>
+</mgl-map>

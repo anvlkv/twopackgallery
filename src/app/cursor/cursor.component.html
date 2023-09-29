@@ -1,0 +1,63 @@
+<div
+  class="cursor"
+  [nz-tooltip]="tooltip && tooltipContentTemplate"
+  nzTooltipPlacement="bottom"
+  [nzTooltipVisible]="!!tooltip"
+  [nzTooltipTrigger]="null"
+  [ngStyle]="{opacity: !loading && currentActivity === eActivity.None ? '.5' : '.9'}"
+>
+  <nz-spin
+    *ngIf="loading; else activityTemplate"
+    nzSimple
+    [nzIndicator]="indicatorTemplate"
+  ></nz-spin>
+  <ng-template #indicatorTemplate
+    ><i nz-icon [style]="{ color: '#EB6FF6' }" nzType="loading"></i
+  ></ng-template>
+
+  <ng-template #activityTemplate>
+    <ng-container [ngSwitch]="currentActivity">
+      <div class="activity-icon" *ngSwitchCase="eActivity.PinNew">
+        <i
+          nz-icon
+          nzTheme="twotone"
+          [nzTwotoneColor]="'#EB6FF6'"
+          nzType="pushpin"
+        ></i>
+      </div>
+      <div class="activity-icon" *ngSwitchCase="eActivity.EditPin">
+        <i
+          nz-icon
+          nzTheme="twotone"
+          [nzTwotoneColor]="'#EB6FF6'"
+          nzType="edit"
+        ></i>
+      </div>
+      <div class="activity-icon" *ngSwitchCase="eActivity.FlagPin">
+        <i
+          nz-icon
+          nzTheme="twotone"
+          [nzTwotoneColor]="'#EB6FF6'"
+          nzType="flag"
+        ></i>
+      </div>
+      <div class="activity-icon" *ngSwitchCase="eActivity.ViewPin">
+        <i
+          nz-icon
+          nzTheme="twotone"
+          [nzTwotoneColor]="'#EB6FF6'"
+          nzType="eye"
+        ></i>
+      </div>
+    </ng-container>
+  </ng-template>
+</div>
+
+<ng-template #tooltipContentTemplate>
+  <nz-space nzDirection="vertical">
+    <p *nzSpaceItem nz-typography>{{tooltip}}</p>
+    <button *nzSpaceItem nz-button nzType="text" nzSize="small">
+      Stop showing hints
+    </button>
+  </nz-space>
+</ng-template>

@@ -1,0 +1,22 @@
+:host {
+  position: absolute;
+  bottom:0;
+  right: 0;
+  display: block;
+  height: 100%;
+}
+
+aside {
+  height: 100%;
+  padding: 1rem;
+  padding-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  [nz-button] {
+    margin-top: .75rem;
+    &.active {
+      pointer-events: none;
+    }
+  }
+}

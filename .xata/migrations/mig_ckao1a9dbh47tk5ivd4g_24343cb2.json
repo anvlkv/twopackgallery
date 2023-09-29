@@ -1,0 +1,19 @@
+{
+  "id": "mig_ckao1a9dbh47tk5ivd4g",
+  "parentID": "mig_ckao169dbh47tk5ivd3g",
+  "checksum": "1:24343cb2b126aa8c2ca67dea19ac5e8f7e4102695143fe3200de05ead5808c92",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "flagged_by",
+          "type": "link",
+          "link": {
+            "table": "users"
+          }
+        },
+        "table": "flags"
+      }
+    }
+  ]
+}

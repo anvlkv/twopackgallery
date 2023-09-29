@@ -1,0 +1,19 @@
+{
+  "id": "mig_ckao169dbh47tk5ivd3g",
+  "parentID": "mig_ckao121dbh47tk5ivd2g",
+  "checksum": "1:0247cb1ebb3a809d0fb2f6fa5fb6732ceba257626edc41c3ce1d6d52f0ca3647",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "point",
+          "type": "link",
+          "link": {
+            "table": "points"
+          }
+        },
+        "table": "flags"
+      }
+    }
+  ]
+}

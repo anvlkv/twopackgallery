@@ -1,0 +1,18 @@
+.cursor {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 100%;
+  border: .25rem solid #f9f9f9;
+  box-shadow: 0 2px 8px rgba(#030303, .25);
+  i {
+    font-size: 1.75rem;
+    margin-top: -0.15rem;
+    margin-left: -0.15rem;
+  }
+  .activity-icon {
+    i {
+      transform: scale(.7, .7);
+      transform-origin: center center;
+    }
+  }
+}

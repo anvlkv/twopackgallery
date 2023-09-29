@@ -1,0 +1,16 @@
+{
+  "id": "mig_ck9b8vooj0i1n5mtkbp0",
+  "parentID": "mig_ck9b8ptkb1j930n4a9v0",
+  "checksum": "1:c889003482a5c14c3ebd4508a56cc9f277dc2cc00855c9a53d5508a3b6d7c4c2",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "description",
+          "type": "text"
+        },
+        "table": "points"
+      }
+    }
+  ]
+}

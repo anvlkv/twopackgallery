@@ -1,0 +1,45 @@
+<aside>
+  <a
+    nz-button
+    nz-tooltip
+    nzTooltipTitle="Create new location"
+    nzTooltipPlacement="left"
+    nzShape="circle"
+    routerLink="create-pin"
+    routerLinkActive="active ant-btn-primary"
+  >
+    <span nz-icon nzType="pushpin"></span>
+  </a>
+  <button
+    nz-button
+    nzShape="circle"
+    nz-tooltip
+    nzTooltipTitle="Locate me"
+    nzTooltipPlacement="left"
+    (click)="handleAim($event)"
+  >
+    <span nz-icon nzType="aim"></span>
+  </button>
+  <button
+    nz-button
+    nzShape="circle"
+    nz-tooltip
+    nzTooltipTitle="Zoom in map view"
+    nzTooltipPlacement="left"
+    (click)="handlePlus($event)"
+    [disabled]="!canZoomIn"
+  >
+    <span nz-icon nzType="plus"></span>
+  </button>
+  <button
+    nz-button
+    nz-tooltip
+    nzTooltipTitle="Zoom out map view"
+    nzTooltipPlacement="left"
+    nzShape="circle"
+    (click)="handleMinus($event)"
+    [disabled]="!canZoomOut"
+  >
+    <span nz-icon nzType="minus"></span>
+  </button>
+</aside>
