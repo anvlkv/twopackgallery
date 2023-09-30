@@ -1,0 +1,16 @@
+<nz-result
+  nzTitle="It all went wrong..."
+  nzStatus="error"
+  nzSubTitle="Sorry, things went wrong just now."
+>
+  <div nz-result-content>
+    <code>
+      {{ error }}
+    </code>
+  </div>
+  <div nz-result-extra>
+    <button nz-button nzType="primary" nzGhost (click)="retryNow()">
+      Retrying in {{ sBeforeRetry }} seconds...
+    </button>
+  </div>
+</nz-result>

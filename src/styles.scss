@@ -1,0 +1,33 @@
+/* You can add global styles to this file, and also import other style files */
+@import "/node_modules/normalize-scss/sass/normalize";
+
+input,textarea {
+  &::placeholder {
+    opacity: 1;
+  }
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  > * {
+    flex-grow: 1;
+    margin-right: .75rem;
+    [nz-button] {
+      flex-grow: 1;
+    }
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.ant-skeleton-image {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ant-drawer-right.ant-drawer-open{
+  width: auto !important;
+}

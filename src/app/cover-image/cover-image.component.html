@@ -1,0 +1,21 @@
+<ng-container *ngIf="!isBase64; else fallBack">
+  <img
+    *ngIf="width && height"
+    [ngSrc]="src"
+    [width]="width"
+    [height]="height"
+    [alt]="alt"
+    priority
+    [ngStyle]="{ 'aspect-ratio': ratio }"
+  />
+</ng-container>
+
+<ng-template #fallBack>
+  <img
+    [src]="src"
+    [width]="width"
+    [height]="height"
+    [alt]="alt"
+    [ngStyle]="{ 'aspect-ratio': ratio }"
+  />
+</ng-template>

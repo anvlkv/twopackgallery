@@ -1,0 +1,14 @@
+{
+  "id": "mig_ck9b9agoj0i1n5mtkbq0",
+  "parentID": "mig_ck9b8vooj0i1n5mtkbp0",
+  "checksum": "1:90e90097aee9917041e20c6fa528daead283124d419ea7a5983c0b31509811b6",
+  "operations": [
+    {
+      "renameColumn": {
+        "newName": "latitude",
+        "oldName": "lat",
+        "table": "points"
+      }
+    }
+  ]
+}

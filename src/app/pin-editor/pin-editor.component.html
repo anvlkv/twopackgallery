@@ -1,0 +1,188 @@
+<form
+  nz-form
+  [nzLayout]="'vertical'"
+  [formGroup]="pinForm"
+  (ngSubmit)="onSubmit()"
+  #formRef
+>
+  <nz-form-item class="cover">
+    <nz-upload
+      class="cover-uploader"
+      nzName="cover"
+      nzListType="picture"
+      [(nzFileList)]="coverFile"
+      [nzBeforeUpload]="beforeUploadCover"
+      [nzShowUploadList]="false"
+      [nzFileType]="'image/png,image/jpeg,image/gif,image/bmp'"
+      [nzMultiple]="false"
+      [ngStyle]="{ 'aspect-ratio': coverRatio.STR, width: '100%' }"
+      [nzFileListRender]="fileListTemplate"
+    >
+      <div class="ant-btn ant-btn-dashed ant-btn-lg" *ngIf="!pictureUrl">
+        <i class="upload-icon" nz-icon nzType="plus"></i>
+        <div class="ant-upload-text">Cover image</div>
+      </div>
+    </nz-upload>
+
+    <ng-template #fileListTemplate>
+      <ng-container *ngIf="imageCropped; else imageCropper">
+        <app-cover-image
+          *ngIf="pictureUrl"
+          [src]="pictureUrl"
+          [b64]="!!(fb64 | async)"
+          [ngStyle]="{ width: formRef.clientWidth + 'px' }"
+        />
+      </ng-container>
+
+      <ng-template #imageCropper>
+        <image-cropper
+          *ngIf="pictureUrl"
+          [imageBase64]="pictureUrl"
+          [aspectRatio]="coverRatio.W_RATIO / coverRatio.H_RATIO"
+          [maintainAspectRatio]="true"
+          [allowMoveImage]="true"
+          (cropperReady)="onCropperReady()"
+          (loadImageFailed)="onImageLoadFailed()"
+          (imageCropped)="onImageCropped($event)"
+          [nz-tooltip]="cropperHint"
+          [nzTooltipVisible]="!croppedImage"
+          nzTooltipPlacement="bottom"
+          [ngStyle]="{ width: formRef.clientWidth + 'px', height: '100%' }"
+        >
+        </image-cropper>
+      </ng-template>
+
+      <nz-button-group class="cropper-actions" *ngIf="pictureUrl">
+        <button
+          *ngIf="croppedImage && !imageCropped"
+          nz-button
+          nzType="primary"
+          nzSize="small"
+          (click)="acceptCropped()"
+        >
+          <i nz-icon nzType="check-circle"></i> Done
+        </button>
+        <button
+          nz-button
+          nzSize="small"
+          (click)="clearImage()"
+          nz-tooltip="Replace image"
+        >
+          <i nz-icon nzType="redo"></i>
+        </button>
+      </nz-button-group>
+    </ng-template>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-control nzErrorTip="Please make sure the address is complete">
+      <app-address formControlName="address"></app-address>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-control nzErrorTip="Please enter a unique name for your location">
+      <nz-input-group>
+        <input
+          nz-input
+          nzSize="large"
+          placeholder="Location name"
+          formControlName="title"
+        />
+      </nz-input-group>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-control
+      nzErrorTip="Please select at least one, and no more than 5 art forms for your location"
+    >
+      <nz-select
+        nzAllowClear
+        nzShowSearch
+        nzMode="multiple"
+        nzPlaceHolder="Art form"
+        [nzCustomTemplate]="valueTemplate"
+        formControlName="art_forms"
+        [nzLoading]="loadingArtForms"
+        [nzOptions]="artFormsList"
+      >
+      </nz-select>
+      <ng-template #valueTemplate let-selected>
+        <div class="ant-select-selection-item-content">
+          {{ selected.nzLabel }}
+        </div>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <textarea
+      nz-input
+      placeholder="Location description"
+      formControlName="description"
+      [nzAutosize]="{ minRows: 2, maxRows: 7 }"
+    ></textarea>
+  </nz-form-item>
+  <nz-form-item>
+    <textarea
+      nz-input
+      placeholder="Route description and availability"
+      formControlName="location_description"
+      [nzAutosize]="{ minRows: 2, maxRows: 7 }"
+    ></textarea>
+  </nz-form-item>
+  <nz-divider></nz-divider>
+  <legend>
+    <small *ngIf="!id">
+      By pinning this location on twopack.gallery map, you confirm it features
+      the chosen art form, is safe for visitors, and that you are the exhibiting
+      artist. Please note, irrelevant or unsafe locations will be removed from
+      public display.
+    </small>
+    <div class="form-actions">
+      <nz-button-group>
+        <button
+          nz-button
+          nzSize="large"
+          nzType="primary"
+          type="submit"
+          [disabled]="!pinForm.valid"
+          [nzLoading]="saving"
+        >
+          {{ id ? "Update location" : "Create location" }}
+        </button>
+        <ng-container *ngIf="id">
+          <button
+            nz-button
+            nz-dropdown
+            nzSize="large"
+            nzType="primary"
+            nzGhost
+            [nzDropdownMenu]="menu"
+            nzPlacement="topRight"
+            [ngStyle]="{ 'flex-grow': 0 }"
+          >
+            <i nz-icon nzType="up"></i>
+          </button>
+          <nz-dropdown-menu #menu>
+            <button
+              nz-button
+              nzDanger
+              nzSize="large"
+              nzType="primary"
+              (click)="onDelete($event)"
+              [nzLoading]="saving"
+            >
+              Delete location
+            </button>
+          </nz-dropdown-menu>
+        </ng-container>
+      </nz-button-group>
+      <button
+        nz-button
+        nzSize="large"
+        nzType="default"
+        (click)="onCancel($event)"
+      >
+        Cancel
+      </button>
+    </div>
+  </legend>
+</form>

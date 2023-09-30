@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.pin-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  .form-actions {
+    padding: .75rem;
+    #flag-btn {
+      flex-grow: .1;
+      flex-shrink: .5;
+      margin-left: .75rem;
+    }
+    [nz-button] {
+      flex-basis: unset;
+    }
+  }
+}
+
+.pin-content {
+  width: 100%;
+  padding: .75rem;
+  padding-top: 0;
+  flex-grow: 1;
+  flex-shrink: 0;
+  align-items: stretch;
+  display: flex;
+  .cover {
+    width: calc(100% + .75rem * 2);
+    padding: 0;
+    margin-left: -.75rem;
+    margin-bottom: 1rem;
+  }
+}

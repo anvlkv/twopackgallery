@@ -1,0 +1,16 @@
+{
+  "id": "mig_ck9b6odkb1j930n4a87g",
+  "parentID": "mig_ck9b6idkb1j930n4a86g",
+  "checksum": "1:0b4f7a355944a85457a34a87c59fbd39b3e089d399f381bf2045cf621df4d670",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "cover",
+          "type": "file"
+        },
+        "table": "points"
+      }
+    }
+  ]
+}

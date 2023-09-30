@@ -1,0 +1,81 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/favicon/favicon.ico",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "art_forms",
+      "version": 1,
+      "urls": ["/.netlify/functions/art_forms_list"],
+      "cacheConfig": {
+        "maxAge": "3d",
+        "maxSize": 30000,
+        "strategy": "performance"
+      }
+    },
+    {
+      "name": "points",
+      "version": 1,
+      "urls": ["/.netlify/functions/points"],
+      "cacheQueryOptions": {
+        "ignoreSearch": false
+      },
+      "cacheConfig": {
+        "maxAge": "6h",
+        "maxSize": 30000,
+        "strategy": "freshness"
+      }
+    },
+    {
+      "name": "point_description",
+      "version": 1,
+      "urls": ["/.netlify/functions/point-description"],
+      "cacheQueryOptions": {
+        "ignoreSearch": false
+      },
+      "cacheConfig": {
+        "maxAge": "1h",
+        "maxSize": 30000,
+        "strategy": "freshness"
+      }
+    },
+    {
+      "name": "mapbox",
+      "version": 1,
+      "urls": ["https://api.mapbox.com/**"],
+      "cacheQueryOptions": {
+        "ignoreSearch": false
+      },
+      "cacheConfig": {
+        "maxAge": "24h",
+        "maxSize": 90000,
+        "strategy": "performance"
+      }
+    }
+  ]
+}

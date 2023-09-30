@@ -1,0 +1,76 @@
+<nz-card
+  *ngIf="isCard; else headerTemplate"
+  [nzBodyStyle]="{ padding: 0 }"
+  class="user-card"
+>
+  <ng-container [ngTemplateOutlet]="contentTemplate"></ng-container>
+</nz-card>
+
+<ng-template #headerTemplate>
+  <ng-container [ngTemplateOutlet]="contentTemplate"></ng-container>
+</ng-template>
+
+<ng-template #contentTemplate>
+  <div
+    nz-space
+    nzDirection="horizontal"
+    [nzSplit]="splitTemplate"
+    nzAlign="center"
+    class="header-space"
+  >
+    <a *nzSpaceItem routerLink="/" class="logo">
+      <h1 nz-typography [ngStyle]="{ 'font-weight': 'normal' }">
+        twopack.gallery
+      </h1>
+    </a>
+    <ng-container *ngIf="auth.isAuthenticated$ | async; else logInTemplate">
+      <ng-container *ngIf="auth.user$ | async as user">
+        <button
+          *nzSpaceItem
+          nz-button
+          nzType="text"
+          [nzSize]="isCard ? 'small' : 'large'"
+          nz-dropdown
+          [nzDropdownMenu]="userMenu"
+          class="user-menu-btn"
+        >
+          <app-avatar class="avatar" [size]="isCard ? 'small' : 'default'"></app-avatar>
+          <p nz-typography>{{ user.name }}</p>
+        </button>
+        <nz-dropdown-menu #userMenu="nzDropdownMenu">
+          <nav nz-menu>
+            <a nz-menu-item routerLink="/profile"
+              >Profile page &nbsp;<small>(private)</small></a
+            >
+            <span nz-menu-divider></span>
+            <a nz-menu-item routerLink="/account">Manage account</a>
+          </nav>
+        </nz-dropdown-menu>
+      </ng-container>
+      <button
+        *nzSpaceItem
+        nz-button
+        [nzSize]="isCard ? 'small' : 'default'"
+        (click)="auth.logout({ logoutParams: { returnTo } })"
+      >
+        Log out
+      </button>
+    </ng-container>
+    <ng-template #logInTemplate>
+      <button
+        *nzSpaceItem
+        nz-button
+        nzType="primary"
+        [nzSize]="isCard ? 'small' : 'default'"
+        (click)="auth.loginWithRedirect()"
+        [nzLoading]="auth.isLoading$ | async"
+      >
+        Log in
+      </button>
+    </ng-template>
+  </div>
+</ng-template>
+
+<ng-template #splitTemplate>
+  <nz-divider nzType="vertical" nzDashed></nz-divider>
+</ng-template>

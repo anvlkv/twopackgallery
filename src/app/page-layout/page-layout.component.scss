@@ -1,0 +1,11 @@
+.layout {
+  min-height: 100vh;
+}
+nz-header {
+  position: fixed;
+  width: 100%;
+}
+nz-content {
+  margin-top: 64px; // header height
+  padding: 1rem 50px;
+}

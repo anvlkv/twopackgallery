@@ -1,0 +1,16 @@
+{
+  "id": "mig_ckao1lpdbh47tk5ivd6g",
+  "parentID": "mig_ckao1jluiibbcrdv8ukg",
+  "checksum": "1:6f165aade8f912b2c5ac604b730e574fedcb0097e356526ac70ab4d957542dfa",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "description",
+          "type": "text"
+        },
+        "table": "flags"
+      }
+    }
+  ]
+}

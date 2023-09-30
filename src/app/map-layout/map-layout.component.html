@@ -1,0 +1,20 @@
+<app-header [card]="true"></app-header>
+
+<app-map [offset]="isChildRouteActivated ? drawerWidth : undefined"></app-map>
+
+<app-map-aside *ngIf="!isChildRouteActivated"></app-map-aside>
+
+<div #measureRef nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="10" nzXl="8"></div>
+
+<ng-template #drawerContentTemplate>
+  <router-outlet></router-outlet>
+  <app-map-aside
+    [ngStyle]="{ right: drawerWidth + 'px', position: 'fixed' }"
+  ></app-map-aside>
+</ng-template>
+
+<ng-template #drawerExtraTemplate>
+  <a *ngIf="extraLink" [routerLink]="extraLink" nz-button nzType="link" >
+    <i nz-icon nzType="select" ></i>
+  </a>
+</ng-template>

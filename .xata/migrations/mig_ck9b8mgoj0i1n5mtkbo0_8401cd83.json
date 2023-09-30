@@ -1,0 +1,19 @@
+{
+  "id": "mig_ck9b8mgoj0i1n5mtkbo0",
+  "parentID": "mig_ck9b8htkb1j930n4a9u0",
+  "checksum": "1:8401cd83a3d2a9efcfd73ebe7d8c055014c0b29e82d84a296e0b2ac57148b39c",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "point",
+          "type": "link",
+          "link": {
+            "table": "points"
+          }
+        },
+        "table": "art_forms_points"
+      }
+    }
+  ]
+}

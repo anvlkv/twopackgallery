@@ -1,0 +1,26 @@
+.user-card {
+  padding: 0.25rem .25rem 0.25rem 0.75rem;
+  border-radius: 1.5rem;
+  [nz-button] {
+    border-radius: .75rem;
+  }
+}
+
+[nz-typography] {
+  margin-bottom: 0;
+}
+
+.user-menu-btn {
+  display: flex;
+  justify-content: space-between;
+}
+
+.avatar {
+  margin-right: .75rem;
+}
+
+.header-space {
+  min-width: 100%;
+  justify-content: space-between;
+}
+

@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://a-nvlkv-s-workspace-shskjs.eu-west-1.xata.sh/db/twopack-gallery",
+  "codegen": {
+    "output": "xata.ts"
+  }
+}
