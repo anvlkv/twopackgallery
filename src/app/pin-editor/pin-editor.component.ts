@@ -1,6 +1,11 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, TitleStrategy } from '@angular/router';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select';
+import { NzUploadFile } from 'ng-zorro-antd/upload';
+import { ImageCroppedEvent } from 'ngx-image-cropper';
 import {
   BehaviorSubject,
   Observable,
@@ -13,16 +18,12 @@ import {
   skipWhile,
   switchMap,
 } from 'rxjs';
-import { Address, LocationService } from '../location.service';
-import { NzUploadFile } from 'ng-zorro-antd/upload';
-import { ArtFormsService } from '../art-forms.service';
-import { NzSelectOptionInterface } from 'ng-zorro-antd/select';
-import { PointsService } from '../points.service';
-import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { NzModalService } from 'ng-zorro-antd/modal';
 import { ActivityService, EActivity } from '../activity.service';
+import { ArtFormsService } from '../art-forms.service';
+import { COVER_RATIO } from '../cover-image/cover-image.component';
+import { Address, LocationService } from '../location.service';
+import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
-
 @Component({
   selector: 'app-pin-editor',
   templateUrl: './pin-editor.component.html',
@@ -34,15 +35,16 @@ export class PinEditorComponent implements OnInit, OnDestroy {
   fb64 = new BehaviorSubject<{
     mediaType: string;
     base64Content: string;
-    name: string;
   } | null>(null);
   saving = false;
   subs: Subscription[] = [];
   artFormsList: NzSelectOptionInterface[] = [];
   loadingArtForms = true;
-
+  imageCropped = true;
   pinForm = this.fb.group({
     address: [{} as Address],
+    longitude: [0, Validators.required],
+    latitude: [0, Validators.required],
     title: [
       '',
       Validators.required,
@@ -73,6 +75,8 @@ export class PinEditorComponent implements OnInit, OnDestroy {
 
   id?: string;
 
+  coverRatio = COVER_RATIO;
+
   private titleStrategy = inject(TitleStrategy) as TemplatePageTitleStrategy;
 
   constructor(
@@ -93,6 +97,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
       this.pinForm.disable();
     }
   }
+  private leave?: () => void;
 
   ngOnInit(): void {
     this.artForms.queryArtForms();
@@ -131,32 +136,70 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             description: point.description as string,
             location_description: point.location_description as string,
             art_forms: point.art_forms as any, //as string[]
+            longitude: point.longitude as number,
+            latitude: point.latitude as number,
           });
           this.pictureUrl = point.cover?.url;
           this.titleStrategy.entityTitle(point.title as string);
+          this.location.adjust_location([
+            point.longitude as number,
+            point.latitude as number,
+          ]);
           this.pinForm.enable();
         })
       );
-      this.activity.startActivity(EActivity.EditPin);
+      this.leave = this.activity.startActivity(EActivity.EditPin);
     } else {
       this.subs.push(
         this.location.currentLocation
           .pipe(
-            skipWhile(() => this.pinForm.controls['address'].dirty),
+            filter(() => !this.pinForm.controls['address'].dirty),
             switchMap((coords) => this.location.reverseGeoCode(coords!))
           )
           .subscribe((located) => {
-            this.pinForm.controls['address'].setValue(located);
+            this.pinForm.controls['address'].reset(located);
           })
       );
-      this.activity.startActivity(EActivity.PinNew);
+      this.leave = this.activity.startActivity(EActivity.PinNew);
     }
+
+    this.subs.push(
+      this.location.currentLocation
+        .pipe(
+          skipWhile(
+            () =>
+              this.pinForm.controls['address'].dirty ||
+              Boolean(this.id && this.pinForm.disabled)
+          )
+        )
+        .subscribe(([longitude, latitude]) => {
+          this.pinForm.controls['longitude'].setValue(longitude);
+          this.pinForm.controls['latitude'].setValue(latitude);
+        })
+    );
+
+    this.subs.push(
+      this.pinForm.controls['address'].valueChanges
+        .pipe(
+          filter((value) =>
+            Boolean(
+              value &&
+                this.pinForm.controls['address'].valid &&
+                this.pinForm.controls['address'].dirty
+            )
+          ),
+          switchMap((address) => this.location.geoCodeAddress(address!))
+        )
+        .subscribe((collection) => {
+          console.log(collection);
+        })
+    );
   }
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
-    this.activity.leaveActivity();
     this.titleStrategy.clearEntityTitle();
+    this.leave && this.leave();
   }
 
   private submitSubscription?: Subscription;
@@ -249,7 +292,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
           console.log('completed');
         },
       });
-    })
+    });
 
     return false;
   }
@@ -266,25 +309,57 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  cropperHint?: string;
+  croppedImage?: Blob;
+  onCropperReady() {
+    this.cropperHint = 'You may adjust how the image is cropped and scaled.';
+  }
+  onImageLoadFailed() {
+    this.notification.error(
+      'Could not open the uploaded image.',
+      'Please try again or choose a different file.'
+    );
+    this.clearImage();
+  }
+  onImageCropped(ev: ImageCroppedEvent) {
+    this.croppedImage = ev.blob || undefined;
+  }
+
+  clearImage() {
+    this.pictureUrl = undefined;
+    this.fb64.next(null);
+    this.coverFile = [];
+    this.imageCropped = true;
+    return false;
+  }
+
+  acceptCropped() {
+    this.imageCropped = true;
+    this.fb64FromArrayBuffer(this.croppedImage!, this.croppedImage!.type);
+    return false;
+  }
+
+  private fb64FromArrayBuffer(data: File | Blob, mediaType: string) {
+    from(data.arrayBuffer()).pipe(map(arrayBuffer => {
+      const base64 = btoa(
+        new Uint8Array(arrayBuffer).reduce(
+          (data, byte) => data + String.fromCharCode(byte),
+          ''
+        )
+      );
+
+      return {
+        mediaType,
+        base64Content: base64,
+      };
+    })).subscribe(d => this.fb64.next(d))
+  }
+
   beforeUploadCover = (file: NzUploadFile) => {
     this.coverFile = [file];
-    // TODO: in FF console this is correct, and doesn't have the originalFileObj property
-    from(
-      (file as unknown as File).arrayBuffer().then((arrayBuffer) => {
-        const base64 = btoa(
-          new Uint8Array(arrayBuffer).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ''
-          )
-        );
-
-        return {
-          mediaType: file.type!,
-          base64Content: base64,
-          name: file.name,
-        };
-      })
-    ).subscribe((d) => this.fb64.next(d));
+    this.imageCropped = false;
+    const data = (file as unknown as File);
+    this.fb64FromArrayBuffer(data, data.type);
     return false;
   };
 

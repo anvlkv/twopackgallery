@@ -5,16 +5,17 @@ import deepEqual from 'deep-equal';
 import {
   BehaviorSubject,
   Observable,
+  Subject,
   debounceTime,
   distinct,
   distinctUntilChanged,
   filter,
   map,
+  take,
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export type Address = {
-  poi?: string;
   address_1?: string;
   address_2?: string;
   postcode?: string;
@@ -32,7 +33,10 @@ export class LocationService {
   );
   private currentAccuracy$ = new BehaviorSubject(0);
   private currentBounds$ = new BehaviorSubject([] as number[]);
+  private runningLocation$ = new Subject<[number, number]>();
+  private watchId?: number;
 
+  runningLocation = this.runningLocation$.pipe(debounceTime(250));
   currentLocation = this.currentLocation$.pipe(
     filter(Boolean),
     distinctUntilChanged(deepEqual)
@@ -43,7 +47,13 @@ export class LocationService {
   constructor(private http: HttpClient) {}
 
   public locate(forceNext = true) {
-    if (navigator.geolocation) {
+    if (this.watchId !== undefined) {
+      if (forceNext || !this.currentLocation$.getValue()) {
+        this.runningLocation$
+          .pipe(take(1))
+          .subscribe(this.currentLocation$.next);
+      }
+    } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           if (forceNext || !this.currentLocation$.getValue()) {
@@ -60,6 +70,23 @@ export class LocationService {
       );
     } else {
       this.locateIp(forceNext);
+    }
+  }
+
+  public startTrackingLocation() {
+    if (navigator.geolocation) {
+      this.watchId = navigator.geolocation.watchPosition((position) => {
+        this.runningLocation$.next([
+          position.coords.longitude,
+          position.coords.latitude,
+        ]);
+      });
+    }
+  }
+
+  public stopTrackingLocation() {
+    if (navigator.geolocation && this.watchId !== undefined) {
+      navigator.geolocation.clearWatch(this.watchId);
     }
   }
 
@@ -121,8 +148,8 @@ export class LocationService {
               postcode: data.features.find(
                 (f: any) => f.place_type.at(0) === 'postcode'
               )?.text,
-              place: data.features.find(
-                (f: any) => f.place_type.at(0) === 'place'
+              place: data.features.find((f: any) =>
+                ['place', 'locality'].includes(f.place_type.at(0))
               )?.text_en,
               region: data.features.find(
                 (f: any) => f.place_type.at(0) === 'region'
@@ -135,44 +162,47 @@ export class LocationService {
       );
   }
 
+  geoCodeAddress(value: Address) {
+    const location = this.currentLocation$.getValue();
+    const bounds = this.currentBounds$.getValue();
+
+    const requestLocation = location ? `&proximity=${location.join(',')}` : '';
+
+    const requestBounds = bounds ? `&bbox=${bounds.join(',')}` : '';
+
+    return this.http.get<GeoJSON.FeatureCollection>(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+        [
+          value.address_1,
+          value.address_2,
+          value.place,
+          value.region,
+          value.postcode,
+          value.country,
+        ]
+          .filter(Boolean)
+          .join(', ')
+      )}.json?access_token=${
+        environment.mapBoxTokenRead
+      }&limit=1&types=country,region,postcode,district,place,locality,neighborhood,address${requestLocation}${requestBounds}`
+    );
+  }
+
   validateAddress(
     control: AbstractControl<Address>
   ): Observable<ValidationErrors | null> {
     const value = control.value;
-    const location = this.currentLocation$.getValue();
-    const bounds = this.currentBounds$.getValue();
 
-    return this.http
-      .get(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-          [
-            value.poi,
-            value.address_1,
-            value.address_2,
-            value.place,
-            value.region,
-            value.country,
-            value.postcode,
-          ]
-            .filter(Boolean)
-            .join(', ')
-        )}.json?access_token=${
-          environment.mapBoxTokenRead
-        }&limit=1&types=country,region,postcode,district,place,locality,neighborhood,address${
-          location ? `&proximity=${location.join(',')}` : ''
-        }&bbox=${bounds.join(',')}`
-      )
-      .pipe(
-        debounceTime(500),
-        map((response: any) => {
-          if (response.features.length === 0) {
-            return {
-              NothingFound: 'We could not find this location',
-            };
-          }
-
-          return null;
-        })
-      );
+    return this.geoCodeAddress(value).pipe(
+      debounceTime(500),
+      map((response: any) => {
+        if (response.features.length === 0) {
+          return {
+            NothingFound: 'We could not find this location',
+          };
+        }
+        return null;
+      })
+    );
   }
 }

@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, TitleStrategy } from '@angular/router';
 import { JSONData } from '@xata.io/client';
-import { PointsRecord } from 'xata';
-import { PointsService } from '../points.service';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Observable, Subject, Subscription, of } from 'rxjs';
-import { ActivatedRoute, Router, TitleStrategy } from '@angular/router';
-import { FormBuilder, Validators } from '@angular/forms';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { PointsRecord } from 'xata';
 import { ActivityService, EActivity } from '../activity.service';
+import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
 
 @Component({
@@ -31,7 +31,6 @@ export class FlagPinComponent implements OnInit, OnDestroy {
 
   private titleStrategy = inject(TitleStrategy) as TemplatePageTitleStrategy;
 
-
   constructor(
     private pts: PointsService,
     private notification: NzNotificationService,
@@ -39,12 +38,13 @@ export class FlagPinComponent implements OnInit, OnDestroy {
     private router: Router,
     private fb: FormBuilder,
     private modal: NzModalService,
-    private activity: ActivityService,
+    private activity: ActivityService
   ) {
     this.id = activatedRoute.snapshot.params['id']!;
     this.flagPinForm.disable();
   }
 
+  private leave?: () => void;
   ngOnInit(): void {
     this.subs.push(
       this.pts.getPointDescription(this.id).subscribe((pin) => {
@@ -53,38 +53,40 @@ export class FlagPinComponent implements OnInit, OnDestroy {
         this.flagPinForm.enable();
       })
     );
-    this.activity.startActivity(EActivity.FlagPin);
+    this.leave = this.activity.startActivity(EActivity.FlagPin);
   }
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe);
-    this.activity.leaveActivity();
     this.titleStrategy.clearEntityTitle();
+    this.leave && this.leave();
   }
 
-  private submitSubscription?: Subscription
+  private submitSubscription?: Subscription;
   onSubmit() {
-    this.submitSubscription = this.pts.flagPoint(this.id, this.flagPinForm.value).subscribe({
-      next: () => {
-        this.saving = false;
-        this.notification.warning(
-          'Location flagged',
-          `Location "${this.pin!.title}" flagged successfully.`
-        );
-        this.flagPinForm.markAsPristine();
-        this.router.navigate(['/map'], {
-          replaceUrl: true,
-        });
-      },
-      error: (err) => {
-        this.saving = false;
-        this.notification.error('Something went wrong...', err.message);
-      },
-      complete: () => {
-        this.saving = false;
-        console.log('completed');
-      },
-    })
+    this.submitSubscription = this.pts
+      .flagPoint(this.id, this.flagPinForm.value)
+      .subscribe({
+        next: () => {
+          this.saving = false;
+          this.notification.warning(
+            'Location flagged',
+            `Location "${this.pin!.title}" flagged successfully.`
+          );
+          this.flagPinForm.markAsPristine();
+          this.router.navigate(['/map'], {
+            replaceUrl: true,
+          });
+        },
+        error: (err) => {
+          this.saving = false;
+          this.notification.error('Something went wrong...', err.message);
+        },
+        complete: () => {
+          this.saving = false;
+          console.log('completed');
+        },
+      });
   }
   onCancel() {
     this.flagPinForm.reset();

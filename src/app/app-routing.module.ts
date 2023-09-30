@@ -1,18 +1,21 @@
-import { NgModule, inject, isDevMode } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { FatalErrorComponent } from './fatal-error/fatal-error.component';
+import { FlagPinComponent } from './flag-pin/flag-pin.component';
+import {
+  isAuthenticated,
+  restoreAuthenticatedRoute,
+} from './isAuthenticated.guard';
+import { MapLayoutComponent } from './map-layout/map-layout.component';
+import { PageLayoutComponent } from './page-layout/page-layout.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { PinComponent } from './pin/pin.component';
 import {
   PinEditorComponent,
   canDeactivatePinEditor,
 } from './pin-editor/pin-editor.component';
-import { MapLayoutComponent } from './map-layout/map-layout.component';
-import { FlagPinComponent } from './flag-pin/flag-pin.component';
-import { PageLayoutComponent } from './page-layout/page-layout.component';
-import { UserProfileComponent } from './user-profile/user-profile.component';
+import { PinComponent } from './pin/pin.component';
 import { UserAccountComponent } from './user-account/user-account.component';
-import { isAuthenticated } from './isAuthenticated.guard';
-import { FatalErrorComponent } from './fatal-error/fatal-error.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
 
 const internalRoutes: Routes = [
   {
@@ -44,11 +47,12 @@ const internalRoutes: Routes = [
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'map',
     pathMatch: 'full',
+    redirectTo: 'map',
   },
   {
     path: 'map',
+    canActivate: [restoreAuthenticatedRoute],
     component: MapLayoutComponent,
     children: [
       ...internalRoutes,
@@ -81,7 +85,7 @@ const routes: Routes = [
   },
   {
     path: 'error',
-    component: FatalErrorComponent
+    component: FatalErrorComponent,
   },
   {
     path: '**',
@@ -93,8 +97,6 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes, {
       enableTracing: isDevMode(),
-      // TODO: should use 'enabled' or 'enabledBlocking' for SSR
-      initialNavigation: 'disabled',
     }),
   ],
   exports: [RouterModule],

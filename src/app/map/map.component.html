@@ -1,3 +1,5 @@
+<app-cursor *ngIf="!mapLoaded" [loading]="true" class="map-loading-cursor"></app-cursor>
+
 <mgl-map
   [style]="'mapbox://styles/packtwo/cln03jvjy02v001nzceog3kko'"
   [zoom]="[zoom]"
@@ -15,6 +17,9 @@
   (mapError)="onMapBoxError($event)"
   #mapRef
 >
+  <mgl-marker *ngIf="userLocation" [lngLat]="userLocation">
+    <app-avatar size="small" icon="aim"></app-avatar>
+  </mgl-marker>
   <mgl-marker *ngIf="cursor" [lngLat]="cursor">
     <app-cursor [loading]="loading | async" [tooltip]="hint"></app-cursor>
   </mgl-marker>

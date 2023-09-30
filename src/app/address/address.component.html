@@ -21,21 +21,11 @@
 <ng-template #contentTemplate>
   <form
     nz-form
+    [ngStyle]="{ 'min-width': '320px' }"
     [nzLayout]="'vertical'"
     [formGroup]="addressForm"
     (ngSubmit)="onSubmit()"
   >
-    <nz-form-item *ngIf="geoAddress?.poi">
-      <nz-form-control>
-        <nz-input-group>
-          <input
-            nz-input
-            placeholder="Point of interest"
-            formControlName="poi"
-          />
-        </nz-input-group>
-      </nz-form-control>
-    </nz-form-item>
     <nz-form-control>
       <nz-input-group>
         <input

@@ -6,7 +6,8 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { BehaviorSubject, Subscription, combineLatest, map } from 'rxjs';
+import { Router } from '@angular/router';
+import type { JSONData } from '@xata.io/client';
 import {
   ErrorEvent,
   EventData,
@@ -14,11 +15,10 @@ import {
   MapboxEvent,
 } from 'mapbox-gl';
 import { MapComponent as MglMapComponent } from 'ngx-mapbox-gl';
-import type { JSONData } from '@xata.io/client';
+import { BehaviorSubject, Subscription, combineLatest, map } from 'rxjs';
 import type { PointsRecord } from 'xata';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
-import { Router } from '@angular/router';
 import { ZoomSyncService } from '../zoom-sync.service';
 
 type MapChangeEvent = MapboxEvent<
@@ -34,6 +34,7 @@ type MapChangeEvent = MapboxEvent<
 export class MapComponent implements OnInit, OnDestroy {
   center?: [number, number];
   cursor?: [number, number];
+  userLocation?: [number, number];
   subs: Subscription[] = [];
   zoom = 15;
   mapLoaded = false;
@@ -135,6 +136,12 @@ export class MapComponent implements OnInit, OnDestroy {
       this.zoomSync.zoom.subscribe(({ value }) => (this.zoom = value))
     );
 
+    this.subs.push(
+      this.location.runningLocation.subscribe(
+        (value) => (this.userLocation = value)
+      )
+    );
+
     // TODO: show hints
     // this.subs.push(
     //   combineLatest({
@@ -182,6 +189,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
+    this.location.stopTrackingLocation();
   }
 
   mapLoad() {
@@ -190,10 +198,11 @@ export class MapComponent implements OnInit, OnDestroy {
     if (this.offset) {
       this.applyMapPadding();
     }
+    this.location.startTrackingLocation();
   }
 
   mapMove(ev: MapChangeEvent, final = true) {
-    if (this.mapLoaded) {
+    if (this.mapLoaded && this.center) {
       const nextCenter = this.mapRef.mapInstance.getCenter();
       if (final) {
         this.location.adjust_location([nextCenter.lng, nextCenter.lat]);

@@ -3,6 +3,7 @@
   [nzLayout]="'vertical'"
   [formGroup]="pinForm"
   (ngSubmit)="onSubmit()"
+  #formRef
 >
   <nz-form-item class="cover">
     <nz-upload
@@ -14,14 +15,63 @@
       [nzShowUploadList]="false"
       [nzFileType]="'image/png,image/jpeg,image/gif,image/bmp'"
       [nzMultiple]="false"
-      [nzSize]="3000"
+      [ngStyle]="{ 'aspect-ratio': coverRatio.STR, width: '100%' }"
+      [nzFileListRender]="fileListTemplate"
     >
       <div class="ant-btn ant-btn-dashed ant-btn-lg" *ngIf="!pictureUrl">
         <i class="upload-icon" nz-icon nzType="plus"></i>
         <div class="ant-upload-text">Cover image</div>
       </div>
-      <img *ngIf="pictureUrl" [src]="pictureUrl" style="width: 100%" />
     </nz-upload>
+
+    <ng-template #fileListTemplate>
+      <ng-container *ngIf="imageCropped; else imageCropper">
+        <app-cover-image
+          *ngIf="pictureUrl"
+          [src]="pictureUrl"
+          [b64]="!!(fb64 | async)"
+          [ngStyle]="{ width: formRef.clientWidth + 'px' }"
+        />
+      </ng-container>
+
+      <ng-template #imageCropper>
+        <image-cropper
+          *ngIf="pictureUrl"
+          [imageBase64]="pictureUrl"
+          [aspectRatio]="coverRatio.W_RATIO / coverRatio.H_RATIO"
+          [maintainAspectRatio]="true"
+          [allowMoveImage]="true"
+          (cropperReady)="onCropperReady()"
+          (loadImageFailed)="onImageLoadFailed()"
+          (imageCropped)="onImageCropped($event)"
+          [nz-tooltip]="cropperHint"
+          [nzTooltipVisible]="!croppedImage"
+          nzTooltipPlacement="bottom"
+          [ngStyle]="{ width: formRef.clientWidth + 'px', height: '100%' }"
+        >
+        </image-cropper>
+      </ng-template>
+
+      <nz-button-group class="cropper-actions" *ngIf="pictureUrl">
+        <button
+          *ngIf="croppedImage && !imageCropped"
+          nz-button
+          nzType="primary"
+          nzSize="small"
+          (click)="acceptCropped()"
+        >
+          <i nz-icon nzType="check-circle"></i> Done
+        </button>
+        <button
+          nz-button
+          nzSize="small"
+          (click)="clearImage()"
+          nz-tooltip="Replace image"
+        >
+          <i nz-icon nzType="redo"></i>
+        </button>
+      </nz-button-group>
+    </ng-template>
   </nz-form-item>
   <nz-form-item>
     <nz-form-control nzErrorTip="Please make sure the address is complete">
@@ -80,7 +130,7 @@
   </nz-form-item>
   <nz-divider></nz-divider>
   <legend>
-    <small>
+    <small *ngIf="!id">
       By pinning this location on twopack.gallery map, you confirm it features
       the chosen art form, is safe for visitors, and that you are the exhibiting
       artist. Please note, irrelevant or unsafe locations will be removed from
@@ -107,6 +157,7 @@
             nzGhost
             [nzDropdownMenu]="menu"
             nzPlacement="topRight"
+            [ngStyle]="{ 'flex-grow': 0 }"
           >
             <i nz-icon nzType="up"></i>
           </button>

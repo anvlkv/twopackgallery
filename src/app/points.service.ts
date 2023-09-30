@@ -1,13 +1,11 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { AbstractControl, AsyncValidatorFn } from '@angular/forms';
-import type { PointsRecord } from 'xata';
-import type { JSONData, XataFile } from '@xata.io/client';
+import { Injectable } from '@angular/core';
+import { AbstractControl } from '@angular/forms';
+import type { JSONData } from '@xata.io/client';
 import {
   BehaviorSubject,
   Observable,
   Subject,
-  catchError,
   debounceTime,
   filter,
   map,
@@ -15,6 +13,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
+import type { PointsRecord } from 'xata';
 import { LocationService } from './location.service';
 
 @Injectable({
@@ -53,12 +52,9 @@ export class PointsService {
     formValue: Partial<Omit<JSONData<PointsRecord>, 'cover'>>,
     cover?: any
   ): Observable<JSONData<PointsRecord>> {
-    const [longitude, latitude] = this.location.getCurrentLocation()!;
     return this.http
       .post<JSONData<PointsRecord>>('/.netlify/functions/create_point', {
         ...formValue,
-        longitude,
-        latitude,
       })
       .pipe(
         tap((point) => this.createdPoint$.next(point)),

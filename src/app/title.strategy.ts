@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Title } from "@angular/platform-browser";
-import { TitleStrategy, RouterStateSnapshot } from "@angular/router";
+import { RouterStateSnapshot, TitleStrategy } from "@angular/router";
 
 @Injectable({providedIn: 'root'})
 export class TemplatePageTitleStrategy extends TitleStrategy {

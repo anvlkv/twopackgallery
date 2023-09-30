@@ -1,6 +1,4 @@
 import { Component, OnDestroy, OnInit, forwardRef } from '@angular/core';
-import { Subscription, noop } from 'rxjs';
-import { Address, LocationService } from '../location.service';
 import {
   AbstractControlOptions,
   ControlValueAccessor,
@@ -8,6 +6,8 @@ import {
   NG_VALUE_ACCESSOR,
   Validators,
 } from '@angular/forms';
+import { Subscription, noop } from 'rxjs';
+import { Address, LocationService } from '../location.service';
 
 @Component({
   selector: 'app-address',
@@ -35,11 +35,10 @@ export class AddressComponent
     {
       address_1: ['', Validators.required],
       address_2: [''],
-      poi: [''],
       place: ['', Validators.required],
       region: [''],
       country: ['', Validators.required],
-      postcode: ['', Validators.required],
+      postcode: [''],
     },
     {
       asyncValidators: this.location.validateAddress.bind(this.location),
@@ -51,7 +50,6 @@ export class AddressComponent
   writeValue(obj: Address | null): void {
     if (obj) {
       this.addressForm.reset({
-        poi: obj.poi || '',
         address_1: obj.address_1 || '',
         address_2: obj.address_2 || '',
         place: obj.place || '',
@@ -109,7 +107,6 @@ export class AddressComponent
   resetFormToGeo() {
     if (this.geoAddress) {
       this.addressForm.reset({
-        poi: this.geoAddress.poi || '',
         address_1: this.geoAddress.address_1 || '',
         address_2: this.geoAddress.address_2 || '',
         place: this.geoAddress.place || '',
@@ -125,7 +122,6 @@ export class AddressComponent
   setViewAddress() {
     const address = this.geoAddress!;
     this.viewAddress = [
-      address.poi,
       address.address_1,
       address.address_2,
       address.place,
@@ -141,7 +137,6 @@ export class AddressComponent
     this.geoAddress = {
       address_1: this.addressForm.value.address_1 || undefined,
       address_2: this.addressForm.value.address_2 || undefined,
-      poi: this.addressForm.value.poi || undefined,
       place: this.addressForm.value.place || undefined,
       region: this.addressForm.value.region || undefined,
       country: this.addressForm.value.country || undefined,
@@ -160,7 +155,6 @@ export class AddressComponent
     this.geoAddress = {
       address_1: this.addressForm.value.address_1 || undefined,
       address_2: this.addressForm.value.address_2 || undefined,
-      poi: this.addressForm.value.poi || undefined,
       place: this.addressForm.value.place || undefined,
       region: this.addressForm.value.region || undefined,
       country: this.addressForm.value.country || undefined,

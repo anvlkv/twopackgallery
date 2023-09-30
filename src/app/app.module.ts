@@ -1,4 +1,4 @@
-import { registerLocaleData } from '@angular/common';
+import { NgOptimizedImage, registerLocaleData } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import en from '@angular/common/locales/en';
 import { NgModule, isDevMode } from '@angular/core';
@@ -12,6 +12,7 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
+import { NZ_CONFIG, NzConfig } from 'ng-zorro-antd/core/config';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
@@ -34,6 +35,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
+import { ImageCropperModule } from 'ngx-image-cropper';
 import { NgxMapboxGLModule } from 'ngx-mapbox-gl';
 import { environment } from 'src/environments/environment';
 import { ActivityService } from './activity.service';
@@ -41,9 +43,12 @@ import { AddressComponent } from './address/address.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ArtFormsService } from './art-forms.service';
+import { AvatarComponent } from './avatar/avatar.component';
 import { BrowserStorageService } from './browser-storage.service';
+import { CoverImageComponent } from './cover-image/cover-image.component';
 import { CursorComponent } from './cursor/cursor.component';
 import { ErrorInterceptor } from './error.interceptor';
+import { FatalErrorComponent } from './fatal-error/fatal-error.component';
 import { FlagPinComponent } from './flag-pin/flag-pin.component';
 import { HeaderComponent } from './header/header.component';
 import { LocationService } from './location.service';
@@ -56,16 +61,22 @@ import { PinEditorComponent } from './pin-editor/pin-editor.component';
 import { PinComponent } from './pin/pin.component';
 import { PointsService } from './points.service';
 import { TemplatePageTitleStrategy } from './title.strategy';
-import { ZoomSyncService } from './zoom-sync.service';
-import { UserProfileComponent } from './user-profile/user-profile.component';
 import { UserAccountComponent } from './user-account/user-account.component';
-import { FatalErrorComponent } from './fatal-error/fatal-error.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
+import { ZoomSyncService } from './zoom-sync.service';
 
 registerLocaleData(en);
 
 const httpInterceptorProviders = [
   { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
 ];
+
+const ngZorroConfig: NzConfig = {
+  notification: {
+    nzDuration: 7000,
+    nzPlacement: 'top',
+  },
+};
 
 @NgModule({
   declarations: [
@@ -84,6 +95,8 @@ const httpInterceptorProviders = [
     UserProfileComponent,
     UserAccountComponent,
     FatalErrorComponent,
+    CoverImageComponent,
+    AvatarComponent,
   ],
   imports: [
     BrowserModule,
@@ -91,6 +104,7 @@ const httpInterceptorProviders = [
     HttpClientModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
+    NgOptimizedImage,
     NgxMapboxGLModule.withConfig({
       accessToken: environment.mapBoxTokenRead,
     }),
@@ -119,6 +133,7 @@ const httpInterceptorProviders = [
     NzCardModule,
     NzLayoutModule,
     NzAvatarModule,
+    ImageCropperModule,
     AuthModule.forRoot({
       domain: 'dev-twopack-gallery.eu.auth0.com',
       clientId: environment.auth0.clientId,
@@ -140,6 +155,7 @@ const httpInterceptorProviders = [
     ZoomSyncService,
     ActivityService,
     BrowserStorageService,
+    { provide: NZ_CONFIG, useValue: ngZorroConfig },
     { provide: NZ_I18N, useValue: en_US },
     { provide: TitleStrategy, useClass: TemplatePageTitleStrategy },
     httpInterceptorProviders,

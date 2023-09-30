@@ -2,14 +2,18 @@
   width: 2rem;
   height: 2rem;
   border-radius: 100%;
-  border: .25rem solid #f9f9f9;
+  border: .25rem solid #030303;
   box-shadow: 0 2px 8px rgba(#030303, .25);
+  transition-property: opacity;
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   i {
     font-size: 1.75rem;
     margin-top: -0.15rem;
     margin-left: -0.15rem;
   }
   .activity-icon {
+    display: contents;
     i {
       transform: scale(.7, .7);
       transform-origin: center center;

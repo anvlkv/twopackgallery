@@ -1,13 +1,15 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, TitleStrategy } from '@angular/router';
-import { Subscription, combineLatest, map } from 'rxjs';
+import { AuthService } from '@auth0/auth0-angular';
 import type { JSONData } from '@xata.io/client';
-import type { PointsRecord } from 'xata';
-import { PointsService } from '../points.service';
-import { ArtFormsService } from '../art-forms.service';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { LocationService } from '../location.service';
+import { Subscription, combineLatest, map } from 'rxjs';
+import type { PointsRecord } from 'xata';
 import { ActivityService, EActivity } from '../activity.service';
+import { ArtFormsService } from '../art-forms.service';
+import { COVER_RATIO } from '../cover-image/cover-image.component';
+import { LocationService } from '../location.service';
+import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
 
 @Component({
@@ -25,6 +27,8 @@ export class PinComponent implements OnInit, OnDestroy {
 
   title = '';
 
+  coverRatio = COVER_RATIO.STR;
+
   private titleStrategy = inject(TitleStrategy) as TemplatePageTitleStrategy;
 
   constructor(
@@ -35,10 +39,12 @@ export class PinComponent implements OnInit, OnDestroy {
     private notification: NzNotificationService,
     private location: LocationService,
     private activity: ActivityService,
+    public auth: AuthService
   ) {
     this.id = activatedRoute.snapshot.params['id']!;
   }
 
+  private leave?: () => void;
   ngOnInit(): void {
     this.artForms.queryArtForms();
     this.subs.push(
@@ -63,7 +69,10 @@ export class PinComponent implements OnInit, OnDestroy {
             this.data = d;
             this.title = d.title! as string;
             this.titleStrategy.entityTitle(this.title);
-            this.location.adjust_location([d.longitude!, d.latitude!] as [number, number])
+            this.location.adjust_location([d.longitude!, d.latitude!] as [
+              number,
+              number
+            ]);
           },
           error: (err) => {
             this.notification.error('Something went wrong...', err.message);
@@ -77,12 +86,12 @@ export class PinComponent implements OnInit, OnDestroy {
         })
     );
 
-    this.activity.startActivity(EActivity.ViewPin);
+    this.leave = this.activity.startActivity(EActivity.ViewPin);
   }
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
-    this.activity.leaveActivity();
     this.titleStrategy.clearEntityTitle();
+    this.leave && this.leave();
   }
 }

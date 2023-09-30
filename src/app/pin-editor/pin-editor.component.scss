@@ -12,17 +12,23 @@ nz-form-item:not(.cover) {
 }
 
 .cover {
-  margin-bottom: .25rem;
-  flex-basis: 250px;
-  flex-grow: .25;
-  flex-shrink: .25;
+  margin-bottom: 1rem;
+  flex-grow: 0;
+  flex-shrink: 0;
   .cover-uploader {
+    position: relative;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: rgba($color: #000000, $alpha: .5);
     .ant-btn {
       height: auto;
+    }
+    .cropper-actions {
+      position: absolute;
+      right: .25rem;
+      top: .25rem;
     }
   }
 }

@@ -1,8 +1,8 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import type { JSONData } from '@xata.io/client';
 import { BehaviorSubject } from 'rxjs';
 import type { ArtFormsRecord } from 'xata';
-import type { JSONData } from '@xata.io/client';
 
 
 @Injectable({

@@ -5,17 +5,12 @@ import {
   HttpEvent,
   HttpInterceptor,
   HttpErrorResponse,
-  HttpClient,
 } from '@angular/common/http';
-import { Observable, catchError, tap } from 'rxjs';
-
-const MAX_RETRY_ATTEMPTS = 5;
+import { Observable, catchError } from 'rxjs';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-  private retryMap = new Map<string, number>();
-
-  constructor(private http: HttpClient) {}
+  constructor() {}
 
   intercept(
     request: HttpRequest<unknown>,
@@ -23,16 +18,7 @@ export class ErrorInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
       catchError((err: HttpErrorResponse) => {
-        const key = request.method + request.urlWithParams;
-        const attempts = this.retryMap.get(key) || 0;
-
-        if (attempts >= MAX_RETRY_ATTEMPTS) {
-          throw { message: err.statusText, code: err.status };
-        } else {
-          return this.http
-            .request(request)
-            .pipe(tap(() => this.retryMap.delete(key)));
-        }
+        throw { message: err.statusText, code: err.status };
       })
     );
   }

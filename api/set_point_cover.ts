@@ -1,6 +1,7 @@
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import { XataFile } from '@xata.io/client';
-import { parseMultipartForm } from 'uitls/parseMultipartFormData';
+import sharp from 'sharp';
+import { COVER_RATIO } from 'src/app/cover-image/cover-image.component';
 import { getXataClient } from 'xata';
 
 const client = getXataClient();
@@ -12,27 +13,27 @@ const handler: Handler = async (
   try {
     const pointId: string = event.queryStringParameters!['id']!;
 
-    console.log('parsing');
+    const { base64Content } = JSON.parse(event.body!);
 
-    const { base64Content, mediaType } = JSON.parse(event.body!);
+    const shImg = sharp(Buffer.from(base64Content, 'base64')).webp({
+      smartSubsample: true,
+      nearLossless: true,
+    });
 
-    console.log('creating file');
+    const meta = await shImg.metadata();
+    const height = Math.round(
+      (Math.min(meta.width!, 2048) / COVER_RATIO.W_RATIO) * COVER_RATIO.H_RATIO
+    );
 
-    const cover = XataFile.fromBase64(base64Content, {
-      mediaType,
-      enablePublicUrl: true
+    const webpBuff = await shImg.resize({ height, fit: 'fill' }).toBuffer();
+
+    const cover = XataFile.fromBuffer(webpBuff, {
+      mediaType: 'image/webp',
+      enablePublicUrl: true,
     });
 
     if (cover.size! > 3e6) {
       return { statusCode: 400, body: 'File size exceeded.' };
-    }
-
-    if (
-      !['image/png', 'image/jpeg', 'image/gif', 'image/bmp'].includes(
-        cover.mediaType
-      )
-    ) {
-      return { statusCode: 400, body: 'Unsupported file type.' };
     }
 
     const savedPoint = await client.db.points.update(pointId, {

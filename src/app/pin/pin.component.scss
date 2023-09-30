@@ -23,6 +23,7 @@
 .pin-content {
   width: 100%;
   padding: .75rem;
+  padding-top: 0;
   flex-grow: 1;
   flex-shrink: 0;
   align-items: stretch;
@@ -30,7 +31,6 @@
   .cover {
     width: calc(100% + .75rem * 2);
     padding: 0;
-    height: 240px;
     margin-left: -.75rem;
     margin-bottom: 1rem;
   }

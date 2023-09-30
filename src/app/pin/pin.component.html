@@ -45,10 +45,10 @@
 <ng-container *ngIf="data">
   <div class="pin-layout">
     <nz-space nzDirection="vertical" [ngClass]="'pin-content'">
-      <img
+      <app-cover-image
         *nzSpaceItem
         class="cover"
-        [src]="data.cover?.url"
+        [src]="data.cover!.url"
         alt="Cover image of {{ data.title }}"
       />
       <h2 *nzSpaceItem nz-typography>{{ data.title }}</h2>
@@ -72,7 +72,7 @@
       </ng-container>
     </nz-space>
     <nz-divider></nz-divider>
-    <div class="form-actions">
+    <div class="form-actions" *ngIf="auth.isAuthenticated$ | async">
       <a id="edit-btn" nz-button nzGhost nzSize="large" [routerLink]="['edit']"
         >Edit</a
       >

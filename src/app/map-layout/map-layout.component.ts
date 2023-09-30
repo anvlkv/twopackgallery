@@ -11,19 +11,16 @@ import {
   ViewChild,
 } from '@angular/core';
 import {
-  Router,
   ActivatedRoute,
-  EventType,
-  NavigationEnd,
   ActivatedRouteSnapshot,
-  UrlSegment,
+  EventType,
+  Router
 } from '@angular/router';
 import {
-  NzDrawerComponent,
   NzDrawerRef,
-  NzDrawerService,
+  NzDrawerService
 } from 'ng-zorro-antd/drawer';
-import { Subscription, filter, map } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-map-layout',
@@ -111,24 +108,21 @@ export class MapLayoutComponent
       const snapshot = this.activatedRoute.firstChild.snapshot;
       this.drawerRef = this.drawers.create({
         nzClosable: true,
-        nzMaskClosable: true,
-        nzMaskStyle: { opacity: 0 },
         nzBodyStyle: { padding: 0, position: 'relative' },
+        nzMask: false,
         nzContent: this.drawerContentTemplate,
         nzExtra: this.drawerExtraTemplate,
         nzWidth: this.drawerWidth,
         nzTitle: snapshot.title,
         nzPlacement: 'right',
+        nzWrapClassName: 'drawer-layout-wrapper',
         nzOnCancel: this.close.bind(this),
       });
       this.isChildRouteActivated = true;
-      this.extraLink = snapshot.url.map(({ path }, i) => {
-        if (this.activatedRoute.snapshot.url[i]?.path == path) {
-          return '../';
-        } else {
-          return path;
-        }
-      });
+      this.extraLink = snapshot.url.map(({ path }) => path);
+      this.extraLink.unshift(
+        ...this.activatedRoute.snapshot.url.map(() => '../')
+      );
     } else {
       this.isChildRouteActivated = false;
       this.extraLink = undefined;

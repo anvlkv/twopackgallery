@@ -3,15 +3,18 @@ import type {
   HandlerEvent,
   HandlerContext,
 } from '@netlify/functions';
+import { withAuth0 } from "@netlify/auth0";
 import { getXataClient } from 'xata';
 
 const client = getXataClient();
 
-const handler: Handler = async (
+const handler: Handler = withAuth0(async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
   try {
+    console.log(context.identity)
+    
     const {
       art_forms,
       ...pointData
@@ -29,6 +32,6 @@ const handler: Handler = async (
     console.error(e);
     return { statusCode: 500, body: 'Could not save new point.' };
   }
-};
+});
 
 export { handler };

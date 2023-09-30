@@ -4,7 +4,7 @@
   nzTooltipPlacement="bottom"
   [nzTooltipVisible]="!!tooltip"
   [nzTooltipTrigger]="null"
-  [ngStyle]="{opacity: !loading && currentActivity === eActivity.None ? '.5' : '.9'}"
+  [ngStyle]="{opacity: !loading && currentActivity === eActivity.None ? '0' : '.9'}"
 >
   <nz-spin
     *ngIf="loading; else activityTemplate"

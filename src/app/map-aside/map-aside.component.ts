@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { LocationService } from '../location.service';
 import { ZoomSyncService } from '../zoom-sync.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-map-aside',
