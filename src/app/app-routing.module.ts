@@ -1,11 +1,9 @@
 import { NgModule, isDevMode } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthorizeComponent } from './authorize/authorize.component';
 import { FatalErrorComponent } from './fatal-error/fatal-error.component';
 import { FlagPinComponent } from './flag-pin/flag-pin.component';
-import {
-  isAuthenticated,
-  restoreAuthenticatedRoute,
-} from './isAuthenticated.guard';
+import { isAuthenticated } from './isAuthenticated.guard';
 import { MapLayoutComponent } from './map-layout/map-layout.component';
 import { PageLayoutComponent } from './page-layout/page-layout.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
@@ -52,7 +50,6 @@ const routes: Routes = [
   },
   {
     path: 'map',
-    canActivate: [restoreAuthenticatedRoute],
     component: MapLayoutComponent,
     children: [
       ...internalRoutes,
@@ -80,6 +77,10 @@ const routes: Routes = [
         path: 'account',
         component: UserAccountComponent,
         canActivate: [isAuthenticated],
+      },
+      {
+        path: 'authorize',
+        component: AuthorizeComponent,
       },
     ],
   },

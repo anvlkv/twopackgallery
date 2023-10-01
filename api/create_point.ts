@@ -13,7 +13,7 @@ const handler: Handler = withAuth0(async (
   context: HandlerContext
 ) => {
   try {
-    console.log(context.identity)
+    console.log(context);
     
     const {
       art_forms,
@@ -31,6 +31,10 @@ const handler: Handler = withAuth0(async (
   catch (e) {
     console.error(e);
     return { statusCode: 500, body: 'Could not save new point.' };
+  }
+}, {
+  auth0: {
+    required: true,
   }
 });
 

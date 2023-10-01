@@ -1,4 +1,10 @@
+[build]
+command = "ng build --prod"
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
 [functions]
-  directory = "api"
+directory = "api"
 [[plugins]]
 package = "@xata.io/netlify"

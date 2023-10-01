@@ -3,7 +3,8 @@ import {
   ActivatedRouteSnapshot,
   CanActivateFn,
   Params,
-  Router
+  Router,
+  RouterStateSnapshot
 } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { map, of, skipWhile, switchMap } from 'rxjs';
@@ -17,10 +18,10 @@ export interface IRedirects {
 }
 
 export const isAuthenticated: CanActivateFn = (
-  route: ActivatedRouteSnapshot
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
 ) => {
   const auth = inject(AuthService);
-  const storage = inject(BrowserStorageService);
 
   return auth.isLoading$.pipe(
     skipWhile(Boolean),
@@ -30,12 +31,11 @@ export const isAuthenticated: CanActivateFn = (
           if (isAuthenticated) {
             return of(true);
           } else {
-            storage.set(AUTH_REDIRECTS_KEY, {
-              urlPaths: ['/', ...route.url.map(({ path }) => path)],
-              query: route.queryParams,
-            } as IRedirects);
-
-            return auth.loginWithRedirect().pipe(map(() => false));
+            return auth.loginWithRedirect({
+              appState: {
+                target: state.url
+              }
+            }).pipe(map(() => false));
           }
         })
       )
@@ -43,32 +43,4 @@ export const isAuthenticated: CanActivateFn = (
   );
 };
 
-export const restoreAuthenticatedRoute: CanActivateFn = () => {
-  const auth = inject(AuthService);
-  const storage = inject(BrowserStorageService);
-  const router = inject(Router);
 
-  const restore = storage.get<IRedirects>(AUTH_REDIRECTS_KEY);
-
-  if (!restore) {
-    return true;
-  }
-
-  return auth.isLoading$.pipe(
-    skipWhile(Boolean),
-    switchMap(() =>
-      auth.isAuthenticated$.pipe(
-        map((isAuthenticated) => {
-          if (!isAuthenticated) {
-            return true;
-          } else {
-            storage.remove(AUTH_REDIRECTS_KEY)
-            return router.createUrlTree(restore.urlPaths, {
-              queryParams: restore.query,
-            });
-          }
-        })
-      )
-    )
-  );
-};

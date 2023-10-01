@@ -7,7 +7,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TitleStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { AuthModule } from '@auth0/auth0-angular';
+import { AuthHttpInterceptor, AuthModule } from '@auth0/auth0-angular';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -43,6 +43,7 @@ import { AddressComponent } from './address/address.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ArtFormsService } from './art-forms.service';
+import { AuthorizeComponent } from './authorize/authorize.component';
 import { AvatarComponent } from './avatar/avatar.component';
 import { BrowserStorageService } from './browser-storage.service';
 import { CoverImageComponent } from './cover-image/cover-image.component';
@@ -68,6 +69,7 @@ import { ZoomSyncService } from './zoom-sync.service';
 registerLocaleData(en);
 
 const httpInterceptorProviders = [
+  { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
 ];
 
@@ -97,6 +99,7 @@ const ngZorroConfig: NzConfig = {
     FatalErrorComponent,
     CoverImageComponent,
     AvatarComponent,
+    AuthorizeComponent,
   ],
   imports: [
     BrowserModule,
@@ -135,11 +138,32 @@ const ngZorroConfig: NzConfig = {
     NzAvatarModule,
     ImageCropperModule,
     AuthModule.forRoot({
-      domain: 'dev-twopack-gallery.eu.auth0.com',
+      domain: environment.auth0.domain,
       clientId: environment.auth0.clientId,
       authorizationParams: {
         redirect_uri: window.location.origin,
+        audience: `${window.location.origin}/.netlify/functions`
       },
+      httpInterceptor: {
+        allowedList: [
+          '/.netlify/functions/*'
+        ]
+      }
+      //     {
+      //       // Match any request that starts 'https://{yourDomain}/api/v2/' (note the asterisk)
+      //       uri: `https://${environment.auth0.domain}/api/v2/*`,
+      //       tokenOptions: {
+      //         authorizationParams: {
+      //           // The attached token should target this audience
+      //           audience: `https://${environment.auth0.domain}/api/v2/`,
+    
+      //           // The attached token should have these scopes
+      //           scope: 'read:current_user'
+      //         }
+      //       }
+      //     }
+      //   ],
+      // },
     }),
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
