@@ -27,6 +27,7 @@ export class FatalErrorComponent implements OnInit, OnDestroy {
     this.url = activatedRoute.snapshot.data['url'] || '/';
   }
 
+  retrySubscription?: Subscription;
   ngOnInit(): void {
     this.subs.push(
       this.activatedRoute.data.subscribe((d) => {
@@ -35,8 +36,7 @@ export class FatalErrorComponent implements OnInit, OnDestroy {
       })
     );
 
-    this.subs.push(
-      timer(100, 100)
+    this.retrySubscription = timer(100, 100)
         .pipe(
           map((i) => RETRY_IN - i * 100),
           take(RETRY_IN / 100 + 1)
@@ -48,7 +48,6 @@ export class FatalErrorComponent implements OnInit, OnDestroy {
             this.sBeforeRetry = i / 100;
           }
         })
-    );
   }
 
   ngOnDestroy(): void {
@@ -57,5 +56,9 @@ export class FatalErrorComponent implements OnInit, OnDestroy {
 
   retryNow() {
     window.location.assign(this.url);
+  }
+
+  cancel() {
+    this.retrySubscription?.unsubscribe();
   }
 }
