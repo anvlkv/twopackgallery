@@ -1,5 +1,6 @@
 [build]
 command = "ng build --configuration production"
+publish = "dist/artmap"
 [[redirects]]
 from = "/*"
 to = "/index.html"
