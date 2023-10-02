@@ -2,7 +2,6 @@ import type {
   Handler,
   HandlerEvent,
   HandlerContext,
-  HandlerResponse,
 } from '@netlify/functions';
 import { getXataClient } from 'xata';
 

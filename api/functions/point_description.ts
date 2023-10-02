@@ -2,7 +2,6 @@ import type {
   Handler,
   HandlerEvent,
   HandlerContext,
-  HandlerResponse,
 } from '@netlify/functions';
 import { JSONData } from '@xata.io/client';
 import { PointsRecord, getXataClient } from 'xata';

@@ -1,5 +1,4 @@
-import 'dotenv/config'
-import type { Handler, HandlerEvent, HandlerContext, HandlerResponse } from "@netlify/functions";
+import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 import {IPGeolocationAPI} from 'ip-geolocation-api-sdk-typescript';
 import {GeolocationParams} from 'ip-geolocation-api-sdk-typescript/GeolocationParams';
 
