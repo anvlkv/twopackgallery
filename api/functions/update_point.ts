@@ -1,14 +1,29 @@
+import { withAuth0 } from '@netlify/auth0';
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import { getXataClient } from 'xata';
 
 const client = getXataClient();
 
-const handler: Handler = async (
+const handler: Handler = withAuth0(async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
   try {
     const id = event.queryStringParameters!['id']!;
+
+    const sub: string = context.clientContext?.['user']['sub'];
+
+    const user = await client.db.users.getFirstOrThrow({
+      filter: {
+        user_id: sub,
+      },
+    });
+
+    const point = await client.db.points.getFirstOrThrow({filter: {id}});
+
+    if (point.publisher!.id !== user.id) {
+      return { statusCode: 403, body: 'Can not update a point if one does not own it.' };
+    }
 
     const oldArtForms = await client.db.art_forms_points.getAll({
       filter: { point: { id } },
@@ -53,6 +68,10 @@ const handler: Handler = async (
     console.error(e);
     return { statusCode: 500, body: 'Could not update point.' };
   }
-};
+}, {
+  auth0: {
+    required: true
+  }
+});
 
 export { handler };

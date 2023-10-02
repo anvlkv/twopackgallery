@@ -4,6 +4,7 @@
     nzType="image"
     [nzActive]="true"
     class="cover"
+    [ngStyle]="{ 'aspect-ratio': coverRatio }"
   ></nz-skeleton-element>
   <nz-skeleton
     *nzSpaceItem
@@ -73,10 +74,17 @@
     </nz-space>
     <nz-divider></nz-divider>
     <div class="form-actions" *ngIf="auth.isAuthenticated$ | async">
-      <a id="edit-btn" nz-button nzGhost nzSize="large" [routerLink]="['edit']"
+      <a
+        *ngIf="canEdit"
+        id="edit-btn"
+        nz-button
+        nzGhost
+        nzSize="large"
+        [routerLink]="['edit']"
         >Edit</a
       >
       <a
+        *ngIf="canFlag"
         id="flag-btn"
         nz-tooltip
         nzTooltipTitle="Flag issues with this location"

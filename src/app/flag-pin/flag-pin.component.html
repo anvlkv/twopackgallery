@@ -13,7 +13,7 @@
       below.
     </p>
   </legend>
-  
+
   <nz-form-item>
     <nz-form-label nzFor="issue"
       >The "{{ pin.title }}" location is:</nz-form-label
@@ -23,13 +23,61 @@
         <label nz-radio-button nzValue="unsafe">Unsafe</label>
         <label nz-radio-button nzValue="irrelevant">Irrelevant</label>
         <label nz-radio-button nzValue="unreachable">Unreachable</label>
+        <label nz-radio-button nzValue="reclaim">Reclaim</label>
         <label nz-radio-button nzValue="other">Other...</label>
       </nz-radio-group>
     </nz-form-control>
   </nz-form-item>
 
+  <ng-container [ngSwitch]="flagPinForm.controls['issue'].value">
+    <nz-alert
+      *ngSwitchCase="'unsafe'"
+      nzType="info"
+      nzShowIcon
+      nzMessage="The location is unsafe"
+    >
+      You have visited the location and consider it unsafe for other visitors.
+    </nz-alert>
+    <nz-alert
+      *ngSwitchCase="'irrelevant'"
+      nzType="info"
+      nzShowIcon
+      nzMessage="The location is irrelevant"
+    >
+      The location doesn't show any of the art forms it has claimed or has
+      nothing to do with art.
+    </nz-alert>
+    <nz-alert
+      *ngSwitchCase="'unreachable'"
+      nzType="info"
+      nzShowIcon
+      nzMessage="The location is unreachable"
+    >
+      You attempted an unsuccessful visit to the location, and followed the
+      instructions in "How to get there" section if any.
+    </nz-alert>
+    <nz-alert
+      *ngSwitchCase="'reclaim'"
+      nzType="info"
+      nzShowIcon
+      nzMessage="Reclaim the location"
+    >
+      You are the owner of this location and would like to reclaim it.
+    </nz-alert>
+    <nz-alert
+      *ngSwitchCase="'other'"
+      nzType="info"
+      nzShowIcon
+      nzMessage="Other issues"
+    >
+      Something else is the issue with this location.
+    </nz-alert>
+  </ng-container>
+
   <nz-form-item>
-    <nz-form-control nzErrorTip="Please provide a description using at least 100 characters.">
+    <nz-form-control
+      nzErrorTip="Please provide a description using at least 100 characters."
+    >
       <textarea
         nz-input
         placeholder="Issue description"
@@ -37,7 +85,9 @@
         [nzAutosize]="{ minRows: 5, maxRows: 17 }"
       ></textarea>
     </nz-form-control>
-    <small>{{(flagPinForm.controls['description'].value?.length || 0)}} / 100</small>
+    <small
+      >{{ flagPinForm.controls["description"].value?.length || 0 }} / 100</small
+    >
   </nz-form-item>
 
   <nz-divider></nz-divider>

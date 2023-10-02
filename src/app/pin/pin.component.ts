@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, TitleStrategy } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService, User } from '@auth0/auth0-angular';
 import type { JSONData } from '@xata.io/client';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { Subscription, combineLatest, map } from 'rxjs';
+import { Subscription, combineLatest, filter, map, switchMap } from 'rxjs';
 import type { PointsRecord } from 'xata';
 import { ActivityService, EActivity } from '../activity.service';
 import { ArtFormsService } from '../art-forms.service';
@@ -11,6 +11,7 @@ import { COVER_RATIO } from '../cover-image/cover-image.component';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
+import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-pin',
@@ -20,7 +21,8 @@ import { TemplatePageTitleStrategy } from '../title.strategy';
 export class PinComponent implements OnInit, OnDestroy {
   id: string;
   subs: Subscription[] = [];
-
+  canEdit = false;
+  canFlag = false;
   data?: Partial<JSONData<PointsRecord>> & {
     art_forms: { id: string; name: string }[];
   };
@@ -39,7 +41,8 @@ export class PinComponent implements OnInit, OnDestroy {
     private notification: NzNotificationService,
     private location: LocationService,
     private activity: ActivityService,
-    public auth: AuthService
+    public auth: AuthService,
+    private user: UserService
   ) {
     this.id = activatedRoute.snapshot.params['id']!;
   }
@@ -87,6 +90,29 @@ export class PinComponent implements OnInit, OnDestroy {
     );
 
     this.leave = this.activity.startActivity(EActivity.ViewPin);
+
+    this.subs.push(
+      combineLatest({
+        user: this.auth.user$,
+        description: this.pts.getPointDescription(this.id),
+      })
+        .pipe(
+          filter((d) => Boolean(d.user)),
+          switchMap(
+            ({
+              user: { sub },
+              description: { id },
+            }: {
+              user: any;
+              description: Partial<JSONData<PointsRecord>>;
+            }) => this.user.pointOwnership(sub, id!)
+          )
+        )
+        .subscribe((isOwner) => {
+          this.canEdit = isOwner;
+          this.canFlag = !isOwner;
+        })
+    );
   }
 
   ngOnDestroy(): void {

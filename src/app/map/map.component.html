@@ -1,4 +1,8 @@
-<app-cursor *ngIf="!mapLoaded" [loading]="true" class="map-loading-cursor"></app-cursor>
+<app-cursor
+  *ngIf="!mapLoaded"
+  [loading]="true"
+  class="map-loading-cursor"
+></app-cursor>
 
 <mgl-map
   [style]="'mapbox://styles/packtwo/cln03jvjy02v001nzceog3kko'"
@@ -11,7 +15,7 @@
   (zoomEvt)="mapZoom($event, false)"
   (zoomEnd)="mapZoom($event)"
   (mapLoad)="mapLoad()"
-  (mouseMove)="onMouseMoveMap($event)"
+  (mapMouseMove)="onMouseMoveMap($event)"
   [cursorStyle]="cursorStyle"
   [attributionControl]="false"
   (mapError)="onMapBoxError($event)"
@@ -36,9 +40,10 @@
     type="symbol"
     source="allPins"
     [layout]="{
-    'icon-image': ['image','border-dot-13'],
-    'icon-size': 2,
-  }"
+      'icon-image': ['image', 'twopack-gallery-marker'],
+      'icon-size': 0.75,
+      'icon-anchor': 'bottom'
+    }"
     (layerClick)="clickPins($event)"
   >
   </mgl-layer>

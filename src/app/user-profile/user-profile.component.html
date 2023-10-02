@@ -1,1 +1,24 @@
-<p>user-profile works!</p>
+<h2>Locations of {{ (auth.user$ | async)?.name }}</h2>
+
+<div nz-row [nzGutter]="[16, 24]" *ngIf="descriptions; else skeletonTemplate">
+  <div nz-col [nzSpan]="6" *ngFor="let d of descriptions">
+    <app-pin-card [data]="d"></app-pin-card>
+  </div>
+</div>
+
+<ng-template #skeletonTemplate>
+  <div nz-row [nzGutter]="[16, 24]">
+    <div *ngFor="let i of [].constructor(5)" nz-col [nzSpan]="6">
+      <nz-card [nzCover]="skeletonCoverTemplate" class="pin-card">
+        <nz-skeleton></nz-skeleton>
+      </nz-card>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #skeletonCoverTemplate let-content>
+  <nz-skeleton-element
+    nzType="image"
+    [ngStyle]="{ width: '100%', 'aspect-ratio': coverRatio }"
+  ></nz-skeleton-element>
+</ng-template>

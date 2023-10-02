@@ -1,0 +1,13 @@
+.avatar-uploader{
+  ::ng-deep{
+    .ant-upload {
+      width: 142px;
+      height: 142px;
+      border-radius: 100%;
+    }
+  }
+  nz-avatar {
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+}

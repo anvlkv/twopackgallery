@@ -17,7 +17,7 @@ const handler: Handler = async (
     const bBox = event.queryStringParameters?.['bBox'];
     const consistency = event.queryStringParameters?.['consistency'];
 
-    let points = client.db.points.all();
+    let points = client.db.points.all().filter({ status: 'published' });
 
     if (title) {
       points = points.filter({ title });
@@ -62,13 +62,12 @@ const handler: Handler = async (
     //   .map(({ $key }) => ({id: $key as string}));
 
     const flagged_points = Array.from(
-      (await client.db.flags.getAll({ columns: ['point.id'] })).reduce(
-        (acc, { point: { id } }: any) => {
-          acc.set(id, (acc.get(id) || 0) + 1);
-          return acc;
-        },
-        new Map<string, number>()
-      )
+      (
+        await client.db.flags.getAll({ columns: ['point.id'], cache: 30000 })
+      ).reduce((acc, { point: { id } }: any) => {
+        acc.set(id, (acc.get(id) || 0) + 1);
+        return acc;
+      }, new Map<string, number>())
     )
       .filter(([k, v]) => v >= 5)
       .map(([id]) => ({

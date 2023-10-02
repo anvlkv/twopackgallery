@@ -1,0 +1,13 @@
+{
+  "id": "mig_ckcootfes1c46u46euhg",
+  "parentID": "mig_ckcer8vpa1e4ojndsdfg",
+  "checksum": "1:a49638c9772f2032cfa1776fd546554d79dd31e81ff81cd57c465ed1bd27f0d9",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "picture",
+        "table": "users"
+      }
+    }
+  ]
+}

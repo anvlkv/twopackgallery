@@ -4,7 +4,7 @@ import type {
   HandlerContext,
   HandlerResponse,
 } from '@netlify/functions';
-import { getXataClient } from '../xata';
+import { getXataClient } from 'xata';
 
 const client = getXataClient();
 

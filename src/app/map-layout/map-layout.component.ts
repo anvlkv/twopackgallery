@@ -132,7 +132,7 @@ export class MapLayoutComponent
   }
 
   close() {
-    this.router.navigate(['.'], { relativeTo: this.activatedRoute.parent });
+    this.router.navigate(['.'], { relativeTo: this.activatedRoute });
     return Promise.resolve();
   }
 }

@@ -1,1 +1,98 @@
-<p>user-account works!</p>
+<div nz-row>
+  <nz-space nzDirection="vertical" nz-col [nzSpan]="24">
+    <form
+      *nzSpaceItem
+      nz-form
+      [nzLayout]="'vertical'"
+      [formGroup]="userForm"
+      (ngSubmit)="onSubmit()"
+    >
+      <nz-form-item>
+        <nz-upload
+          class="avatar-uploader"
+          nzName="avatar"
+          nzListType="picture-card"
+          [(nzFileList)]="avatarFile"
+          [nzBeforeUpload]="beforeUploadAvatar"
+          [nzShowUploadList]="false"
+          [nzFileType]="'image/png,image/jpeg,image/gif,image/bmp'"
+          [nzMultiple]="false"
+        >
+          <nz-avatar [nzSize]="128" [nzSrc]="avatarUrl"></nz-avatar>
+        </nz-upload>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzFor="name">Name</nz-form-label>
+        <nz-form-control nzErrorTip="A name is required">
+          <input nz-input formControlName="name" name="name" id="name" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzFor="email">E-mail</nz-form-label>
+        <nz-form-control nzErrorTip="Please enter a valid email address">
+          <input
+            nz-input
+            formControlName="email"
+            name="email"
+            type="email"
+            id="email"
+          />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-space>
+        <button
+          *nzSpaceItem
+          nz-button
+          nzSize="large"
+          nzType="primary"
+          [disabled]="!(userForm.valid && userForm.dirty)"
+          type="submit"
+          [nzLoading]="saving"
+        >
+          Save changes
+        </button>
+        <button *nzSpaceItem nz-button nzSize="large" (click)="onReset()">
+          Cancel
+        </button>
+      </nz-space>
+    </form>
+    <nz-divider *nzSpaceItem></nz-divider>
+    <button
+      *nzSpaceItem
+      nz-button
+      nzSize="large"
+      nzType="primary"
+      [disabled]="saving"
+      (click)="onResetPassword()"
+    >
+      Reset password
+    </button>
+    <nz-divider *nzSpaceItem></nz-divider>
+    <button
+      *nzSpaceItem
+      nz-button
+      nzType="primary"
+      nzSize="large"
+      nzDanger
+      [disabled]="saving"
+      (click)="onDeleteAccount()"
+    >
+      Delete account
+    </button>
+  </nz-space>
+</div>
+
+<ng-template #deleteAccount>
+  <form nz-form [formGroup]="deleteForm">
+    <nz-form-item>
+      <textarea
+        id="reason"
+        name="reason"
+        nz-input
+        placeholder="Please explain why are you deleting your account?"
+        formControlName="reason"
+        [nzAutosize]="{ minRows: 2, maxRows: 7 }"
+      ></textarea>
+    </nz-form-item>
+  </form>
+</ng-template>

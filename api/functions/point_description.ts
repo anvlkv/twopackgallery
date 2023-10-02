@@ -17,7 +17,7 @@ const handler: Handler = async (
     const id = event.queryStringParameters?.['id']!;
 
     const pointArtForms = await client.db.art_forms_points.getAll({
-      filter: { point: { id } },
+      filter: { point: { id, status: 'published' } },
       columns: [
         'form.id',
         'point.address',

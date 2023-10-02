@@ -24,6 +24,7 @@
     "@netlify/functions": "^2.0.2",
     "@netlify/integrations": "^0.6.0",
     "@xata.io/client": "^0.26.6",
+    "axios": "^1.5.1",
     "deep-equal": "^2.2.2",
     "dotenv": "^16.3.1",
     "ip-geolocation-api-sdk-typescript": "^1.0.7",

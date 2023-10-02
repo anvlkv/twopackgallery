@@ -64,6 +64,10 @@ export class FlagPinComponent implements OnInit, OnDestroy {
 
   private submitSubscription?: Subscription;
   onSubmit() {
+    if (!this.flagPinForm.valid) {
+      return
+    }
+    
     this.submitSubscription = this.pts
       .flagPoint(this.id, this.flagPinForm.value)
       .subscribe({

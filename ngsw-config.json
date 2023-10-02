@@ -54,7 +54,7 @@
     {
       "name": "point_description",
       "version": 1,
-      "urls": ["/.netlify/functions/point-description"],
+      "urls": ["/.netlify/functions/point_description"],
       "cacheQueryOptions": {
         "ignoreSearch": false
       },

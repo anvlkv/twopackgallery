@@ -61,14 +61,21 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
 import { PinEditorComponent } from './pin-editor/pin-editor.component';
 import { PinComponent } from './pin/pin.component';
 import { PointsService } from './points.service';
+import { RetryInterceptor } from './retry.interceptor';
 import { TemplatePageTitleStrategy } from './title.strategy';
 import { UserAccountComponent } from './user-account/user-account.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { ZoomSyncService } from './zoom-sync.service';
+import { CoverEditorComponent } from './cover-editor/cover-editor.component';
+import { UserService } from './user.service';
+import { FeedbackComponent } from './feedback/feedback.component';
+import { PinCardComponent } from './pin-card/pin-card.component';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 registerLocaleData(en);
 
 const httpInterceptorProviders = [
+  { provide: HTTP_INTERCEPTORS, useClass: RetryInterceptor, multi: true },
   { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
 ];
@@ -100,6 +107,10 @@ const ngZorroConfig: NzConfig = {
     CoverImageComponent,
     AvatarComponent,
     AuthorizeComponent,
+    CoverEditorComponent,
+    FeedbackComponent,
+    PinCardComponent,
+    WelcomeComponent,
   ],
   imports: [
     BrowserModule,
@@ -142,28 +153,16 @@ const ngZorroConfig: NzConfig = {
       clientId: environment.auth0.clientId,
       authorizationParams: {
         redirect_uri: window.location.origin,
-        audience: `${window.location.origin}/.netlify/functions`
+        audience: environment.auth0.audience,
       },
       httpInterceptor: {
         allowedList: [
-          '/.netlify/functions/*'
-        ]
-      }
-      //     {
-      //       // Match any request that starts 'https://{yourDomain}/api/v2/' (note the asterisk)
-      //       uri: `https://${environment.auth0.domain}/api/v2/*`,
-      //       tokenOptions: {
-      //         authorizationParams: {
-      //           // The attached token should target this audience
-      //           audience: `https://${environment.auth0.domain}/api/v2/`,
-    
-      //           // The attached token should have these scopes
-      //           scope: 'read:current_user'
-      //         }
-      //       }
-      //     }
-      //   ],
-      // },
+          {
+            uri: '/.netlify/functions/*',
+            allowAnonymous: true,
+          },
+        ],
+      },
     }),
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
@@ -179,6 +178,7 @@ const ngZorroConfig: NzConfig = {
     ZoomSyncService,
     ActivityService,
     BrowserStorageService,
+    UserService,
     { provide: NZ_CONFIG, useValue: ngZorroConfig },
     { provide: NZ_I18N, useValue: en_US },
     { provide: TitleStrategy, useClass: TemplatePageTitleStrategy },

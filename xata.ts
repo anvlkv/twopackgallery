@@ -18,6 +18,12 @@ const tables = [
       { name: "address", type: "json" },
       { name: "location_description", type: "text" },
       { name: "publisher", type: "link", link: { table: "users" } },
+      {
+        name: "status",
+        type: "string",
+        notNull: true,
+        defaultValue: "published",
+      },
     ],
     revLinks: [
       { column: "point", table: "art_forms_points" },
@@ -38,7 +44,17 @@ const tables = [
   },
   {
     name: "users",
-    columns: [],
+    columns: [
+      { name: "email", type: "email", unique: true },
+      {
+        name: "name",
+        type: "string",
+        notNull: true,
+        defaultValue: "anonymous",
+      },
+      { name: "user_id", type: "string", unique: true },
+      { name: "picture", type: "file" },
+    ],
     revLinks: [
       { column: "publisher", table: "points" },
       { column: "flagged_by", table: "flags" },
@@ -56,6 +72,19 @@ const tables = [
         notNull: true,
         defaultValue: "unspecified",
       },
+    ],
+  },
+  {
+    name: "feedback",
+    columns: [
+      {
+        name: "feedback_type",
+        type: "string",
+        notNull: true,
+        defaultValue: "issue",
+      },
+      { name: "description", type: "text" },
+      { name: "user_email", type: "email" },
     ],
   },
 ] as const;
@@ -78,12 +107,16 @@ export type UsersRecord = Users & XataRecord;
 export type Flags = InferredTypes["flags"];
 export type FlagsRecord = Flags & XataRecord;
 
+export type Feedback = InferredTypes["feedback"];
+export type FeedbackRecord = Feedback & XataRecord;
+
 export type DatabaseSchema = {
   points: PointsRecord;
   art_forms: ArtFormsRecord;
   art_forms_points: ArtFormsPointsRecord;
   users: UsersRecord;
   flags: FlagsRecord;
+  feedback: FeedbackRecord;
 };
 
 const DatabaseClient = buildClient();

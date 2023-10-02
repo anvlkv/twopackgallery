@@ -24,6 +24,7 @@ import { COVER_RATIO } from '../cover-image/cover-image.component';
 import { Address, LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
+import { Cover } from '../cover-editor/cover-editor.component';
 @Component({
   selector: 'app-pin-editor',
   templateUrl: './pin-editor.component.html',
@@ -31,20 +32,16 @@ import { TemplatePageTitleStrategy } from '../title.strategy';
 })
 export class PinEditorComponent implements OnInit, OnDestroy {
   title: string;
-  pictureUrl?: string;
-  fb64 = new BehaviorSubject<{
-    mediaType: string;
-    base64Content: string;
-  } | null>(null);
+  id?: string;
   saving = false;
   subs: Subscription[] = [];
   artFormsList: NzSelectOptionInterface[] = [];
   loadingArtForms = true;
-  imageCropped = true;
   pinForm = this.fb.group({
     address: [{} as Address],
     longitude: [0, Validators.required],
     latitude: [0, Validators.required],
+    cover: ['' as Cover, Validators.required],
     title: [
       '',
       Validators.required,
@@ -70,12 +67,9 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     description: [''],
     location_description: [''],
   });
-
-  coverFile: NzUploadFile[] = [];
-
-  id?: string;
-
   coverRatio = COVER_RATIO;
+
+
 
   private titleStrategy = inject(TitleStrategy) as TemplatePageTitleStrategy;
 
@@ -121,17 +115,12 @@ export class PinEditorComponent implements OnInit, OnDestroy {
         })
     );
 
-    this.subs.push(
-      this.fb64.pipe(filter(Boolean)).subscribe((d) => {
-        this.pictureUrl = `data:${d!.mediaType};base64,${d!.base64Content}`;
-      })
-    );
-
     if (this.id) {
       this.subs.push(
         this.points.getPointDescription(this.id).subscribe((point) => {
           this.pinForm.reset({
             address: point.address as Address,
+            cover: point.cover?.url,
             title: point.title as string,
             description: point.description as string,
             location_description: point.location_description as string,
@@ -139,7 +128,6 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             longitude: point.longitude as number,
             latitude: point.latitude as number,
           });
-          this.pictureUrl = point.cover?.url;
           this.titleStrategy.entityTitle(point.title as string);
           this.location.adjust_location([
             point.longitude as number,
@@ -204,12 +192,16 @@ export class PinEditorComponent implements OnInit, OnDestroy {
 
   private submitSubscription?: Subscription;
   onSubmit() {
+    if (!this.pinForm.valid) {
+      return
+    }
     this.saving = true;
-    const coverFile = this.fb64.getValue() || undefined;
+    const {cover, ...formValue} = this.pinForm.value;
+    const coverFile = typeof cover === 'object' ? cover : undefined;
 
     if (!this.id) {
       this.submitSubscription = this.points
-        .createNewPoint(this.pinForm.value, coverFile)
+        .createNewPoint(formValue, coverFile)
         .subscribe({
           next: (newPoint) => {
             this.saving = false;
@@ -308,60 +300,6 @@ export class PinEditorComponent implements OnInit, OnDestroy {
 
     return false;
   }
-
-  cropperHint?: string;
-  croppedImage?: Blob;
-  onCropperReady() {
-    this.cropperHint = 'You may adjust how the image is cropped and scaled.';
-  }
-  onImageLoadFailed() {
-    this.notification.error(
-      'Could not open the uploaded image.',
-      'Please try again or choose a different file.'
-    );
-    this.clearImage();
-  }
-  onImageCropped(ev: ImageCroppedEvent) {
-    this.croppedImage = ev.blob || undefined;
-  }
-
-  clearImage() {
-    this.pictureUrl = undefined;
-    this.fb64.next(null);
-    this.coverFile = [];
-    this.imageCropped = true;
-    return false;
-  }
-
-  acceptCropped() {
-    this.imageCropped = true;
-    this.fb64FromArrayBuffer(this.croppedImage!, this.croppedImage!.type);
-    return false;
-  }
-
-  private fb64FromArrayBuffer(data: File | Blob, mediaType: string) {
-    from(data.arrayBuffer()).pipe(map(arrayBuffer => {
-      const base64 = btoa(
-        new Uint8Array(arrayBuffer).reduce(
-          (data, byte) => data + String.fromCharCode(byte),
-          ''
-        )
-      );
-
-      return {
-        mediaType,
-        base64Content: base64,
-      };
-    })).subscribe(d => this.fb64.next(d))
-  }
-
-  beforeUploadCover = (file: NzUploadFile) => {
-    this.coverFile = [file];
-    this.imageCropped = false;
-    const data = (file as unknown as File);
-    this.fb64FromArrayBuffer(data, data.type);
-    return false;
-  };
 
   confirmDeactivate(): Observable<boolean> {
     if (!this.pinForm.dirty) {

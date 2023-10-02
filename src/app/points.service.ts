@@ -74,7 +74,7 @@ export class PointsService {
       Partial<JSONData<PointsRecord>> & {
         art_forms: string[];
       }
-    >(`/.netlify/functions/point-description?id=${id}`);
+    >(`/.netlify/functions/point_description?id=${id}`);
   }
 
   public updatePoint(

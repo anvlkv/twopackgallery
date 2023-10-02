@@ -4,5 +4,6 @@ export const environment = {
   auth0: {
     clientId: '',
     domain: '',
+    audience: 'https://twopack.gallery'
   }
 };

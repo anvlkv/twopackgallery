@@ -2,7 +2,11 @@ import { NgModule, isDevMode } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthorizeComponent } from './authorize/authorize.component';
 import { FatalErrorComponent } from './fatal-error/fatal-error.component';
-import { FlagPinComponent } from './flag-pin/flag-pin.component';
+import { FeedbackComponent } from './feedback/feedback.component';
+import {
+  FlagPinComponent,
+  canDeactivateFlagPin,
+} from './flag-pin/flag-pin.component';
 import { isAuthenticated } from './isAuthenticated.guard';
 import { MapLayoutComponent } from './map-layout/map-layout.component';
 import { PageLayoutComponent } from './page-layout/page-layout.component';
@@ -14,6 +18,8 @@ import {
 import { PinComponent } from './pin/pin.component';
 import { UserAccountComponent } from './user-account/user-account.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
+import { isPointOwner } from './user.service';
+import { WelcomeComponent, canActivateWelcomePage as canActivateWelcomePageOrRedirect } from './welcome/welcome.component';
 
 const internalRoutes: Routes = [
   {
@@ -32,21 +38,23 @@ const internalRoutes: Routes = [
     path: 'pin/:id/edit',
     title: 'Edit location',
     component: PinEditorComponent,
-    canActivate: [isAuthenticated],
+    canDeactivate: [canDeactivatePinEditor],
+    canActivate: [isAuthenticated, isPointOwner(true, 'id')],
   },
   {
     path: 'pin/:id/flag',
     title: 'Flag location',
     component: FlagPinComponent,
-    canActivate: [isAuthenticated],
+    canDeactivate: [canDeactivateFlagPin],
+    canActivate: [isAuthenticated, isPointOwner(false, 'id')],
   },
 ];
 
 const routes: Routes = [
   {
     path: '',
-    pathMatch: 'full',
-    redirectTo: 'map',
+    component: WelcomeComponent,
+    canActivate: [canActivateWelcomePageOrRedirect]
   },
   {
     path: 'map',
@@ -76,6 +84,11 @@ const routes: Routes = [
       {
         path: 'account',
         component: UserAccountComponent,
+        canActivate: [isAuthenticated],
+      },
+      {
+        path: 'feedback',
+        component: FeedbackComponent,
         canActivate: [isAuthenticated],
       },
       {
