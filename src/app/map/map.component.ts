@@ -32,16 +32,20 @@ import { CursorComponent } from '../cursor/cursor.component';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { ZoomSyncService } from '../zoom-sync.service';
+import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
+import { BrowserStorageService } from '../browser-storage.service';
 
 type MapChangeEvent = MapboxEvent<
   MouseEvent | TouchEvent | WheelEvent | undefined
 > &
   EventData;
 
+const LAST_USED_KEY = 'mapLocation, zoom'
 @Component({
   standalone: true,
   imports: [
     CommonModule,
+    NzNotificationModule,
     NgxMapboxGLModule,
     CursorComponent,
     AvatarComponent
@@ -105,7 +109,9 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     private pts: PointsService,
     private location: LocationService,
     private router: Router,
-    private zoomSync: ZoomSyncService
+    private zoomSync: ZoomSyncService,
+    private notification: NzNotificationService,
+    private storage: BrowserStorageService
   ) {}
 
   ngOnInit(): void {
@@ -138,6 +144,9 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
           this.nextPoints();
           this.loading$.points.next(false);
         },
+        error: (err) => {
+          this.notification.error('Something went wrong...', err.message)
+        }
       })
     );
 
