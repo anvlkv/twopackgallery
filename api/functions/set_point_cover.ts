@@ -1,8 +1,8 @@
 import { withAuth0 } from '@netlify/auth0';
-import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
+import type { Handler, HandlerContext, HandlerEvent } from '@netlify/functions';
 import { XataFile } from '@xata.io/client';
 import sharp from 'sharp';
-import { COVER_RATIO } from 'src/app/cover-image/cover-image.component';
+import { COVER_RATIO } from 'src/app/cover-image/consts';
 import { getXataClient } from 'xata';
 
 const client = getXataClient();

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, distinct, map } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, filter, map } from 'rxjs';
 
 const MIN_ZOOM = 0;
 const MAX_ZOOM = 20;
@@ -8,25 +8,26 @@ const MAX_ZOOM = 20;
   providedIn: 'root',
 })
 export class ZoomSyncService {
-  private zoom$ = new BehaviorSubject(15);
+  private zoom$ = new BehaviorSubject(undefined as number | undefined);
 
   zoom = this.zoom$.pipe(
-    distinct(),
+    distinctUntilChanged(),
+    filter((v) => v !== undefined),
     map((value) => ({
       value,
-      canZoomIn: value < MAX_ZOOM,
-      canZoomOut: value > MIN_ZOOM,
+      canZoomIn: value! < MAX_ZOOM,
+      canZoomOut: value! > MIN_ZOOM,
     }))
   );
 
   constructor() {}
 
   zoomIn() {
-    const current = this.zoom$.getValue();
+    const current = this.zoom$.getValue() || 0;
     this.setZoom(current + 1);
   }
   zoomOut() {
-    const current = this.zoom$.getValue();
+    const current = this.zoom$.getValue() || 0;
     this.setZoom(current - 1);
   }
   setZoom(value: number) {

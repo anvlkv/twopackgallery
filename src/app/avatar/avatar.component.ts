@@ -1,8 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { AuthService, User } from '@auth0/auth0-angular';
+import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { Subscription } from 'rxjs';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    NzAvatarModule
+  ],
   selector: 'app-avatar',
   templateUrl: './avatar.component.html',
   styleUrls: ['./avatar.component.scss'],

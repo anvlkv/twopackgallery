@@ -1,12 +1,23 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UserService } from '../user.service';
-import { Subscription } from 'rxjs';
-import { JSONData } from '@xata.io/client';
-import type { PointsRecord } from 'xata';
 import { AuthService } from '@auth0/auth0-angular';
-import { COVER_RATIO } from '../cover-image/cover-image.component';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
+import { Subscription } from 'rxjs';
+import { PinCardComponent } from '../pin-card/pin-card.component';
+import { UserService } from '../user.service';
+import { COVER_RATIO } from '../cover-image/consts';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    PinCardComponent,
+    NzGridModule,
+    NzSkeletonModule,
+    NzCardModule,
+  ],
   selector: 'app-user-profile',
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.scss'],

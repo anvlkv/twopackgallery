@@ -5,18 +5,11 @@
 >
   <div nz-result-extra>
     <nz-space nzDirection="vertical" nzAlign="center" nzSize="large">
-      <nz-space *nzSpaceItem nzSize="large" class="cta-group">
-        <a
-          *nzSpaceItem
-          nz-button
-          nzSize="large"
-          routerLink="/map"
-          (click)="markWelcomed()"
-        >
+      <div *nzSpaceItem class="cta-group">
+        <a nz-button nzSize="large" routerLink="/map" (click)="markWelcomed()">
           Find art locations near you
         </a>
         <a
-          *nzSpaceItem
           nz-button
           nzSize="large"
           nzType="primary"
@@ -30,7 +23,7 @@
           </span>
           <span class="static-text">to the map</span>
         </a>
-      </nz-space>
+      </div>
       <nz-divider *nzSpaceItem></nz-divider>
       <h1 *nzSpaceItem nz-typography>twopack.gallery</h1>
       <p *nzSpaceItem nz-typography>
@@ -44,13 +37,19 @@
         <a routerLink="/map">explore the map</a>, and if you like what you see,
         spread the word to any artists you may know.
       </p>
+      <p *nzSpaceItem nz-typography>
+        This public prototype comes with no guarantees or liabilities.
+        Nevertheless, we greatly value our users and encourage you to <a routerLink="/feedback">reach out</a>
+        with any issues or suggestions you may have. Your feedback is important
+        to us!
+      </p>
     </nz-space>
   </div>
 </nz-result>
 
 <ng-template #welcomeTemplate>
   <svg
-    [ngStyle]="{ 'max-height': '42vh' }"
+    [ngStyle]="{ 'max-height': '42vh', width: 'auto' }"
     width="800"
     height="800"
     viewBox="0 0 800 800"

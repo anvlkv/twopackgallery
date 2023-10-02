@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -6,11 +7,25 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { Subscription } from 'rxjs';
 import { ActivityService, EActivity } from '../activity.service';
+import { AvatarComponent } from '../avatar/avatar.component';
 import { BrowserStorageService } from '../browser-storage.service';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    NzSpinModule,
+    NzIconModule,
+    AvatarComponent,
+    NzSpaceModule,
+    NzToolTipModule,
+  ],
   selector: 'app-cursor',
   templateUrl: './cursor.component.html',
   styleUrls: ['./cursor.component.scss'],

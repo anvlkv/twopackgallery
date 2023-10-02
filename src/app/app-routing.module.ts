@@ -1,30 +1,18 @@
 import { NgModule, isDevMode } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthorizeComponent } from './authorize/authorize.component';
-import { FatalErrorComponent } from './fatal-error/fatal-error.component';
-import { FeedbackComponent } from './feedback/feedback.component';
-import {
-  FlagPinComponent,
-  canDeactivateFlagPin,
-} from './flag-pin/flag-pin.component';
+import { canDeactivateFlagPin } from './flag-pin/flag-pin.component';
 import { isAuthenticated } from './isAuthenticated.guard';
-import { MapLayoutComponent } from './map-layout/map-layout.component';
-import { PageLayoutComponent } from './page-layout/page-layout.component';
-import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import {
-  PinEditorComponent,
-  canDeactivatePinEditor,
-} from './pin-editor/pin-editor.component';
-import { PinComponent } from './pin/pin.component';
-import { UserAccountComponent } from './user-account/user-account.component';
-import { UserProfileComponent } from './user-profile/user-profile.component';
+import { canDeactivatePinEditor } from './pin-editor/pin-editor.component';
 import { isPointOwner } from './user.service';
-import { WelcomeComponent, canActivateWelcomePage as canActivateWelcomePageOrRedirect } from './welcome/welcome.component';
+import { canActivateWelcomePage as canActivateWelcomePageOrRedirect } from './welcome/welcome.component';
 
 const internalRoutes: Routes = [
   {
     path: 'create-pin',
-    component: PinEditorComponent,
+    loadComponent: () =>
+      import('./pin-editor/pin-editor.component').then(
+        (mod) => mod.PinEditorComponent
+      ),
     title: 'New location',
     canDeactivate: [canDeactivatePinEditor],
     canActivate: [isAuthenticated],
@@ -32,19 +20,26 @@ const internalRoutes: Routes = [
   {
     path: 'pin/:id',
     title: 'View location',
-    component: PinComponent,
+    loadComponent: () =>
+      import('./pin/pin.component').then((mod) => mod.PinComponent),
   },
   {
     path: 'pin/:id/edit',
     title: 'Edit location',
-    component: PinEditorComponent,
+    loadComponent: () =>
+      import('./pin-editor/pin-editor.component').then(
+        (mod) => mod.PinEditorComponent
+      ),
     canDeactivate: [canDeactivatePinEditor],
     canActivate: [isAuthenticated, isPointOwner(true, 'id')],
   },
   {
     path: 'pin/:id/flag',
     title: 'Flag location',
-    component: FlagPinComponent,
+    loadComponent: () =>
+      import('./flag-pin/flag-pin.component').then(
+        (mod) => mod.FlagPinComponent
+      ),
     canDeactivate: [canDeactivateFlagPin],
     canActivate: [isAuthenticated, isPointOwner(false, 'id')],
   },
@@ -53,24 +48,39 @@ const internalRoutes: Routes = [
 const routes: Routes = [
   {
     path: '',
-    component: WelcomeComponent,
-    canActivate: [canActivateWelcomePageOrRedirect]
+    loadComponent: () =>
+      import('./welcome/welcome.component').then((mod) => mod.WelcomeComponent),
+    canActivate: [canActivateWelcomePageOrRedirect],
+  },
+  {
+    path: 'welcome',
+    loadComponent: () =>
+      import('./welcome/welcome.component').then((mod) => mod.WelcomeComponent),
   },
   {
     path: 'map',
-    component: MapLayoutComponent,
+    loadComponent: () =>
+      import('./map-layout/map-layout.component').then(
+        (mod) => mod.MapLayoutComponent
+      ),
     children: [
       ...internalRoutes,
       {
         path: 'pin/:id/not-found',
         title: 'Location not found',
-        component: PageNotFoundComponent,
+        loadComponent: () =>
+          import('./page-not-found/page-not-found.component').then(
+            (mod) => mod.PageNotFoundComponent
+          ),
       },
     ],
   },
   {
     path: '',
-    component: PageLayoutComponent,
+    loadComponent: () =>
+      import('./page-layout/page-layout.component').then(
+        (mod) => mod.PageLayoutComponent
+      ),
     children: [
       ...internalRoutes.map((route) => ({
         ...route,
@@ -78,32 +88,50 @@ const routes: Routes = [
       })),
       {
         path: 'profile',
-        component: UserProfileComponent,
+        loadComponent: () =>
+          import('./user-profile/user-profile.component').then(
+            (mod) => mod.UserProfileComponent
+          ),
         canActivate: [isAuthenticated],
       },
       {
         path: 'account',
-        component: UserAccountComponent,
+        loadComponent: () =>
+          import('./user-account/user-account.component').then(
+            (mod) => mod.UserAccountComponent
+          ),
         canActivate: [isAuthenticated],
       },
       {
         path: 'feedback',
-        component: FeedbackComponent,
+        loadComponent: () =>
+          import('./feedback/feedback.component').then(
+            (mod) => mod.FeedbackComponent
+          ),
         canActivate: [isAuthenticated],
       },
       {
         path: 'authorize',
-        component: AuthorizeComponent,
+        loadComponent: () =>
+          import('./authorize/authorize.component').then(
+            (mod) => mod.AuthorizeComponent
+          ),
       },
     ],
   },
   {
     path: 'error',
-    component: FatalErrorComponent,
+    loadComponent: () =>
+      import('./fatal-error/fatal-error.component').then(
+        (mod) => mod.FatalErrorComponent
+      ),
   },
   {
     path: '**',
-    component: PageNotFoundComponent,
+    loadComponent: () =>
+      import('./page-not-found/page-not-found.component').then(
+        (mod) => mod.PageNotFoundComponent
+      ),
   },
 ];
 

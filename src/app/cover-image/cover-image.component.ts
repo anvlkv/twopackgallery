@@ -1,3 +1,4 @@
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -8,13 +9,14 @@ import {
   OnChanges,
   SimpleChanges
 } from '@angular/core';
-
-const W_RATIO = 100;
-const H_RATIO = 30;
-
-export const COVER_RATIO = { W_RATIO, H_RATIO, STR: `${W_RATIO} / ${H_RATIO}` };
+import { COVER_RATIO } from './consts';
 
 @Component({
+  standalone: true,
+  imports: [
+    NgOptimizedImage,
+    CommonModule,
+  ],
   selector: 'app-cover-image',
   templateUrl: './cover-image.component.html',
   styleUrls: ['./cover-image.component.scss'],
@@ -54,7 +56,7 @@ export class CoverImageComponent implements AfterViewInit, OnChanges {
     const width = this.el.nativeElement.clientWidth;
 
     this.width = width;
-    this.height = (width / W_RATIO) * H_RATIO;
+    this.height = (width / COVER_RATIO.W_RATIO) * COVER_RATIO.H_RATIO;
     this.ch.detectChanges();
   }
 }

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { CanActivateFn } from '@angular/router';
 import { AuthService, User } from '@auth0/auth0-angular';
-import { JSONData } from '@xata.io/client';
+import type { JSONData } from '@xata.io/client';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 import type { ArtFormsPointsRecord, PointsRecord } from 'xata';
 import { ArtFormsService } from './art-forms.service';

@@ -1,15 +1,34 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, forwardRef } from '@angular/core';
 import {
   AbstractControlOptions,
   ControlValueAccessor,
   FormBuilder,
   NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { Subscription, noop } from 'rxjs';
 import { Address, LocationService } from '../location.service';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NzPopoverModule,
+    NzFormModule,
+    NzButtonModule,
+    NzIconModule,
+    NzAlertModule,
+    NzToolTipModule
+  ],
   selector: 'app-address',
   templateUrl: './address.component.html',
   styleUrls: ['./address.component.scss'],

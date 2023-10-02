@@ -1,18 +1,18 @@
 <app-cursor
-  *ngIf="!mapLoaded"
-  [loading]="true"
+  *ngIf="!center"
+  [loading]="!center"
   class="map-loading-cursor"
 ></app-cursor>
 
 <mgl-map
+  [accessToken]="accessToken"
   [style]="'mapbox://styles/packtwo/cln03jvjy02v001nzceog3kko'"
-  [zoom]="[zoom]"
+  [zoom]="[zoom === undefined ? 0.1 : zoom]"
   [centerWithPanTo]="true"
   [interactive]="true"
   [center]="center"
   (move)="mapMove($event, false)"
   (moveEnd)="mapMove($event)"
-  (zoomEvt)="mapZoom($event, false)"
   (zoomEnd)="mapZoom($event)"
   (mapLoad)="mapLoad()"
   (mapMouseMove)="onMouseMoveMap($event)"

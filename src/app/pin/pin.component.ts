@@ -1,19 +1,43 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router, TitleStrategy } from '@angular/router';
-import { AuthService, User } from '@auth0/auth0-angular';
+import { ActivatedRoute, Router, RouterModule, TitleStrategy } from '@angular/router';
+import { AuthService } from '@auth0/auth0-angular';
 import type { JSONData } from '@xata.io/client';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { Subscription, combineLatest, filter, map, switchMap } from 'rxjs';
 import type { PointsRecord } from 'xata';
 import { ActivityService, EActivity } from '../activity.service';
 import { ArtFormsService } from '../art-forms.service';
-import { COVER_RATIO } from '../cover-image/cover-image.component';
+import { CoverImageComponent } from '../cover-image/cover-image.component';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
 import { UserService } from '../user.service';
+import { COVER_RATIO } from '../cover-image/consts';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    NzSkeletonModule,
+    NzGridModule,
+    NzSpaceModule,
+    NzButtonModule,
+    NzIconModule,
+    NzTagModule,
+    NzDividerModule,
+    NzTypographyModule,
+    CoverImageComponent,
+  ],
   selector: 'app-pin',
   templateUrl: './pin.component.html',
   styleUrls: ['./pin.component.scss'],

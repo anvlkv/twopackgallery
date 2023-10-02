@@ -1,9 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { Subscription } from 'rxjs';
 import { LocationService } from '../location.service';
 import { ZoomSyncService } from '../zoom-sync.service';
 
 @Component({
+  standalone: true,
+  imports: [
+    RouterModule,
+    NzButtonModule,
+    NzIconModule,
+    NzToolTipModule,
+  ],
   selector: 'app-map-aside',
   templateUrl: './map-aside.component.html',
   styleUrls: ['./map-aside.component.scss'],

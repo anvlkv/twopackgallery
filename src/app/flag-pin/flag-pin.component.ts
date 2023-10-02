@@ -1,16 +1,38 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, TitleStrategy } from '@angular/router';
-import { JSONData } from '@xata.io/client';
-import { NzModalService } from 'ng-zorro-antd/modal';
-import { NzNotificationService } from 'ng-zorro-antd/notification';
+import type { JSONData } from '@xata.io/client';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
+import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { Observable, Subject, Subscription, of } from 'rxjs';
-import { PointsRecord } from 'xata';
+import type { PointsRecord } from 'xata';
 import { ActivityService, EActivity } from '../activity.service';
 import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NzFormModule,
+    NzDividerModule,
+    NzSpaceModule,
+    NzAlertModule,
+    NzInputModule,
+    NzButtonModule,
+    NzRadioModule,
+    NzModalModule,
+    NzNotificationModule,
+  ],
   selector: 'app-flag-pin',
   templateUrl: './flag-pin.component.html',
   styleUrls: ['./flag-pin.component.scss'],

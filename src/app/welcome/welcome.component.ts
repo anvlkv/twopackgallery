@@ -1,12 +1,30 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { BrowserStorageService } from '../browser-storage.service';
-import { CanActivateFn, Router, UrlTree } from '@angular/router';
+import { CanActivateFn, Router, RouterModule } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzResultModule } from 'ng-zorro-antd/result';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { map } from 'rxjs';
+import { BrowserStorageService } from '../browser-storage.service';
 
 export const WELCOMED_KEY = 'hasBeenWelcomed';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    NzSpaceModule,
+    NzResultModule,
+    NzIconModule,
+    NzDividerModule,
+    NzTypographyModule,
+    NzButtonModule
+  ],
   selector: 'app-welcome',
   templateUrl: './welcome.component.html',
   styleUrls: ['./welcome.component.scss'],

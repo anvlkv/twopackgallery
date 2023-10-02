@@ -1,10 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzResultModule } from 'ng-zorro-antd/result';
 import { Subscription, map, take, timer } from 'rxjs';
 
 const RETRY_IN = 5000;
 
 @Component({
+  standalone: true,
+  imports: [
+    NzResultModule,
+    NzButtonModule,
+  ],
   selector: 'app-fatal-error',
   templateUrl: './fatal-error.component.html',
   styleUrls: ['./fatal-error.component.scss'],

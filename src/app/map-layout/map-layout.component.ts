@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewChecked,
   AfterViewInit,
@@ -14,15 +15,33 @@ import {
   ActivatedRoute,
   ActivatedRouteSnapshot,
   EventType,
-  Router
+  Router,
+  RouterModule
 } from '@angular/router';
 import {
+  NzDrawerModule,
   NzDrawerRef,
   NzDrawerService
 } from 'ng-zorro-antd/drawer';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Subscription, filter } from 'rxjs';
+import { HeaderComponent } from '../header/header.component';
+import { MapAsideComponent } from '../map-aside/map-aside.component';
+import { MapComponent } from '../map/map.component';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    HeaderComponent,
+    MapComponent,
+    MapAsideComponent,
+    NzIconModule,
+    NzDrawerModule,
+    NzGridModule,
+  ],
   selector: 'app-map-layout',
   templateUrl: './map-layout.component.html',
   styleUrls: ['./map-layout.component.scss'],

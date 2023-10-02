@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -7,11 +8,15 @@ import {
   forwardRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { NzUploadFile } from 'ng-zorro-antd/upload';
-import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
+import { ImageCroppedEvent, ImageCropperModule } from 'ngx-image-cropper';
 import { BehaviorSubject, Subscription, filter, from, map, noop } from 'rxjs';
-import { COVER_RATIO } from '../cover-image/cover-image.component';
+import { CoverImageComponent } from '../cover-image/cover-image.component';
+import { COVER_RATIO } from '../cover-image/consts';
 
 export type Cover =
   | string
@@ -21,6 +26,16 @@ export type Cover =
     };
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    NzUploadModule,
+    CoverImageComponent,
+    ImageCropperModule,
+    NzButtonModule,
+    NzIconModule,
+    NzToolTipModule,
+  ],
   selector: 'app-cover-editor',
   templateUrl: './cover-editor.component.html',
   styleUrls: ['./cover-editor.component.scss'],

@@ -1,31 +1,52 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, TitleStrategy } from '@angular/router';
-import { NzModalService } from 'ng-zorro-antd/modal';
-import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { NzSelectOptionInterface } from 'ng-zorro-antd/select';
-import { NzUploadFile } from 'ng-zorro-antd/upload';
-import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
+import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzSelectModule, NzSelectOptionInterface } from 'ng-zorro-antd/select';
 import {
-  BehaviorSubject,
   Observable,
   Subject,
   Subscription,
   filter,
-  from,
   map,
   of,
   skipWhile,
-  switchMap,
+  switchMap
 } from 'rxjs';
 import { ActivityService, EActivity } from '../activity.service';
+import { AddressComponent } from '../address/address.component';
 import { ArtFormsService } from '../art-forms.service';
-import { COVER_RATIO } from '../cover-image/cover-image.component';
+import { Cover, CoverEditorComponent } from '../cover-editor/cover-editor.component';
 import { Address, LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
-import { Cover } from '../cover-editor/cover-editor.component';
+import { COVER_RATIO } from '../cover-image/consts';
+
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NzDividerModule,
+    NzFormModule,
+    NzInputModule,
+    NzSelectModule,
+    NzButtonModule,
+    NzDropDownModule,
+    NzIconModule,
+    NzModalModule,
+    NzNotificationModule,
+    CoverEditorComponent,
+    AddressComponent,
+  ],
   selector: 'app-pin-editor',
   templateUrl: './pin-editor.component.html',
   styleUrls: ['./pin-editor.component.scss'],

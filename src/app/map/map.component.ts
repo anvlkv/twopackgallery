@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
   HostListener,
   Input,
@@ -14,9 +16,19 @@ import {
   MapLayerMouseEvent,
   MapboxEvent,
 } from 'mapbox-gl';
-import { MapComponent as MglMapComponent } from 'ngx-mapbox-gl';
-import { BehaviorSubject, Subscription, combineLatest, map } from 'rxjs';
+import { MapComponent as MglMapComponent, NgxMapboxGLModule } from 'ngx-mapbox-gl';
+import {
+  BehaviorSubject,
+  Subscription,
+  combineLatest,
+  filter,
+  map,
+  take,
+} from 'rxjs';
+import { environment } from 'src/environments/environment';
 import type { PointsRecord } from 'xata';
+import { AvatarComponent } from '../avatar/avatar.component';
+import { CursorComponent } from '../cursor/cursor.component';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { ZoomSyncService } from '../zoom-sync.service';
@@ -27,18 +39,24 @@ type MapChangeEvent = MapboxEvent<
   EventData;
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    NgxMapboxGLModule,
+    CursorComponent,
+    AvatarComponent
+  ],
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements OnInit, OnDestroy {
+export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   center?: [number, number];
   cursor?: [number, number];
   userLocation?: [number, number];
   subs: Subscription[] = [];
-  zoom = 15;
-  mapLoaded = false;
-
+  zoom?: number;
+  accessToken =environment.mapBoxTokenRead;
   hint?: string;
 
   private points = new Map<string, Partial<JSONData<PointsRecord>>>();
@@ -56,7 +74,7 @@ export class MapComponent implements OnInit, OnDestroy {
   @Input('offset')
   set offset(val: number | undefined) {
     this._offset = val;
-    if (this.mapLoaded) {
+    if (!this.loading$.map.getValue()) {
       this.applyMapPadding();
     }
   }
@@ -69,14 +87,14 @@ export class MapComponent implements OnInit, OnDestroy {
 
   @HostListener('window:focus', ['$event'])
   handleFocusEvent() {
-    if (!this.center) {
-      this.location.locate(false);
-    }
+    this.loading$.focus.next(false);
   }
 
-  private loading$ = {
+  loading$ = {
     location: new BehaviorSubject(true),
     points: new BehaviorSubject(true),
+    map: new BehaviorSubject(true),
+    focus: new BehaviorSubject(true),
   };
 
   loading = combineLatest(this.loading$).pipe(
@@ -88,11 +106,16 @@ export class MapComponent implements OnInit, OnDestroy {
     private location: LocationService,
     private router: Router,
     private zoomSync: ZoomSyncService
-  ) {
-    this.location.locate(false);
-  }
+  ) {}
 
   ngOnInit(): void {
+    this.subs.push(
+      this.location.currentLocation.pipe(take(1)).subscribe(() => {
+        if (this.zoom === undefined) {
+          this.zoomSync.setZoom(15);
+        }
+      })
+    );
     this.subs.push(
       this.location.currentLocation.subscribe((loc) => {
         this.cursor = this.center = loc;
@@ -142,6 +165,18 @@ export class MapComponent implements OnInit, OnDestroy {
       )
     );
 
+    this.subs.push(
+      combineLatest({
+        map: this.loading$.map,
+        focus: this.loading$.focus,
+      })
+        .pipe(filter(({ map, focus }) => !map && !focus && !this.center))
+        .subscribe(() => {
+          this.location.locate(false);
+          this.location.startTrackingLocation();
+        })
+    );
+
     // TODO: show hints
     // this.subs.push(
     //   combineLatest({
@@ -163,6 +198,12 @@ export class MapComponent implements OnInit, OnDestroy {
 
     //   })
     // );
+  }
+
+  ngAfterViewInit(): void {
+    if (document.hasFocus()) {
+      this.loading$.focus.next(false);
+    }
   }
 
   private nextPoints() {
@@ -193,16 +234,15 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   mapLoad() {
-    this.mapLoaded = true;
+    this.loading$.map.next(false);
     this.location.adjust_bounds(this.mapRef.mapInstance.getBounds().toArray());
     if (this.offset) {
       this.applyMapPadding();
     }
-    this.location.startTrackingLocation();
   }
 
   mapMove(ev: MapChangeEvent, final = true) {
-    if (this.mapLoaded && this.center) {
+    if (!this.loading$.map.getValue() && this.center) {
       const nextCenter = this.mapRef.mapInstance.getCenter();
       if (final) {
         this.location.adjust_location([nextCenter.lng, nextCenter.lat]);
@@ -216,13 +256,15 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   mapZoom(ev: MapChangeEvent, final = true) {
-    if (this.mapLoaded) {
-      const nextZoom = this.mapRef.mapInstance.getZoom();
+    if (!this.loading$.map.getValue()) {
+      if (ev.originalEvent) {
+        const nextZoom = this.mapRef.mapInstance.getZoom();
+        this.zoomSync.setZoom(nextZoom);
+      }
       if (final) {
         this.location.adjust_bounds(
           this.mapRef.mapInstance.getBounds().toArray()
         );
-        this.zoomSync.setZoom(nextZoom);
       }
     }
   }
@@ -230,7 +272,7 @@ export class MapComponent implements OnInit, OnDestroy {
   clickPins(ev: MapLayerMouseEvent) {
     if (ev.features) {
       if (ev.features[0].properties!['cluster'] === true) {
-        this.zoom += 1;
+        this.zoomSync.zoomIn();
       } else {
         this.router.navigate(['map', 'pin', ev.features[0].properties!['id']]);
       }
@@ -239,7 +281,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   onMouseMoveMap(ev: MapLayerMouseEvent) {
     const hasPin =
-      this.mapLoaded &&
+      !this.loading$.map.getValue() &&
       this.mapRef.mapInstance.isSourceLoaded('allPins') &&
       this.mapRef.mapInstance.queryRenderedFeatures(ev.point, {
         layers: ['pinsLayer'],

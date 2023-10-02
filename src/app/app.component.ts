@@ -8,6 +8,7 @@ import {
   NzNotificationService,
 } from 'ng-zorro-antd/notification';
 
+const COOKIE_CONSENT = 'hasGivenCookieConsent';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -19,7 +20,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private auth: AuthService,
-    private notification: NzNotificationService
+    private notification: NzNotificationService,
+    private storage: BrowserStorageService
   ) {}
 
   notificationRef?: NzNotificationRef;
@@ -36,6 +38,18 @@ export class AppComponent implements OnInit, OnDestroy {
         );
       })
     );
+
+    if (!this.storage.get(COOKIE_CONSENT)) {
+      this.notification
+        .info('Cookies...', 'We use 3rd-party cookies for authentication.', {
+          nzDuration: 0,
+          nzPlacement: 'bottomLeft',
+          nzCloseIcon: 'check-circle',
+        })
+        .onClose.subscribe(() => {
+          this.storage.set(COOKIE_CONSENT, true);
+        });
+    }
   }
 
   ngOnDestroy(): void {

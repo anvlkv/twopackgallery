@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
   OnDestroy,
@@ -5,9 +6,17 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, User } from '@auth0/auth0-angular';
-import { NzUploadFile } from 'ng-zorro-antd/upload';
+import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
+import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
 import {
   BehaviorSubject,
   Subject,
@@ -19,10 +28,21 @@ import {
   timer,
 } from 'rxjs';
 import { UserService } from '../user.service';
-import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    NzFormModule,
+    ReactiveFormsModule,
+    NzButtonModule,
+    NzSpaceModule,
+    NzUploadModule,
+    NzInputModule,
+    NzDividerModule,
+    NzAvatarModule,
+    NzNotificationModule,
+  ],
   selector: 'app-user-account',
   templateUrl: './user-account.component.html',
   styleUrls: ['./user-account.component.scss'],
