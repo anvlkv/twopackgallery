@@ -11,7 +11,7 @@ const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
-  try {
+  // try {
     const title = event.queryStringParameters?.['title'];
     const bBox = event.queryStringParameters?.['bBox'];
     const consistency = event.queryStringParameters?.['consistency'];
@@ -87,13 +87,13 @@ const handler: Handler = async (
       statusCode: 200,
       body: JSON.stringify(data.map((d) => d.toSerializable())),
     };
-  } catch (e) {
-    console.error(e);
-    return {
-      statusCode: 500,
-      body: 'Could not run the query.',
-    };
-  }
+  // } catch (e) {
+  //   console.error(e);
+  //   return {
+  //     statusCode: 500,
+  //     body: 'Could not run the query.',
+  //   };
+  // }
 };
 
 export { handler };
