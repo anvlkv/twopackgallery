@@ -2,8 +2,6 @@ $rotate-duration-s: 10;
 
 .cta-group {
   display: flex;
-  transform: scale(1.5, 1.5);
-  transform-origin: center center;
   margin-top: 0.75rem;
   flex-direction: column;
   [nz-button] {
@@ -11,6 +9,12 @@ $rotate-duration-s: 10;
       margin-bottom: 0.75rem;
     }
   }
+  
+  @media (min-width: 480px) {
+    transform: scale(1.5, 1.5);
+    transform-origin: center center;
+  }
+
   @media (min-width: 820px) {
     flex-direction: row;
     [nz-button] {
