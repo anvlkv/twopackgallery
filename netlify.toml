@@ -7,3 +7,5 @@ to = "/index.html"
 status = 200
 [functions]
 directory = "api/functions"
+[[plugins]]
+package = "@xata.io/netlify"
