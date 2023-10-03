@@ -1,5 +1,4 @@
-import { NgModule, isDevMode } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { canDeactivateFlagPin } from './flag-pin/flag-pin.component';
 import { isAuthenticated } from './isAuthenticated.guard';
 import { canDeactivatePinEditor } from './pin-editor/pin-editor.component';
@@ -45,7 +44,7 @@ const internalRoutes: Routes = [
   },
 ];
 
-const routes: Routes = [
+export const appRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
@@ -134,13 +133,3 @@ const routes: Routes = [
       ),
   },
 ];
-
-@NgModule({
-  imports: [
-    RouterModule.forRoot(routes, {
-      enableTracing: isDevMode(),
-    }),
-  ],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}

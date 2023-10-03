@@ -1,15 +1,25 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, isDevMode } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { BrowserStorageService } from './browser-storage.service';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthModule, AuthService } from '@auth0/auth0-angular';
 import { Subscription } from 'rxjs';
 import {
   NzNotificationRef,
   NzNotificationService,
 } from 'ng-zorro-antd/notification';
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 const COOKIE_CONSENT = 'hasGivenCookieConsent';
 @Component({
+  standalone: true,
+  imports: [
+    RouterModule,
+    HttpClientModule,
+    AuthModule,
+    ServiceWorkerModule
+  ],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],

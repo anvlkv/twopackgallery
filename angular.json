@@ -7,7 +7,8 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss"
+          "style": "scss",
+          "standalone": true
         }
       },
       "root": "",
@@ -42,7 +43,8 @@
             ],
             "allowedCommonJsDependencies": [
               "mapbox-gl",
-              "deep-equal"
+              "deep-equal",
+              "i18n-iso-countries"
             ],
             "scripts": [],
             "serviceWorker": true,
@@ -68,17 +70,18 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "3mb"
+                  "maximumWarning": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "4kb"
                 }
               ],
               "outputHashing": "all",
-              "sourceMap": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": false
+              },
               "namedChunks": true,
               "fileReplacements": [
                 {

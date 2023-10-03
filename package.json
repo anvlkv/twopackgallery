@@ -1,7 +1,8 @@
 {
   "name": "artmap",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
+    "build:stats": "ng build --configuration stage --stats-json && webpack-bundle-analyzer -p 1313 dist/artmap/stats.json",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
