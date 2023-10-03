@@ -27,7 +27,8 @@
     nz-tooltip
     nzTooltipTitle="Zoom in map view"
     nzTooltipPlacement="left"
-    (click)="handlePlus($event)"
+    (mousedown)="handlePlus($event)"
+    (mouseup)="endZoomHandle($event)"
     [disabled]="!canZoomIn"
   >
     <span nz-icon nzType="plus"></span>
@@ -38,7 +39,8 @@
     nzTooltipTitle="Zoom out map view"
     nzTooltipPlacement="left"
     nzShape="circle"
-    (click)="handleMinus($event)"
+    (mousedown)="handleMinus($event)"
+    (mouseup)="endZoomHandle($event)"
     [disabled]="!canZoomOut"
   >
     <span nz-icon nzType="minus"></span>

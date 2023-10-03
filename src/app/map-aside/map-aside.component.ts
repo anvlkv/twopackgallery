@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { Subscription, combineLatest, take } from 'rxjs';
+import { Subscription, combineLatest, interval, take, timer } from 'rxjs';
 import { LocationService } from '../location.service';
 import { ZoomSyncService } from '../zoom-sync.service';
 
@@ -17,6 +17,7 @@ import { ZoomSyncService } from '../zoom-sync.service';
 export class MapAsideComponent implements OnInit, OnDestroy {
   subs: Subscription[] = [];
 
+  locating = false;
   canZoomIn = true;
   canZoomOut = true;
 
@@ -36,31 +37,32 @@ export class MapAsideComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {}
 
-  locating = false;
   handleAim(ev: MouseEvent) {
     this.locating = true;
     this.subs.push(
-      combineLatest({
-        location: this.location.locate(),
-        zoom: this.zoomSync.zoom,
-      })
-        .pipe(take(1))
-        .subscribe(({ zoom }) => {
-          this.locating = false;
-          if ((zoom.value || 0) < 12) {
-            this.zoomSync.setZoom(12);
-          }
-        })
+      this.location.locate().subscribe(() => (this.locating = false))
     );
 
     return false;
   }
+  private handleZoomSub?: Subscription;
+
   handlePlus(ev: MouseEvent) {
-    this.zoomSync.zoomIn();
-    return false;
+    ev.stopPropagation();
+    this.endZoomHandle(ev);
+    this.handleZoomSub = timer(0, 700).subscribe((i) =>
+      this.zoomSync.zoomIn(0.3 * (i + 1))
+    );
   }
   handleMinus(ev: MouseEvent) {
-    this.zoomSync.zoomOut();
+    ev.stopPropagation();
+    this.endZoomHandle(ev);
+    this.handleZoomSub = timer(0, 700).subscribe((i) =>
+      this.zoomSync.zoomOut(0.3 * (i + 1))
+    );
+  }
+  endZoomHandle(ev: MouseEvent) {
+    this.handleZoomSub?.unsubscribe();
     return false;
   }
 }

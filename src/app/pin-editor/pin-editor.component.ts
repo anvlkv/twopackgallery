@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, TitleStrategy } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
@@ -9,7 +14,10 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
-import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
+import {
+  NzNotificationModule,
+  NzNotificationService,
+} from 'ng-zorro-antd/notification';
 import { NzSelectModule, NzSelectOptionInterface } from 'ng-zorro-antd/select';
 import {
   Observable,
@@ -19,16 +27,19 @@ import {
   map,
   of,
   skipWhile,
-  switchMap
+  switchMap,
 } from 'rxjs';
 import { ActivityService, EActivity } from '../activity.service';
 import { AddressComponent } from '../address/address.component';
 import { ArtFormsService } from '../art-forms.service';
-import { Cover, CoverEditorComponent } from '../cover-editor/cover-editor.component';
+import {
+  Cover,
+  CoverEditorComponent,
+} from '../cover-editor/cover-editor.component';
+import { COVER_RATIO } from '../cover-image/consts';
 import { Address, LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
-import { COVER_RATIO } from '../cover-image/consts';
 
 @Component({
   standalone: true,
@@ -54,6 +65,7 @@ import { COVER_RATIO } from '../cover-image/consts';
 export class PinEditorComponent implements OnInit, OnDestroy {
   title: string;
   id?: string;
+  hasDefinedAddress = false;
   saving = false;
   subs: Subscription[] = [];
   artFormsList: NzSelectOptionInterface[] = [];
@@ -89,8 +101,6 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     location_description: [''],
   });
   coverRatio = COVER_RATIO;
-
-
 
   private titleStrategy = inject(TitleStrategy) as TemplatePageTitleStrategy;
 
@@ -139,6 +149,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     if (this.id) {
       this.subs.push(
         this.points.getPointDescription(this.id).subscribe((point) => {
+          this.hasDefinedAddress = Boolean(point.address);
           this.pinForm.reset({
             address: point.address as Address,
             cover: point.cover?.url,
@@ -200,7 +211,14 @@ export class PinEditorComponent implements OnInit, OnDestroy {
           switchMap((address) => this.location.geoCodeAddress(address!))
         )
         .subscribe((collection) => {
-          console.log(collection);
+          if (collection.features[0]) {
+            const [longitude, latitude] = (
+              collection.features[0].geometry as GeoJSON.Point
+            ).coordinates;
+            this.location.adjust_location([longitude, latitude]);
+            this.pinForm.controls['longitude'].setValue(longitude);
+            this.pinForm.controls['latitude'].setValue(latitude);
+          }
         })
     );
   }
@@ -214,15 +232,21 @@ export class PinEditorComponent implements OnInit, OnDestroy {
   private submitSubscription?: Subscription;
   onSubmit() {
     if (!this.pinForm.valid) {
-      return
+      return;
     }
     this.saving = true;
-    const {cover, ...formValue} = this.pinForm.value;
+    const { cover, address, ...formValue } = this.pinForm.value;
     const coverFile = typeof cover === 'object' ? cover : undefined;
 
     if (!this.id) {
+      const value = this.pinForm.controls['address'].dirty
+        ? {
+            ...formValue,
+            address,
+          }
+        : formValue;
       this.submitSubscription = this.points
-        .createNewPoint(formValue, coverFile)
+        .createNewPoint(value, coverFile)
         .subscribe({
           next: (newPoint) => {
             this.saving = false;
@@ -245,8 +269,15 @@ export class PinEditorComponent implements OnInit, OnDestroy {
           },
         });
     } else {
+      const value =
+        this.pinForm.controls['address'].dirty || this.hasDefinedAddress
+          ? {
+              ...formValue,
+              address,
+            }
+          : formValue;
       this.submitSubscription = this.points
-        .updatePoint(this.id, this.pinForm.value, coverFile)
+        .updatePoint(this.id, value, coverFile)
         .subscribe({
           next: (updatedPoint) => {
             this.saving = false;

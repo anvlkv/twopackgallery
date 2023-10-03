@@ -14,7 +14,7 @@ export class ZoomSyncService {
     distinctUntilChanged(),
     filter((v) => v !== undefined),
     map((value) => ({
-      value,
+      value: value as number,
       canZoomIn: value! < MAX_ZOOM,
       canZoomOut: value! > MIN_ZOOM,
     }))
@@ -22,15 +22,18 @@ export class ZoomSyncService {
 
   constructor() {}
 
-  zoomIn() {
+  zoomIn(increment = 1) {
     const current = this.zoom$.getValue() || 0;
-    this.setZoom(current + 1);
+    this.setZoom(current + increment);
   }
-  zoomOut() {
+  zoomOut(increment = 1) {
     const current = this.zoom$.getValue() || 0;
-    this.setZoom(current - 1);
+    this.setZoom(current - increment);
   }
   setZoom(value: number) {
     this.zoom$.next(Math.max(Math.min(value, MAX_ZOOM), MIN_ZOOM));
+  }
+  getZoom() {
+    this.zoom$.getValue() || 0;
   }
 }

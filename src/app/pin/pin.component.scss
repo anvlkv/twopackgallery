@@ -34,4 +34,15 @@
     margin-left: -.75rem;
     margin-bottom: 1rem;
   }
+  &.full-page {
+    .cover {
+      width: 100vw;
+      margin-left: calc(-50px - .75rem);
+    }
+  }
+}
+
+app-mini-map {
+  width: 100%;
+  height: 50vh;
 }

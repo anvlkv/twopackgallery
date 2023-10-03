@@ -5,16 +5,14 @@ import deepEqual from 'deep-equal';
 import {
   BehaviorSubject,
   Observable,
-  Subject,
   debounceTime,
-  distinct,
   distinctUntilChanged,
   filter,
   from,
   map,
   race,
   skip,
-  take,
+  take
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -25,6 +23,7 @@ export type Address = {
   place?: string;
   region?: string;
   country?: string;
+  code?: string;
 };
 
 @Injectable({
@@ -36,10 +35,15 @@ export class LocationService {
   );
   private currentAccuracy$ = new BehaviorSubject(0);
   private currentBounds$ = new BehaviorSubject([] as number[]);
-  private runningLocation$ = new Subject<[number, number]>();
+  private runningLocation$ = new BehaviorSubject<[number, number] | undefined>(
+    undefined
+  );
   private watchId?: number;
 
-  runningLocation = this.runningLocation$.pipe(debounceTime(250));
+  runningLocation = this.runningLocation$.pipe(
+    debounceTime(250),
+    filter(Boolean)
+  );
   currentLocation = this.currentLocation$.pipe(
     filter(Boolean),
     distinctUntilChanged(deepEqual)
@@ -50,7 +54,7 @@ export class LocationService {
 
   public locate(forceNext = true) {
     race(
-      this.runningLocation$.pipe(take(1)),
+      this.runningLocation.pipe(take(1)),
       from(
         new Promise<[number, number]>((resolve) => {
           if (navigator.geolocation) {
@@ -126,8 +130,6 @@ export class LocationService {
         map(
           (data: any) =>
             ({
-              poi: data.features.find((f: any) => f.place_type.at(0) === 'poi')
-                ?.text_en,
               address_1: data.features.find(
                 (f: any) =>
                   f.place_type.at(0) === 'address' &&
@@ -147,9 +149,9 @@ export class LocationService {
               region: data.features.find(
                 (f: any) => f.place_type.at(0) === 'region'
               )?.text_en,
-              country: data.features.find(
+              code: data.features.find(
                 (f: any) => f.place_type.at(0) === 'country'
-              )?.text_en,
+              )?.properties.short_code.toUpperCase(),
             } as Address)
         )
       );
@@ -157,11 +159,8 @@ export class LocationService {
 
   geoCodeAddress(value: Address) {
     const location = this.currentLocation$.getValue();
-    const bounds = this.currentBounds$.getValue();
 
     const requestLocation = location ? `&proximity=${location.join(',')}` : '';
-
-    const requestBounds = bounds ? `&bbox=${bounds.join(',')}` : '';
 
     return this.http.get<GeoJSON.FeatureCollection>(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
@@ -171,13 +170,13 @@ export class LocationService {
           value.place,
           value.region,
           value.postcode,
-          value.country,
         ]
           .filter(Boolean)
           .join(', ')
       )}.json?access_token=${
         environment.mapBoxTokenRead
-      }&limit=1&types=country,region,postcode,district,place,locality,neighborhood,address${requestLocation}${requestBounds}`
+      }&limit=3&types=neighborhood,address&country=${value.code?.toLowerCase()
+      }${requestLocation}`
     );
   }
 
@@ -189,7 +188,7 @@ export class LocationService {
     return this.geoCodeAddress(value).pipe(
       debounceTime(500),
       map((response: any) => {
-        if (response.features.length === 0) {
+        if (response.features.filter((f: any) => f.relevance >= 0.5).length === 0) {
           return {
             NothingFound: 'We could not find this location',
           };

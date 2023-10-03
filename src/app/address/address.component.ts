@@ -8,14 +8,20 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import countries from 'i18n-iso-countries';
+import countryCodes from 'i18n-iso-countries/langs/en.json';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { NzSelectModule, NzSelectOptionInterface } from 'ng-zorro-antd/select';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { Subscription, noop } from 'rxjs';
 import { Address, LocationService } from '../location.service';
+
+countries.registerLocale(countryCodes);
 
 @Component({
   standalone: true,
@@ -27,7 +33,9 @@ import { Address, LocationService } from '../location.service';
     NzButtonModule,
     NzIconModule,
     NzAlertModule,
-    NzToolTipModule
+    NzToolTipModule,
+    NzInputModule,
+    NzSelectModule,
   ],
   selector: 'app-address',
   templateUrl: './address.component.html',
@@ -49,6 +57,12 @@ export class AddressComponent
   subs: Subscription[] = [];
   formVisible = false;
   disabled = false;
+  countryOptions: NzSelectOptionInterface[] = Object.entries(
+    countries.getAlpha2Codes()
+  ).map(([k, v]) => ({
+    value: k,
+    label: countries.getName(v, 'en')!,
+  }));
 
   addressForm = this.fb.group(
     {
@@ -57,6 +71,7 @@ export class AddressComponent
       place: ['', Validators.required],
       region: [''],
       country: ['', Validators.required],
+      code: ['', Validators.required],
       postcode: [''],
     },
     {
@@ -73,14 +88,16 @@ export class AddressComponent
         address_2: obj.address_2 || '',
         place: obj.place || '',
         region: obj.region || '',
-        country: obj.country || '',
+        country: obj.country || (obj.code && countries.getName(obj.code, 'en')),
+        code:
+          obj.code ||
+          (obj.country && countries.getAlpha2Code(obj.country, 'en')),
         postcode: obj.postcode || '',
       });
       this.geoAddress = obj;
       this.isVagueGeoAddress = !this.geoAddress.address_1;
       this.setViewAddress();
-    }
-    else {
+    } else {
       this.addressForm.reset();
       this.setViewAddress();
     }
@@ -111,6 +128,17 @@ export class AddressComponent
         }
       })
     );
+
+    this.subs.push(
+      this.addressForm.controls['code'].valueChanges.subscribe((code) => {
+        if (code) {
+          const country = countries.getName(code, 'en');
+          this.addressForm.controls['country'].setValue(country || null);
+        } else {
+          this.addressForm.controls['country'].setValue(null);
+        }
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -130,7 +158,11 @@ export class AddressComponent
         address_2: this.geoAddress.address_2 || '',
         place: this.geoAddress.place || '',
         region: this.geoAddress.region || '',
-        country: this.geoAddress.country || '',
+        country:
+          (this.geoAddress.code &&
+            countries.getName(this.geoAddress.code, 'en')) ||
+          '',
+        code: this.geoAddress.code || '',
         postcode: this.geoAddress.postcode || '',
       });
     } else {
@@ -145,7 +177,8 @@ export class AddressComponent
       address.address_2,
       address.place,
       address.region,
-      address.country,
+      address.country ||
+        (address.code && countries.getName(address.code, 'en')),
       address.postcode,
     ]
       .filter(Boolean)
@@ -159,6 +192,7 @@ export class AddressComponent
       place: this.addressForm.value.place || undefined,
       region: this.addressForm.value.region || undefined,
       country: this.addressForm.value.country || undefined,
+      code: this.addressForm.value.code || undefined,
       postcode: this.addressForm.value.postcode || undefined,
     };
     this.isVagueGeoAddress = !this.geoAddress.address_1;
@@ -177,6 +211,7 @@ export class AddressComponent
       place: this.addressForm.value.place || undefined,
       region: this.addressForm.value.region || undefined,
       country: this.addressForm.value.country || undefined,
+      code: this.addressForm.value.code || undefined,
       postcode: this.addressForm.value.postcode || undefined,
     };
     this.isVagueGeoAddress = true;

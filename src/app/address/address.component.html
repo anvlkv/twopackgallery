@@ -62,9 +62,12 @@
     </nz-form-item>
     <nz-form-item>
       <nz-form-control>
-        <nz-input-group>
-          <input nz-input placeholder="Country" formControlName="country" />
-        </nz-input-group>
+        <nz-select
+          formControlName="code"
+          nzShowSearch
+          nzPlaceHolder="Country"
+          [nzOptions]="countryOptions"
+        />
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>

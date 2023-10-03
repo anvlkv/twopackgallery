@@ -1,4 +1,4 @@
-<nz-space *ngIf="!data" nzDirection="vertical" [ngClass]="'pin-content'">
+<nz-space *ngIf="!data" nzDirection="vertical" [ngClass]="['pin-content', isFullPage && 'full-page']">
   <nz-skeleton-element
     *nzSpaceItem
     nzType="image"
@@ -45,7 +45,7 @@
 
 <ng-container *ngIf="data">
   <div class="pin-layout">
-    <nz-space nzDirection="vertical" [ngClass]="'pin-content'">
+    <nz-space nzDirection="vertical" [ngClass]="['pin-content', isFullPage && 'full-page']">
       <app-cover-image
         *nzSpaceItem
         class="cover"
@@ -70,6 +70,9 @@
         <p *nzSpaceItem nz-typography>
           {{ data.location_description }}
         </p>
+      </ng-container>
+      <ng-container *ngIf="isFullPage">
+        <app-mini-map *nzSpaceItem [point]="mapPoint"></app-mini-map>
       </ng-container>
     </nz-space>
     <nz-divider></nz-divider>

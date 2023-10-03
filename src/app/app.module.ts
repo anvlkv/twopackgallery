@@ -23,6 +23,7 @@ import { TemplatePageTitleStrategy } from './title.strategy';
 import { UserService } from './user.service';
 import { ZoomSyncService } from './zoom-sync.service';
 import { xataImageLoader } from 'src/xata.imageloader';
+import { MiniMapComponent } from './mini-map/mini-map.component';
 
 registerLocaleData(en);
 

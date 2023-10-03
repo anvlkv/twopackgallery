@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule, TitleStrategy } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  RouterModule,
+  TitleStrategy,
+} from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import type { JSONData } from '@xata.io/client';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -22,6 +27,7 @@ import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
 import { UserService } from '../user.service';
 import { COVER_RATIO } from '../cover-image/consts';
+import { MiniMapComponent } from '../mini-map/mini-map.component';
 
 @Component({
   standalone: true,
@@ -37,6 +43,7 @@ import { COVER_RATIO } from '../cover-image/consts';
     NzDividerModule,
     NzTypographyModule,
     CoverImageComponent,
+    MiniMapComponent,
   ],
   selector: 'app-pin',
   templateUrl: './pin.component.html',
@@ -50,9 +57,9 @@ export class PinComponent implements OnInit, OnDestroy {
   data?: Partial<JSONData<PointsRecord>> & {
     art_forms: { id: string; name: string }[];
   };
-
+  isFullPage = false;
   title = '';
-
+  mapPoint: [number, number] = [0, 0];
   coverRatio = COVER_RATIO.STR;
 
   private titleStrategy = inject(TitleStrategy) as TemplatePageTitleStrategy;
@@ -92,11 +99,12 @@ export class PinComponent implements OnInit, OnDestroy {
           }))
         )
         .subscribe({
-          next: (d) => {
-            this.data = d;
-            this.title = d.title! as string;
+          next: (data) => {
+            this.data = data;
+            this.title = data.title! as string;
+            this.mapPoint = [data.longitude as number, data.latitude as number];
             this.titleStrategy.entityTitle(this.title);
-            this.location.adjust_location([d.longitude!, d.latitude!] as [
+            this.location.adjust_location([data.longitude!, data.latitude!] as [
               number,
               number
             ]);
@@ -136,6 +144,12 @@ export class PinComponent implements OnInit, OnDestroy {
           this.canEdit = isOwner;
           this.canFlag = !isOwner;
         })
+    );
+
+    this.subs.push(
+      this.activatedRoute.data.subscribe(({ fullPage }) => {
+        this.isFullPage = fullPage;
+      })
     );
   }
 

@@ -15,6 +15,7 @@ import {
 } from 'rxjs';
 import type { PointsRecord } from 'xata';
 import { LocationService } from './location.service';
+import mapboxgl from 'mapbox-gl';
 
 @Injectable({
   providedIn: 'root',
@@ -30,20 +31,53 @@ export class PointsService {
 
   constructor(private http: HttpClient, private location: LocationService) {}
 
+  private checkedBounds = new Map<string, mapboxgl.LngLatBounds>();
+  private isContainedBound(
+    ...[minLng, minLat, maxLng, maxLat]: number[]
+  ): boolean {
+    const boundsKey = `${minLng};${minLat};${maxLng};${maxLat};`;
+    if (this.checkedBounds.has(boundsKey)) {
+      return true;
+    }
+
+    const sw = new mapboxgl.LngLat(minLng, minLat);
+    const ne = new mapboxgl.LngLat(maxLng, maxLat);
+
+    return Array.from(this.checkedBounds.values()).some((box) => {
+      return box.contains(sw) && box.contains(ne);
+    });
+  }
+  private addChecked(...[minLng, minLat, maxLng, maxLat]: number[]) {
+    const boundsKey = `${minLng};${minLat};${maxLng};${maxLat};`;
+    const sw = new mapboxgl.LngLat(minLng, minLat);
+    const ne = new mapboxgl.LngLat(maxLng, maxLat);
+    const box = new mapboxgl.LngLatBounds(sw, ne);
+    this.checkedBounds.set(boundsKey, box);
+  }
   public getPointsInBounds(exclude?: Map<string, any>) {
     return this.location.currentBounds.pipe(
-      debounceTime(500),
       filter((bounds) => bounds.length === 4),
       switchMap((bounds) => {
-        let url = `/.netlify/functions/points?bBox=${bounds.join(',')}`;
+        if (this.isContainedBound(...bounds)) {
+          return of([]);
+        }
+
+        const url = `/.netlify/functions/points?bBox=${bounds.join(',')}`;
+        let d$;
         if (exclude && exclude.size > 0) {
-          return this.http.post<JSONData<PointsRecord>[]>(
+          d$ = this.http.post<JSONData<PointsRecord>[]>(
             url,
             Array.from(exclude.keys())
           );
         } else {
-          return this.http.get<JSONData<PointsRecord>[]>(url);
+          d$ = this.http.get<JSONData<PointsRecord>[]>(url);
         }
+
+        return d$.pipe(
+          tap(() => {
+            this.addChecked(...bounds);
+          })
+        );
       })
     );
   }

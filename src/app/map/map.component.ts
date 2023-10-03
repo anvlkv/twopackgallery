@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import type { JSONData } from '@xata.io/client';
-import {
+import mapboxgl, {
   ErrorEvent,
   EventData,
   MapLayerMouseEvent,
@@ -25,8 +25,10 @@ import {
   Subject,
   Subscription,
   combineLatest,
+  combineLatestAll,
   filter,
   map,
+  skipWhile,
   take,
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -50,8 +52,9 @@ type MapChangeEvent = MapboxEvent<
   EventData;
 
 const LAST_USED_KEY = 'mapLocation, zoom';
-const LOCATION_CONSENT_KEY = 'locationPermission';
 
+export const LOCATION_CONSENT_KEY = 'locationPermission';
+export type Consent = { consent: 'accept' | 'deny' };
 @Component({
   standalone: true,
   imports: [
@@ -67,14 +70,13 @@ const LOCATION_CONSENT_KEY = 'locationPermission';
   styleUrls: ['./map.component.scss'],
 })
 export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
-  center?: [number, number];
-  cursor?: [number, number];
-  userLocation?: [number, number];
-  subs: Subscription[] = [];
-  zoom?: number;
   accessToken = environment.mapBoxTokenRead;
+  cursor?: [number, number];
+  subs: Subscription[] = [];
   hint?: string;
-
+  initialZoom: [number] = [0.1];
+  userLocation?: [number, number];
+  hasInitializedZoom = false;
   private points = new Map<string, Partial<JSONData<PointsRecord>>>();
 
   private geoJsonPoints$ = new BehaviorSubject<GeoJSON.FeatureCollection>({
@@ -114,7 +116,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   };
 
   locationConsent = new BehaviorSubject(
-    this.storage.get<{ consent: 'accept' | 'deny' }>(LOCATION_CONSENT_KEY)
+    this.storage.get<Consent>(LOCATION_CONSENT_KEY)
   );
 
   loading = combineLatest(this.loading$).pipe(
@@ -132,7 +134,6 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    
     if (!this.storage.get(LOCATION_CONSENT_KEY)) {
       const consent$ = new Subject<boolean>();
       this.modal.confirm({
@@ -150,7 +151,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
         },
       });
       consent$.subscribe((value) => {
-        this.storage.set(LOCATION_CONSENT_KEY, {
+        this.storage.set<Consent>(LOCATION_CONSENT_KEY, {
           consent: value ? 'accept' : 'deny',
         });
         this.locationConsent.next(this.storage.get(LOCATION_CONSENT_KEY));
@@ -161,21 +162,25 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.subs.push(
-      this.location.currentLocation.pipe(take(1)).subscribe(() => {
-        if (this.zoom === undefined) {
-          this.zoomSync.setZoom(15);
-        }
+      combineLatest({
+        map: this.loading$.map,
+        location: this.location.currentLocation,
       })
-    );
-
-    this.subs.push(
-      this.location.currentLocation.subscribe((loc) => {
-        this.cursor = loc;
-        if (!deepEqual(this.mapRef.mapInstance.getCenter(), loc)) {
-          this.center = loc;
-        }
-        this.loading$.location.next(false);
-      })
+        .pipe(skipWhile(({ map }) => map))
+        .subscribe(({ location }) => {
+          this.loading$.location.next(false);
+          this.cursor = location;
+          const center = this.mapRef.mapInstance.getCenter();
+          if (!deepEqual(center.toArray(), location)) {
+            const options: mapboxgl.FlyToOptions = { center: location };
+            if (!this.hasInitializedZoom) {
+              options.zoom = 13;
+              this.hasInitializedZoom = true;
+              this.zoomSync.setZoom(options.zoom);
+            }
+            this.mapRef.mapInstance.flyTo(options);
+          }
+        })
     );
 
     this.subs.push(
@@ -214,7 +219,14 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     );
 
     this.subs.push(
-      this.zoomSync.zoom.subscribe(({ value }) => (this.zoom = value))
+      combineLatest({
+        map: this.loading$.map,
+        zoom: this.zoomSync.zoom,
+      })
+        .pipe(skipWhile(({ map }) => map))
+        .subscribe(({ zoom: { value } }) => {
+          this.mapRef.mapInstance.zoomTo(value, { duration: 700 });
+        })
     );
 
     this.subs.push(
@@ -232,7 +244,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
         .pipe(
           filter(
             ({ map, focus, consent }) =>
-              !map && !focus && !this.center && consent?.consent === 'accept'
+              !map && !focus && !this.cursor && consent?.consent === 'accept'
           )
         )
         .subscribe(() => {
@@ -295,7 +307,10 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
     this.location.stopTrackingLocation();
-    this.storage.set(LAST_USED_KEY, { center: this.center, zoom: this.zoom });
+    this.storage.set(LAST_USED_KEY, {
+      center: this.cursor,
+      zoom: this.zoomSync.getZoom(),
+    });
   }
 
   mapLoad() {
@@ -307,7 +322,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   mapMove(ev: MapChangeEvent, final = true) {
-    if (!this.loading$.map.getValue() && this.center) {
+    if (!this.loading$.map.getValue() && this.cursor) {
       const nextCenter = this.mapRef.mapInstance.getCenter();
       if (final) {
         this.location.adjust_location([nextCenter.lng, nextCenter.lat]);
@@ -322,8 +337,8 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
 
   mapZoom(ev: MapChangeEvent, final = true) {
     if (!this.loading$.map.getValue()) {
-      if (ev.originalEvent) {
-        const nextZoom = this.mapRef.mapInstance.getZoom();
+      const nextZoom = this.mapRef.mapInstance.getZoom();
+      if (ev.originalEvent && final) {
         this.zoomSync.setZoom(nextZoom);
       }
       if (final) {
@@ -371,6 +386,6 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       top: 0,
       bottom: 0,
     });
-    this.center && this.mapRef?.mapInstance.setCenter(this.center);
+    this.cursor && this.mapRef?.mapInstance.setCenter(this.cursor);
   }
 }
