@@ -22,6 +22,7 @@ import {
 } from 'ngx-mapbox-gl';
 import {
   BehaviorSubject,
+  Subject,
   Subscription,
   combineLatest,
   filter,
@@ -41,6 +42,7 @@ import {
 } from 'ng-zorro-antd/notification';
 import { BrowserStorageService } from '../browser-storage.service';
 import deepEqual from 'deep-equal';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 
 type MapChangeEvent = MapboxEvent<
   MouseEvent | TouchEvent | WheelEvent | undefined
@@ -48,11 +50,14 @@ type MapChangeEvent = MapboxEvent<
   EventData;
 
 const LAST_USED_KEY = 'mapLocation, zoom';
+const LOCATION_CONSENT_KEY = 'locationPermission';
+
 @Component({
   standalone: true,
   imports: [
     CommonModule,
     NzNotificationModule,
+    NzModalModule,
     NgxMapboxGLModule,
     CursorComponent,
     AvatarComponent,
@@ -108,6 +113,10 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     focus: new BehaviorSubject(true),
   };
 
+  locationConsent = new BehaviorSubject(
+    this.storage.get<{ consent: 'accept' | 'deny' }>(LOCATION_CONSENT_KEY)
+  );
+
   loading = combineLatest(this.loading$).pipe(
     map((subjects) => Object.values(subjects).some(Boolean))
   );
@@ -118,10 +127,39 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     private router: Router,
     private zoomSync: ZoomSyncService,
     private notification: NzNotificationService,
-    private storage: BrowserStorageService
+    private storage: BrowserStorageService,
+    private modal: NzModalService
   ) {}
 
   ngOnInit(): void {
+    
+    if (!this.storage.get(LOCATION_CONSENT_KEY)) {
+      const consent$ = new Subject<boolean>();
+      this.modal.confirm({
+        nzTitle: 'Please allow using your geo location',
+        nzContent: `To make your experience of using the map more convenient we would like to use your device geo location.
+         After clicking "Yes" you'll be additionally prompted by your browser, please click "Allow" in the browser dialog.
+         Please note we won't store your location data unless you are adding a new pin.`,
+        nzOnOk: () => consent$.next(true),
+        nzOnCancel: () => consent$.next(false),
+        nzOkText: 'Yes',
+        nzCancelText: 'No',
+        nzIconType: 'aim',
+        nzBodyStyle: {
+          'white-space': 'pre-line',
+        },
+      });
+      consent$.subscribe((value) => {
+        this.storage.set(LOCATION_CONSENT_KEY, {
+          consent: value ? 'accept' : 'deny',
+        });
+        this.locationConsent.next(this.storage.get(LOCATION_CONSENT_KEY));
+        if (!value) {
+          this.loading$.location.next(false);
+        }
+      });
+    }
+
     this.subs.push(
       this.location.currentLocation.pipe(take(1)).subscribe(() => {
         if (this.zoom === undefined) {
@@ -129,6 +167,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       })
     );
+
     this.subs.push(
       this.location.currentLocation.subscribe((loc) => {
         this.cursor = loc;
@@ -188,8 +227,14 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       combineLatest({
         map: this.loading$.map,
         focus: this.loading$.focus,
+        consent: this.locationConsent,
       })
-        .pipe(filter(({ map, focus }) => !map && !focus && !this.center))
+        .pipe(
+          filter(
+            ({ map, focus, consent }) =>
+              !map && !focus && !this.center && consent?.consent === 'accept'
+          )
+        )
         .subscribe(() => {
           this.location.locate(false);
           this.location.startTrackingLocation();
@@ -250,6 +295,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
     this.location.stopTrackingLocation();
+    this.storage.set(LAST_USED_KEY, { center: this.center, zoom: this.zoom });
   }
 
   mapLoad() {
