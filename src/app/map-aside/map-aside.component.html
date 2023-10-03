@@ -16,6 +16,7 @@
     nz-tooltip
     nzTooltipTitle="Locate me"
     nzTooltipPlacement="left"
+    [nzLoading]="locating"
     (click)="handleAim($event)"
   >
     <span nz-icon nzType="aim"></span>

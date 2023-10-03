@@ -10,7 +10,10 @@ import {
   distinct,
   distinctUntilChanged,
   filter,
+  from,
   map,
+  race,
+  skip,
   take,
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -41,36 +44,34 @@ export class LocationService {
     filter(Boolean),
     distinctUntilChanged(deepEqual)
   );
-  currentAccuracy = this.currentAccuracy$.pipe(distinct());
   currentBounds = this.currentBounds$.pipe(distinctUntilChanged(deepEqual));
 
   constructor(private http: HttpClient) {}
 
   public locate(forceNext = true) {
-    if (this.watchId !== undefined) {
-      if (forceNext || !this.currentLocation$.getValue()) {
-        this.runningLocation$
-          .pipe(take(1))
-          .subscribe(this.currentLocation$.next);
-      }
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          if (forceNext || !this.currentLocation$.getValue()) {
-            this.currentLocation$.next([
-              position.coords.longitude,
-              position.coords.latitude,
-            ]);
-            this.currentAccuracy$.next(position.coords.accuracy);
+    race(
+      this.runningLocation$.pipe(take(1)),
+      from(
+        new Promise<[number, number]>((resolve) => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                resolve([position.coords.longitude, position.coords.latitude]);
+              },
+              () => {
+                this.locateIp().subscribe((d) => resolve(d));
+              }
+            );
+          } else {
+            this.locateIp().subscribe((d) => resolve(d));
           }
-        },
-        () => {
-          this.locateIp(forceNext);
-        }
-      );
-    } else {
-      this.locateIp(forceNext);
-    }
+        })
+      )
+    )
+      .pipe(filter(() => forceNext || !this.currentLocation$.getValue()))
+      .subscribe((d) => this.currentLocation$.next(d));
+
+    return this.currentLocation$.pipe(skip(1), take(1));
   }
 
   public startTrackingLocation() {
@@ -90,20 +91,12 @@ export class LocationService {
     }
   }
 
-  private locateIp(forceNext = true) {
-    this.http
-      .get('/.netlify/functions/geo_ip')
-      .pipe(
-        map((resp) => {
-          return resp as [number, number];
-        })
-      )
-      .subscribe((coords) => {
-        if (forceNext || !this.currentLocation$.getValue()) {
-          this.currentLocation$.next(coords);
-          this.currentAccuracy$.next(1000);
-        }
-      });
+  private locateIp() {
+    return this.http.get('/.netlify/functions/geo_ip').pipe(
+      map((resp) => {
+        return resp as [number, number];
+      })
+    );
   }
 
   public getCurrentLocation() {

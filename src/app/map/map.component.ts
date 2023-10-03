@@ -16,7 +16,10 @@ import {
   MapLayerMouseEvent,
   MapboxEvent,
 } from 'mapbox-gl';
-import { MapComponent as MglMapComponent, NgxMapboxGLModule } from 'ngx-mapbox-gl';
+import {
+  MapComponent as MglMapComponent,
+  NgxMapboxGLModule,
+} from 'ngx-mapbox-gl';
 import {
   BehaviorSubject,
   Subscription,
@@ -32,15 +35,19 @@ import { CursorComponent } from '../cursor/cursor.component';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { ZoomSyncService } from '../zoom-sync.service';
-import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
+import {
+  NzNotificationModule,
+  NzNotificationService,
+} from 'ng-zorro-antd/notification';
 import { BrowserStorageService } from '../browser-storage.service';
+import deepEqual from 'deep-equal';
 
 type MapChangeEvent = MapboxEvent<
   MouseEvent | TouchEvent | WheelEvent | undefined
 > &
   EventData;
 
-const LAST_USED_KEY = 'mapLocation, zoom'
+const LAST_USED_KEY = 'mapLocation, zoom';
 @Component({
   standalone: true,
   imports: [
@@ -48,7 +55,7 @@ const LAST_USED_KEY = 'mapLocation, zoom'
     NzNotificationModule,
     NgxMapboxGLModule,
     CursorComponent,
-    AvatarComponent
+    AvatarComponent,
   ],
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -60,7 +67,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   userLocation?: [number, number];
   subs: Subscription[] = [];
   zoom?: number;
-  accessToken =environment.mapBoxTokenRead;
+  accessToken = environment.mapBoxTokenRead;
   hint?: string;
 
   private points = new Map<string, Partial<JSONData<PointsRecord>>>();
@@ -124,7 +131,10 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     );
     this.subs.push(
       this.location.currentLocation.subscribe((loc) => {
-        this.cursor = this.center = loc;
+        this.cursor = loc;
+        if (!deepEqual(this.mapRef.mapInstance.getCenter(), loc)) {
+          this.center = loc;
+        }
         this.loading$.location.next(false);
       })
     );
@@ -145,8 +155,8 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
           this.loading$.points.next(false);
         },
         error: (err) => {
-          this.notification.error('Something went wrong...', err.message)
-        }
+          this.notification.error('Something went wrong...', err.message);
+        },
       })
     );
 
