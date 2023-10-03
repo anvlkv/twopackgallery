@@ -5,11 +5,9 @@ import { getXataClient } from 'xata';
 
 const client = getXataClient();
 
-const handler: Handler = withAuth0(async (
-  event: HandlerEvent,
-  context: HandlerContext
-) => {
-  // try {
+const handler: Handler = withAuth0(
+  async (event: HandlerEvent, context: HandlerContext) => {
+    // try {
     const id = event.queryStringParameters!['id']!;
 
     const sub = getSub(context)!;
@@ -20,10 +18,13 @@ const handler: Handler = withAuth0(async (
       },
     });
 
-    const point = await client.db.points.getFirstOrThrow({filter: {id}});
+    const point = await client.db.points.getFirstOrThrow({ filter: { id } });
 
     if (point.publisher!.id !== user.id) {
-      return { statusCode: 403, body: 'Can not update a point if one does not own it.' };
+      return {
+        statusCode: 403,
+        body: 'Can not update a point if one does not own it.',
+      };
     }
 
     const oldArtForms = await client.db.art_forms_points.getAll({
@@ -32,7 +33,21 @@ const handler: Handler = withAuth0(async (
     });
 
     if (event.httpMethod.toUpperCase() === 'PATCH') {
-      const { art_forms, ...pointData } = JSON.parse(event.body!);
+      const { art_forms, latitude, longitude, ...pointData } = JSON.parse(
+        event.body!
+      );
+
+      if (isNaN(latitude) || isNaN(longitude)) {
+        throw 'Invalid location';
+      }
+
+      const hasPointAtLocation = await client.db.points.getFirst({
+        filter: { longitude, latitude, $not: { id } },
+      });
+
+      if (hasPointAtLocation) {
+        throw 'There is already a point at the given location';
+      }
 
       const updatedPoint = (await client.db.points.update({
         ...pointData,
@@ -65,14 +80,16 @@ const handler: Handler = withAuth0(async (
     } else {
       return { statusCode: 400, body: 'Unsupported method.' };
     }
-  // } catch (e) {
-  //   console.error(e);
-  //   return { statusCode: 500, body: 'Could not update point.' };
-  // }
-}, {
-  auth0: {
-    required: true
+    // } catch (e) {
+    //   console.error(e);
+    //   return { statusCode: 500, body: 'Could not update point.' };
+    // }
+  },
+  {
+    auth0: {
+      required: true,
+    },
   }
-});
+);
 
 export { handler };

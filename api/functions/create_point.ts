@@ -15,7 +15,19 @@ const handler: Handler = withAuth0(
         },
       });
 
-      const { art_forms, ...pointData } = JSON.parse(event.body!);
+      const { art_forms, longitude, latitude, ...pointData } = JSON.parse(event.body!);
+
+      if (isNaN(latitude) || isNaN(longitude)) {
+        throw 'Invalid location'
+      }
+
+      const hasPointAtLocation = await client.db.points.getFirst({
+        filter: {longitude, latitude}
+      });
+
+      if (hasPointAtLocation) {
+        throw 'There is already a point at the given location'
+      }
 
       const newPoint = await client.db.points.create({
         ...pointData,
