@@ -158,7 +158,10 @@
                   "with": "src/environments/environment.stage.ts"
                 }
               ],
-              "sourceMap": false
+              "sourceMap": {
+                "styles": false,
+                "hidden": false
+              }
             },
             "development": {
               "buildOptimizer": false,
