@@ -1,9 +1,9 @@
 [build]
 publish = "dist/artmap/browser"
 [context.production]
-command = "npm run prerender --configuration production"
+command = "npm run prerender"
 [context.deploy-preview]
-command = "npm run prerender --configuration stage"
+command = "npm run prerender:stage"
 
 [dev]
 command = "npm run dev:ssr"

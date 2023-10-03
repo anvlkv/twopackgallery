@@ -11,7 +11,8 @@
     "dev:ssr": "ng run artmap:serve-ssr",
     "serve:ssr": "node dist/artmap/server/main.js",
     "build:ssr": "ng build && ng run artmap:server",
-    "prerender": "ng run artmap:prerender"
+    "prerender": "ng run artmap:prerender",
+    "prerender:stage": "ng run artmap:prerender:stage"
   },
   "private": true,
   "dependencies": {
