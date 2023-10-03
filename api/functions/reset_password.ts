@@ -1,6 +1,7 @@
 import { withAuth0 } from '@netlify/auth0';
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import { withAuth0Token } from 'api/utils/auth0';
+import { getSub } from 'api/utils/sub';
 import { getXataClient } from 'xata';
 
 const client = getXataClient();
@@ -8,7 +9,7 @@ const client = getXataClient();
 const handler: Handler = withAuth0(
   async (event: HandlerEvent, context: HandlerContext) => {
     // try {
-      const sub: string = context.clientContext?.['user']['sub'];
+      const sub = getSub(context)!;
 
       const user = await client.db.users.getFirstOrThrow({
         filter: {

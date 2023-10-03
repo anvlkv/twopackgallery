@@ -1,5 +1,6 @@
 import { withAuth0 } from '@netlify/auth0';
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
+import { getSub } from 'api/utils/sub';
 import { getXataClient } from 'xata';
 
 const client = getXataClient();
@@ -9,7 +10,7 @@ const handler: Handler = withAuth0(
     // try {
       const pointId: string = event.queryStringParameters!['id']!;
       const requestSub: string = event.queryStringParameters!['sub']!;
-      const sub: string = context.clientContext?.['user']['sub'];
+      const sub = getSub(context)!;
 
       if (sub !== requestSub || !sub) {
         return {

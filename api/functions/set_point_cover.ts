@@ -1,6 +1,7 @@
 import { withAuth0 } from '@netlify/auth0';
 import type { Handler, HandlerContext, HandlerEvent } from '@netlify/functions';
 import { XataFile } from '@xata.io/client';
+import { getSub } from 'api/utils/sub';
 import sharp from 'sharp';
 import { COVER_RATIO } from 'src/app/cover-image/consts';
 import { getXataClient } from 'xata';
@@ -12,7 +13,7 @@ const handler: Handler = withAuth0(
     // try {
       const pointId: string = event.queryStringParameters!['id']!;
 
-      const sub: string = context.clientContext?.['user']['sub'];
+      const sub = getSub(context)!;
 
       const user = await client.db.users.getFirstOrThrow({
         filter: {
