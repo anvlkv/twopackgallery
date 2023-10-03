@@ -6,7 +6,7 @@ const client = getXataClient();
 
 const handler: Handler = withAuth0(
   async (event: HandlerEvent, context: HandlerContext) => {
-    try {
+    // try {
       const sub: string = context.clientContext?.['user']['sub'];
 
       const user = await client.db.users.getFirstOrThrow({
@@ -35,13 +35,13 @@ const handler: Handler = withAuth0(
         statusCode: 200,
         body: JSON.stringify(points.map((p) => p.toSerializable())),
       };
-    } catch (e) {
-      console.error(e);
-      return {
-        statusCode: 500,
-        body: 'Could not get user points.',
-      };
-    }
+    // } catch (e) {
+    //   console.error(e);
+    //   return {
+    //     statusCode: 500,
+    //     body: 'Could not get user points.',
+    //   };
+    // }
   },
   {
     auth0: {

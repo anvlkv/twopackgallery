@@ -12,7 +12,7 @@ const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
-  try {
+  // try {
     const id = event.queryStringParameters?.['id']!;
 
     const pointArtForms = await client.db.art_forms_points.getAll({
@@ -57,13 +57,13 @@ const handler: Handler = async (
       statusCode: 200,
       body: JSON.stringify(point),
     };
-  } catch (e) {
-    console.error(e);
-    return {
-      statusCode: 500,
-      body: 'Could not run the query.',
-    };
-  }
+  // } catch (e) {
+  //   console.error(e);
+  //   return {
+  //     statusCode: 500,
+  //     body: 'Could not run the query.',
+  //   };
+  // }
 };
 
 export { handler };

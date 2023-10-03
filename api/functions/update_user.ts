@@ -9,7 +9,7 @@ const client = getXataClient();
 
 const handler: Handler = withAuth0(
   async (event: HandlerEvent, context: HandlerContext) => {
-    try {
+    // try {
       const sub: string = context.clientContext?.['user']['sub'];
 
       const user = await client.db.users.getFirstOrThrow({
@@ -64,10 +64,10 @@ const handler: Handler = withAuth0(
       await client.db.users.update({ id: user.id, email, name });
 
       return { statusCode: 200, body: '' };
-    } catch (e) {
-      console.error(e);
-      return { statusCode: 500, body: 'Could not update user.' };
-    }
+    // } catch (e) {
+    //   console.error(e);
+    //   return { statusCode: 500, body: 'Could not update user.' };
+    // }
   },
   {
     auth0: {

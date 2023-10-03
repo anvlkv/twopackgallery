@@ -8,7 +8,7 @@ const handler: Handler = withAuth0(async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
-  try {
+  // try {
     const id = event.queryStringParameters!['id']!;
 
     const sub: string = context.clientContext?.['user']['sub'];
@@ -64,10 +64,10 @@ const handler: Handler = withAuth0(async (
     } else {
       return { statusCode: 400, body: 'Unsupported method.' };
     }
-  } catch (e) {
-    console.error(e);
-    return { statusCode: 500, body: 'Could not update point.' };
-  }
+  // } catch (e) {
+  //   console.error(e);
+  //   return { statusCode: 500, body: 'Could not update point.' };
+  // }
 }, {
   auth0: {
     required: true

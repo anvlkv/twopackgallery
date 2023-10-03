@@ -9,7 +9,7 @@ const client = getXataClient();
 
 const handler: Handler = withAuth0(
   async (event: HandlerEvent, context: HandlerContext) => {
-    try {
+    // try {
       const pointId: string = event.queryStringParameters!['id']!;
 
       const sub: string = context.clientContext?.['user']['sub'];
@@ -58,13 +58,13 @@ const handler: Handler = withAuth0(
         statusCode: 200,
         body: JSON.stringify(savedPoint?.cover),
       };
-    } catch (e) {
-      console.error(e);
-      return {
-        statusCode: 500,
-        body: 'Could not save the cover.',
-      };
-    }
+    // } catch (e) {
+    //   console.error(e);
+    //   return {
+    //     statusCode: 500,
+    //     body: 'Could not save the cover.',
+    //   };
+    // }
   },
   {
     auth0: {

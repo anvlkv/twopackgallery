@@ -6,7 +6,7 @@ const client = getXataClient();
 
 const handler: Handler = withAuth0(
   async (event: HandlerEvent, context: HandlerContext) => {
-    try {
+    // try {
       const sub: string = context.clientContext?.['user']['sub'];
 
       const user = await client.db.users.getFirstOrThrow({
@@ -30,10 +30,10 @@ const handler: Handler = withAuth0(
       }
 
       return { statusCode: 200, body: JSON.stringify(newPoint) };
-    } catch (e) {
-      console.error(e);
-      return { statusCode: 500, body: 'Could not save new point.' };
-    }
+    // } catch (e) {
+    //   console.error(e);
+    //   return { statusCode: 500, body: 'Could not save new point.' };
+    // }
   },
   {
     auth0: {
