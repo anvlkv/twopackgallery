@@ -1,5 +1,6 @@
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 import deepEqual from 'deep-equal';
 import {
@@ -12,7 +13,7 @@ import {
   map,
   race,
   skip,
-  take
+  take,
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -50,48 +51,60 @@ export class LocationService {
   );
   currentBounds = this.currentBounds$.pipe(distinctUntilChanged(deepEqual));
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   public locate(forceNext = true) {
-    race(
-      this.runningLocation.pipe(take(1)),
-      from(
-        new Promise<[number, number]>((resolve) => {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                resolve([position.coords.longitude, position.coords.latitude]);
-              },
-              () => {
-                this.locateIp().subscribe((d) => resolve(d));
-              }
-            );
-          } else {
-            this.locateIp().subscribe((d) => resolve(d));
-          }
-        })
+    if (isPlatformBrowser(this.platformId)) {
+      race(
+        this.runningLocation.pipe(take(1)),
+        from(
+          new Promise<[number, number]>((resolve) => {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  resolve([
+                    position.coords.longitude,
+                    position.coords.latitude,
+                  ]);
+                },
+                () => {
+                  this.locateIp().subscribe((d) => resolve(d));
+                }
+              );
+            } else {
+              this.locateIp().subscribe((d) => resolve(d));
+            }
+          })
+        )
       )
-    )
-      .pipe(filter(() => forceNext || !this.currentLocation$.getValue()))
-      .subscribe((d) => this.currentLocation$.next(d));
+        .pipe(filter(() => forceNext || !this.currentLocation$.getValue()))
+        .subscribe((d) => this.currentLocation$.next(d));
+    }
 
     return this.currentLocation$.pipe(skip(1), take(1));
   }
 
   public startTrackingLocation() {
-    if (navigator.geolocation) {
-      this.watchId = navigator.geolocation.watchPosition((position) => {
-        this.runningLocation$.next([
-          position.coords.longitude,
-          position.coords.latitude,
-        ]);
-      });
+    if (isPlatformBrowser(this.platformId)) {
+      if (navigator.geolocation) {
+        this.watchId = navigator.geolocation.watchPosition((position) => {
+          this.runningLocation$.next([
+            position.coords.longitude,
+            position.coords.latitude,
+          ]);
+        });
+      }
     }
   }
 
   public stopTrackingLocation() {
-    if (navigator.geolocation && this.watchId !== undefined) {
-      navigator.geolocation.clearWatch(this.watchId);
+    if (isPlatformBrowser(this.platformId)) {
+      if (navigator.geolocation && this.watchId !== undefined) {
+        navigator.geolocation.clearWatch(this.watchId);
+      }
     }
   }
 
@@ -149,9 +162,9 @@ export class LocationService {
               region: data.features.find(
                 (f: any) => f.place_type.at(0) === 'region'
               )?.text_en,
-              code: data.features.find(
-                (f: any) => f.place_type.at(0) === 'country'
-              )?.properties.short_code.toUpperCase(),
+              code: data.features
+                .find((f: any) => f.place_type.at(0) === 'country')
+                ?.properties.short_code.toUpperCase(),
             } as Address)
         )
       );
@@ -175,8 +188,7 @@ export class LocationService {
           .join(', ')
       )}.json?access_token=${
         environment.mapBoxTokenRead
-      }&limit=3&types=neighborhood,address&country=${value.code?.toLowerCase()
-      }${requestLocation}`
+      }&limit=3&types=neighborhood,address&country=${value.code?.toLowerCase()}${requestLocation}`
     );
   }
 
@@ -188,7 +200,9 @@ export class LocationService {
     return this.geoCodeAddress(value).pipe(
       debounceTime(500),
       map((response: any) => {
-        if (response.features.filter((f: any) => f.relevance >= 0.5).length === 0) {
+        if (
+          response.features.filter((f: any) => f.relevance >= 0.5).length === 0
+        ) {
           return {
             NothingFound: 'We could not find this location',
           };

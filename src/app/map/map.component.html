@@ -5,6 +5,7 @@
 ></app-cursor>
 
 <mgl-map
+  *ngIf="isBrowser"
   [accessToken]="accessToken"
   [style]="'mapbox://styles/packtwo/cln03jvjy02v001nzceog3kko'"
   [zoom]="initialZoom"

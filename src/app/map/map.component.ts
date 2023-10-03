@@ -128,6 +128,8 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     map((subjects) => Object.values(subjects).some(Boolean))
   );
 
+  isBrowser = isPlatformBrowser(this.platformId);
+
   constructor(
     private pts: PointsService,
     private location: LocationService,

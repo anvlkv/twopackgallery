@@ -6,8 +6,9 @@ import {
   importProvidersFrom,
   isDevMode,
 } from '@angular/core';
+import { provideClientHydration } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterModule, TitleStrategy } from '@angular/router';
+import { TitleStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { NZ_CONFIG, NzConfig } from 'ng-zorro-antd/core/config';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
@@ -15,8 +16,8 @@ import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { xataImageLoader } from '../xata.imageloader';
 import { ActivityService } from './activity.service';
-import { appRoutes } from './app-routes';
 import { ArtFormsService } from './art-forms.service';
 import { BrowserStorageService } from './browser-storage.service';
 import { ErrorInterceptor } from './error.interceptor';
@@ -26,9 +27,6 @@ import { RetryInterceptor } from './retry.interceptor';
 import { TemplatePageTitleStrategy } from './title.strategy';
 import { UserService } from './user.service';
 import { ZoomSyncService } from './zoom-sync.service';
-import { xataImageLoader } from '../xata.imageloader';
-import { provideClientHydration } from '@angular/platform-browser';
-
 
 const httpInterceptorProviders = [
   { provide: HTTP_INTERCEPTORS, useClass: RetryInterceptor, multi: true },
@@ -56,9 +54,6 @@ const providersFrom = [
     // Register the ServiceWorker as soon as the application is stable
     // or after 30 seconds (whichever comes first).
     registrationStrategy: 'registerWhenStable:30000',
-  }),
-  RouterModule.forRoot(appRoutes, {
-    enableTracing: isDevMode(),
   }),
 ].map((mod) => importProvidersFrom(mod));
 

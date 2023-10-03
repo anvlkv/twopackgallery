@@ -2,12 +2,15 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import {
   ApplicationConfig,
   importProvidersFrom,
+  isDevMode,
   mergeApplicationConfig,
 } from '@angular/core';
 import { AuthModule, AuthHttpInterceptor } from '@auth0/auth0-angular';
 import { environment } from 'src/environments/environment';
 import { appConfig } from './app.config';
 import { LocalStorage } from './browser-storage.service';
+import { RouterModule } from '@angular/router';
+import { appRoutes } from './app-routes';
 
 function storageFactory(): Storage {
   return localStorage;
@@ -15,6 +18,11 @@ function storageFactory(): Storage {
 
 const clientConfig: ApplicationConfig = {
   providers: [
+    importProvidersFrom(
+      RouterModule.forRoot(appRoutes, {
+        enableTracing: isDevMode(),
+      }),
+    ),
     importProvidersFrom(
       AuthModule.forRoot({
         domain: environment.auth0.domain,
