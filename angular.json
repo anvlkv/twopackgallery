@@ -158,10 +158,7 @@
                   "with": "src/environments/environment.stage.ts"
                 }
               ],
-              "sourceMap": {
-                "scripts": true,
-                "styles": false
-              }
+              "sourceMap": false
             },
             "development": {
               "buildOptimizer": false,
@@ -202,7 +199,6 @@
           "options": {
             "routes": [
               "/",
-              "/map",
               "/error",
               "/authorize",
               "/welcome"

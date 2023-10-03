@@ -147,6 +147,9 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
         window.focus();
       }
     }
+    else {
+      return
+    }
 
     if (!this.storage.get(LOCATION_CONSENT_KEY)) {
       const consent$ = new Subject<boolean>();
