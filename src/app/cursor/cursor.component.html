@@ -2,9 +2,9 @@
   class="cursor"
   [nz-tooltip]="tooltip && tooltipContentTemplate"
   nzTooltipPlacement="bottom"
-  [nzTooltipVisible]="!!tooltip"
+  [nzTooltipVisible]="showHint"
   [nzTooltipTrigger]="null"
-  [ngStyle]="{opacity: !loading && currentActivity === eActivity.None ? '0' : '.9'}"
+  [ngStyle]="{opacity: !loading && currentActivity === eActivity.None && !showHint ? '0' : '.9'}"
 >
   <nz-spin
     *ngIf="loading; else activityTemplate"
@@ -54,10 +54,15 @@
 </div>
 
 <ng-template #tooltipContentTemplate>
-  <nz-space nzDirection="vertical">
-    <p *nzSpaceItem nz-typography>{{tooltip}}</p>
-    <button *nzSpaceItem nz-button nzType="text" nzSize="small">
-      Stop showing hints
+  <nz-space>
+    <nz-space *nzSpaceItem nzDirection="vertical">
+      <p *nzSpaceItem nz-typography>{{tooltip}}</p>
+      <button *nzSpaceItem (click)="stopHints()" nz-button nzType="text" nzSize="small">
+        Stop showing hints
+      </button>
+    </nz-space>
+    <button *nzSpaceItem nz-button nzType="text" (click)="hideHint()">
+      <i nz-icon nzType="close"></i>
     </button>
   </nz-space>
 </ng-template>

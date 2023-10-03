@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter } from 'rxjs';
 
 export enum EActivity {
   None,
@@ -15,8 +15,8 @@ export enum EActivity {
 export class ActivityService {
   private activity$ = new BehaviorSubject(EActivity.None);
   private lastCallerId = 0;
-  activity = this.activity$.asObservable();
 
+  activity = this.activity$.asObservable();
 
   startActivity(act: EActivity) {
     this.activity$.next(act);
@@ -29,5 +29,12 @@ export class ActivityService {
     };
   }
 
-  constructor() {}
+  current() {
+    return this.activity$.getValue()
+  }
+
+  
+
+  constructor() {
+  }
 }

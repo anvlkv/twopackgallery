@@ -1,5 +1,6 @@
 import { withAuth0 } from '@netlify/auth0';
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
+import { parseValidatePoint } from 'api/utils/parse_validate_point';
 import { getSub } from 'api/utils/sub';
 import { getXataClient } from 'xata';
 
@@ -33,21 +34,7 @@ const handler: Handler = withAuth0(
     });
 
     if (event.httpMethod.toUpperCase() === 'PATCH') {
-      const { art_forms, latitude, longitude, ...pointData } = JSON.parse(
-        event.body!
-      );
-
-      if (isNaN(latitude) || isNaN(longitude)) {
-        throw 'Invalid location';
-      }
-
-      const hasPointAtLocation = await client.db.points.getFirst({
-        filter: { longitude, latitude, $not: { id } },
-      });
-
-      if (hasPointAtLocation) {
-        throw 'There is already a point at the given location';
-      }
+      const { art_forms, ...pointData } = await parseValidatePoint(event, id);
 
       const updatedPoint = (await client.db.points.update({
         ...pointData,

@@ -10,12 +10,21 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import type { JSONData } from '@xata.io/client';
-import mapboxgl, {
+import deepEqual from 'deep-equal';
+import {
   ErrorEvent,
   EventData,
+  FlyToOptions,
+  LngLat,
+  LngLatBounds,
   MapLayerMouseEvent,
   MapboxEvent,
 } from 'mapbox-gl';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
+import {
+  NzNotificationModule,
+  NzNotificationService,
+} from 'ng-zorro-antd/notification';
 import {
   MapComponent as MglMapComponent,
   NgxMapboxGLModule,
@@ -25,26 +34,20 @@ import {
   Subject,
   Subscription,
   combineLatest,
-  combineLatestAll,
   filter,
   map,
   skipWhile,
-  take,
+  takeWhile,
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import type { PointsRecord } from 'xata';
+import { ActivityService, EActivity } from '../activity.service';
 import { AvatarComponent } from '../avatar/avatar.component';
-import { CursorComponent } from '../cursor/cursor.component';
+import { BrowserStorageService } from '../browser-storage.service';
+import { CursorComponent, NO_HINTS_KEY } from '../cursor/cursor.component';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { ZoomSyncService } from '../zoom-sync.service';
-import {
-  NzNotificationModule,
-  NzNotificationService,
-} from 'ng-zorro-antd/notification';
-import { BrowserStorageService } from '../browser-storage.service';
-import deepEqual from 'deep-equal';
-import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 
 type MapChangeEvent = MapboxEvent<
   MouseEvent | TouchEvent | WheelEvent | undefined
@@ -130,10 +133,15 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     private zoomSync: ZoomSyncService,
     private notification: NzNotificationService,
     private storage: BrowserStorageService,
-    private modal: NzModalService
+    private modal: NzModalService,
+    private activity: ActivityService
   ) {}
 
   ngOnInit(): void {
+    if (!document.hasFocus()) {
+      window.focus();
+    }
+
     if (!this.storage.get(LOCATION_CONSENT_KEY)) {
       const consent$ = new Subject<boolean>();
       this.modal.confirm({
@@ -172,7 +180,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
           this.cursor = location;
           const center = this.mapRef.mapInstance.getCenter();
           if (!deepEqual(center.toArray(), location)) {
-            const options: mapboxgl.FlyToOptions = { center: location };
+            const options: FlyToOptions = { center: location };
             if (!this.hasInitializedZoom) {
               options.zoom = 13;
               this.hasInitializedZoom = true;
@@ -253,27 +261,52 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
         })
     );
 
-    // TODO: show hints
-    // this.subs.push(
-    //   combineLatest({
-    //     bounds: this.location.currentBounds,
-    //     points: this.geoJsonPoints,
-    //   }).subscribe(({ bounds: [minLon, minLat, maxLon, maxLat] }) => {
-    //     const pinsInArea =
-    //       this.mapLoaded &&
-    //       this.mapRef.mapInstance.isSourceLoaded('allPins') &&
-    //       this.mapRef.mapInstance.queryRenderedFeatures(
-    //         [
-    //           [minLon, minLat],
-    //           [maxLon, maxLat],
-    //         ],
-    //         {
-    //           layers: ['pinsLayer'],
-    //         }
-    //       );
+    this.subs.push(
+      combineLatest({
+        bounds: this.location.currentBounds,
+        points: this.geoJsonPoints,
+        mapLoading: this.loading$.map,
+        pointsLoading: this.loading$.points,
+        activity: this.activity.activity,
+      })
+        .pipe(
+          takeWhile(() => !this.storage.get(NO_HINTS_KEY)),
+          skipWhile(
+            ({ mapLoading, pointsLoading }) => mapLoading || pointsLoading
+          ),
+          skipWhile(() => !this.mapRef.mapInstance.isSourceLoaded('allPins')),
+          map(({ bounds: [minLng, minLat, maxLng, maxLat], activity }) => {
+            switch (activity) {
+              case EActivity.ViewPin: {
+                return;
+              }
+              case EActivity.PinNew:
+              case EActivity.EditPin: {
+                return `Drag the map to adjust the geo position of this location`;
+              }
+              case EActivity.FlagPin: {
+                return `You're about to flag this location`;
+              }
+              default: {
+                const sw = new LngLat(minLng, minLat);
+                const ne = new LngLat(maxLng, maxLat);
+                const box = new LngLatBounds(sw, ne);
 
-    //   })
-    // );
+                const hasPoints = Array.from(this.points.values()).some((p) =>
+                  box.contains([p.longitude, p.latitude] as [number, number])
+                );
+
+                if (!hasPoints) {
+                  return `There isn't much in this area. Consider adding your art location or exploring further`;
+                } else {
+                  return;
+                }
+              }
+            }
+          })
+        )
+        .subscribe((hint) => (this.hint = hint))
+    );
   }
 
   ngAfterViewInit(): void {
@@ -322,6 +355,12 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   mapMove(ev: MapChangeEvent, final = true) {
+    if (
+      [EActivity.ViewPin, EActivity.FlagPin].includes(this.activity.current())
+    ) {
+      return;
+    }
+
     if (!this.loading$.map.getValue() && this.cursor) {
       const nextCenter = this.mapRef.mapInstance.getCenter();
       if (final) {

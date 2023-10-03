@@ -15,7 +15,7 @@ import {
 } from 'rxjs';
 import type { PointsRecord } from 'xata';
 import { LocationService } from './location.service';
-import mapboxgl from 'mapbox-gl';
+import { LngLatBounds, LngLat } from 'mapbox-gl';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +31,7 @@ export class PointsService {
 
   constructor(private http: HttpClient, private location: LocationService) {}
 
-  private checkedBounds = new Map<string, mapboxgl.LngLatBounds>();
+  private checkedBounds = new Map<string, LngLatBounds>();
   private isContainedBound(
     ...[minLng, minLat, maxLng, maxLat]: number[]
   ): boolean {
@@ -40,8 +40,8 @@ export class PointsService {
       return true;
     }
 
-    const sw = new mapboxgl.LngLat(minLng, minLat);
-    const ne = new mapboxgl.LngLat(maxLng, maxLat);
+    const sw = new LngLat(minLng, minLat);
+    const ne = new LngLat(maxLng, maxLat);
 
     return Array.from(this.checkedBounds.values()).some((box) => {
       return box.contains(sw) && box.contains(ne);
@@ -49,9 +49,9 @@ export class PointsService {
   }
   private addChecked(...[minLng, minLat, maxLng, maxLat]: number[]) {
     const boundsKey = `${minLng};${minLat};${maxLng};${maxLat};`;
-    const sw = new mapboxgl.LngLat(minLng, minLat);
-    const ne = new mapboxgl.LngLat(maxLng, maxLat);
-    const box = new mapboxgl.LngLatBounds(sw, ne);
+    const sw = new LngLat(minLng, minLat);
+    const ne = new LngLat(maxLng, maxLat);
+    const box = new LngLatBounds(sw, ne);
     this.checkedBounds.set(boundsKey, box);
   }
   public getPointsInBounds(exclude?: Map<string, any>) {
@@ -124,6 +124,7 @@ export class PointsService {
         }
       )
       .pipe(
+        tap((point) => this.createdPoint$.next(point)),
         switchMap((updated) => {
           if (!updateCover) {
             return of(updated);

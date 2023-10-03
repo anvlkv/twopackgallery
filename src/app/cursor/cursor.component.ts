@@ -15,7 +15,9 @@ import { Subscription } from 'rxjs';
 import { ActivityService, EActivity } from '../activity.service';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { BrowserStorageService } from '../browser-storage.service';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 
+export const NO_HINTS_KEY = 'noHints';
 @Component({
   standalone: true,
   imports: [
@@ -25,6 +27,7 @@ import { BrowserStorageService } from '../browser-storage.service';
     AvatarComponent,
     NzSpaceModule,
     NzToolTipModule,
+    NzButtonModule,
   ],
   selector: 'app-cursor',
   templateUrl: './cursor.component.html',
@@ -44,12 +47,17 @@ export class CursorComponent implements OnInit, OnDestroy {
 
   @Input('tooltip')
   set tooltip(val: string | undefined) {
-    if (!this.storage.get('noHints')) {
-      this._tooltip = val;
-    }
+    this._tooltip = val;
+    this.ch.detectChanges();
   }
   get tooltip() {
     return this.loading ? undefined : this._tooltip;
+  }
+
+  get showHint() {
+    return Boolean(
+      this.tooltip && !this.storage.get(NO_HINTS_KEY) && !this.loading
+    );
   }
 
   constructor(
@@ -69,5 +77,17 @@ export class CursorComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
+  }
+
+  stopHints() {
+    this._tooltip = undefined;
+    this.storage.set(NO_HINTS_KEY, true);
+    this.ch.detectChanges();
+    return false;
+  }
+  hideHint() {
+    this._tooltip = undefined;
+    this.ch.detectChanges();
+    return false;
   }
 }
