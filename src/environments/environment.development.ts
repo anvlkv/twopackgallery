@@ -4,6 +4,7 @@ export const environment = {
   auth0: {
     clientId: 'mRb6igqNRVdsDQnkUiy3tbhIcvy1gJn9',
     domain: 'dev-twopack-gallery.eu.auth0.com',
-    audience: 'https://twopack.gallery'
+    audience: 'https://twopack.gallery',
+    redirect_uri: 'http://localhost:8888'
   }
 };

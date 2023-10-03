@@ -1,14 +1,14 @@
 [build]
-publish = "dist/artmap"
+publish = "dist/artmap/browser"
 [context.production]
-command = "ng build --configuration production"
+command = "npm run prerender --configuration production"
 [context.deploy-preview]
-command = "ng build --configuration stage"
+command = "npm run prerender --configuration stage"
 
-[[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+[dev]
+command = "npm run dev:ssr"
+publish = "dist/artmap/browser"
+
 
 [functions]
 directory = "api/functions"
