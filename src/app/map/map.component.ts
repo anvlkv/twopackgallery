@@ -1,11 +1,13 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   Component,
   HostListener,
+  Inject,
   Input,
   OnDestroy,
   OnInit,
+  PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -134,12 +136,16 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     private notification: NzNotificationService,
     private storage: BrowserStorageService,
     private modal: NzModalService,
-    private activity: ActivityService
+    private activity: ActivityService,
+    @Inject(DOCUMENT) public document: Document,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-    if (!document.hasFocus()) {
-      window.focus();
+    if (isPlatformBrowser(this.platformId)) {
+      if (!this.document.hasFocus()) {
+        window.focus();
+      }
     }
 
     if (!this.storage.get(LOCATION_CONSENT_KEY)) {
@@ -310,8 +316,10 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (document.hasFocus()) {
-      this.loading$.focus.next(false);
+    if (isPlatformBrowser(this.platformId)) {
+      if (this.document.hasFocus()) {
+        this.loading$.focus.next(false);
+      }
     }
   }
 

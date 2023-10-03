@@ -15,6 +15,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { Subscription } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Component({
   standalone: true,
@@ -42,7 +43,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   logoLink = ['/', 'map'];
 
   constructor(public auth: AuthService, private router: Router) {
-    this.returnTo = document.location.origin;
+    this.returnTo = environment.auth0.redirect_uri;
   }
 
   ngOnInit(): void {
