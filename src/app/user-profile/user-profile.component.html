@@ -10,7 +10,7 @@
   <div nz-row [nzGutter]="[16, 24]">
     <div *ngFor="let i of [].constructor(5)" nz-col [nzSpan]="6">
       <nz-card [nzCover]="skeletonCoverTemplate" class="pin-card">
-        <nz-skeleton></nz-skeleton>
+        <nz-skeleton [nzActive]="true"></nz-skeleton>
       </nz-card>
     </div>
   </div>
@@ -20,5 +20,6 @@
   <nz-skeleton-element
     nzType="image"
     [ngStyle]="{ width: '100%', 'aspect-ratio': coverRatio }"
+    [nzActive]="true"
   ></nz-skeleton-element>
 </ng-template>

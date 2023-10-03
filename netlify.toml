@@ -1,11 +1,17 @@
 [build]
-command = "ng build --configuration production"
 publish = "dist/artmap"
+[context.production]
+command = "ng build --configuration production"
+[context.deploy-preview]
+command = "ng build --configuration stage"
+
 [[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200
+
 [functions]
 directory = "api/functions"
+
 [[plugins]]
 package = "@xata.io/netlify"

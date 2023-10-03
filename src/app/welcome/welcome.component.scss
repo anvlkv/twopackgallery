@@ -1,4 +1,9 @@
-$rotate-duration-s: 10;
+:host {
+  display: block;
+  background-image: linear-gradient(to bottom, #1f0221, black 59%);
+}
+
+$rotate-duration-s: 15;
 
 .cta-group {
   display: flex;
@@ -47,11 +52,12 @@ $rotate-duration-s: 10;
     span {
       display: block;
       margin-bottom: 0.25rem;
+      padding-left: .25rem;
+      padding-right: .25rem;
       height: 1.5em;
       &:first-child {
         margin-top: -0.5em;
-        animation: rotate-text #{$rotate-duration-s}s ease-out 500ms infinite
-          alternate both;
+        animation: rotate-text #{$rotate-duration-s}s ease-out 500ms infinite;
       }
     }
   }
