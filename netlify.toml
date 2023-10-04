@@ -5,9 +5,9 @@ command = "npm run prerender"
 [context.deploy-preview]
 command = "npm run prerender:stage"
 
-[dev]
-command = "npm run dev:ssr"
-publish = "dist/artmap/browser"
+# [dev]
+# command = "npm run dev:ssr"
+# publish = "dist/artmap/browser"
 # [context.production]
 # command = "ng build --configuration production"
 # [context.deploy-preview]
