@@ -1,50 +1,55 @@
-<app-cursor
-  *ngIf="!cursor"
-  [loading]="!cursor"
-  class="map-loading-cursor"
-></app-cursor>
+<ng-container *ngIf="isBrowser; else loadingTemplate">
+  <app-cursor
+    *ngIf="!cursor"
+    [loading]="!cursor"
+    class="map-loading-cursor"
+  ></app-cursor>
 
-<mgl-map
-  *ngIf="isBrowser"
-  [accessToken]="accessToken"
-  [style]="'mapbox://styles/packtwo/cln03jvjy02v001nzceog3kko'"
-  [zoom]="initialZoom"
-  [centerWithPanTo]="true"
-  [interactive]="true"
-  (move)="mapMove($event, false)"
-  (moveEnd)="mapMove($event)"
-  (zoomEnd)="mapZoom($event)"
-  (mapLoad)="mapLoad()"
-  (mapMouseMove)="onMouseMoveMap($event)"
-  [cursorStyle]="cursorStyle"
-  [attributionControl]="false"
-  (mapError)="onMapBoxError($event)"
-  #mapRef
->
-  <mgl-marker *ngIf="userLocation" [lngLat]="userLocation">
-    <app-avatar size="small" icon="aim"></app-avatar>
-  </mgl-marker>
-  <mgl-marker *ngIf="cursor" [lngLat]="cursor">
-    <app-cursor [loading]="loading | async" [tooltip]="hint"></app-cursor>
-  </mgl-marker>
-  <mgl-geojson-source
-    id="allPins"
-    [data]="(geoJsonPoints | async) || undefined"
-    [cluster]="true"
-    [clusterRadius]="50"
-    [clusterMinPoints]="3"
+  <mgl-map
+    [accessToken]="accessToken"
+    [style]="'mapbox://styles/packtwo/cln03jvjy02v001nzceog3kko'"
+    [zoom]="initialZoom"
+    [centerWithPanTo]="true"
+    [interactive]="true"
+    (move)="mapMove($event, false)"
+    (moveEnd)="mapMove($event)"
+    (zoomEnd)="mapZoom($event)"
+    (mapLoad)="mapLoad()"
+    (mapMouseMove)="onMouseMoveMap($event)"
+    [cursorStyle]="cursorStyle"
+    [attributionControl]="false"
+    (mapError)="onMapBoxError($event)"
+    #mapRef
   >
-  </mgl-geojson-source>
-  <mgl-layer
-    id="pinsLayer"
-    type="symbol"
-    source="allPins"
-    [layout]="{
-      'icon-image': ['image', 'twopack-gallery-marker'],
-      'icon-size': 0.75,
-      'icon-anchor': 'bottom'
-    }"
-    (layerClick)="clickPins($event)"
-  >
-  </mgl-layer>
-</mgl-map>
+    <mgl-marker *ngIf="userLocation" [lngLat]="userLocation">
+      <app-avatar size="small" icon="aim"></app-avatar>
+    </mgl-marker>
+    <mgl-marker *ngIf="cursor" [lngLat]="cursor">
+      <app-cursor [loading]="loading | async" [tooltip]="hint"></app-cursor>
+    </mgl-marker>
+    <mgl-geojson-source
+      id="allPins"
+      [data]="(geoJsonPoints | async) || undefined"
+      [cluster]="true"
+      [clusterRadius]="50"
+      [clusterMinPoints]="3"
+    >
+    </mgl-geojson-source>
+    <mgl-layer
+      id="pinsLayer"
+      type="symbol"
+      source="allPins"
+      [layout]="{
+        'icon-image': ['image', 'twopack-gallery-marker'],
+        'icon-size': 0.75,
+        'icon-anchor': 'bottom'
+      }"
+      (layerClick)="clickPins($event)"
+    >
+    </mgl-layer>
+  </mgl-map>
+</ng-container>
+
+<ng-template #loadingTemplate>
+  <app-cursor [loading]="true" class="map-loading-cursor"></app-cursor>
+</ng-template>
