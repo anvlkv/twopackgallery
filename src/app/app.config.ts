@@ -10,9 +10,28 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TitleStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import {
+  AimOutline,
+  CheckCircleOutline,
+  CloseOutline,
+  EditOutline,
+  EnvironmentOutline,
+  EyeOutline,
+  EyeTwoTone,
+  FlagOutline,
+  FlagTwoTone,
+  MinusOutline,
+  PlusOutline,
+  PushpinOutline,
+  PushpinTwoTone,
+  RedoOutline,
+  SelectOutline,
+  UpOutline,
+} from '@ant-design/icons-angular/icons';
 import { NZ_CONFIG, NzConfig } from 'ng-zorro-antd/core/config';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
@@ -40,6 +59,25 @@ const ngZorroConfig: NzConfig = {
   },
 };
 
+const icons = [
+  CheckCircleOutline,
+  PushpinOutline,
+  PushpinTwoTone,
+  EyeOutline,
+  EyeTwoTone,
+  SelectOutline,
+  EnvironmentOutline,
+  FlagOutline,
+  FlagTwoTone,
+  EditOutline,
+  CloseOutline,
+  RedoOutline,
+  UpOutline,
+  PlusOutline,
+  MinusOutline,
+  AimOutline,
+];
+
 registerLocaleData(en);
 
 const providersFrom = [
@@ -55,6 +93,7 @@ const providersFrom = [
     // or after 30 seconds (whichever comes first).
     registrationStrategy: 'registerWhenStable:30000',
   }),
+  NzIconModule.forRoot(icons),
 ].map((mod) => importProvidersFrom(mod));
 
 export const appConfig: ApplicationConfig = {

@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { Subscription, combineLatest, interval, take, timer } from 'rxjs';
+import { Subscription, timer } from 'rxjs';
 import { LocationService } from '../location.service';
 import { ZoomSyncService } from '../zoom-sync.service';
 
@@ -13,6 +13,7 @@ import { ZoomSyncService } from '../zoom-sync.service';
   selector: 'app-map-aside',
   templateUrl: './map-aside.component.html',
   styleUrls: ['./map-aside.component.scss'],
+  host: {ngSkipHydration: 'true'},
 })
 export class MapAsideComponent implements OnInit, OnDestroy {
   subs: Subscription[] = [];

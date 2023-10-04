@@ -148,9 +148,8 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       if (!this.document.hasFocus()) {
         window.focus();
       }
-    }
-    else {
-      return
+    } else {
+      return;
     }
 
     if (!this.storage.get(LOCATION_CONSENT_KEY)) {
@@ -276,15 +275,12 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       combineLatest({
         bounds: this.location.currentBounds,
         points: this.geoJsonPoints,
-        mapLoading: this.loading$.map,
-        pointsLoading: this.loading$.points,
+        loading: this.loading,
         activity: this.activity.activity,
       })
         .pipe(
           takeWhile(() => !this.storage.get(NO_HINTS_KEY)),
-          skipWhile(
-            ({ mapLoading, pointsLoading }) => mapLoading || pointsLoading
-          ),
+          skipWhile(({ loading }) => loading),
           skipWhile(() => !this.mapRef.mapInstance.isSourceLoaded('allPins')),
           map(({ bounds: [minLng, minLat, maxLng, maxLat], activity }) => {
             switch (activity) {
