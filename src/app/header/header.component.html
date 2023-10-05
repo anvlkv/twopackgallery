@@ -67,7 +67,7 @@
         nz-button
         nzType="primary"
         [nzSize]="isCard ? 'small' : 'default'"
-        (click)="auth.loginWithRedirect()"
+        (click)="login($event)"
         [nzLoading]="auth.isLoading$ | async"
       >
         Log in

@@ -6,7 +6,7 @@ import { ngExpressEngine } from '@nguniversal/express-engine';
 import express from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import bootstrap from './src/main.server';
+import bootstrap from '../src/main.server';
 
 enableProdMode();
 

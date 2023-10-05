@@ -89,7 +89,7 @@ export class FlagPinComponent implements OnInit, OnDestroy {
     if (!this.flagPinForm.valid) {
       return
     }
-    
+    this.saving = true;
     this.submitSubscription = this.pts
       .flagPoint(this.id, this.flagPinForm.value)
       .subscribe({
@@ -119,6 +119,7 @@ export class FlagPinComponent implements OnInit, OnDestroy {
     if (this.submitSubscription) {
       this.submitSubscription.unsubscribe();
       this.submitSubscription = undefined;
+      this.saving = true;
     } else {
       this.router.navigate(['..']);
     }

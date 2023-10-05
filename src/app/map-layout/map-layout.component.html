@@ -1,5 +1,7 @@
 <app-header [card]="true"></app-header>
 
+<app-search></app-search>
+
 <app-map [offset]="isChildRouteActivated ? drawerWidth : undefined"></app-map>
 
 <app-map-aside *ngIf="!isChildRouteActivated"></app-map-aside>

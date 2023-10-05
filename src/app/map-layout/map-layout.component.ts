@@ -29,18 +29,20 @@ import { Subscription, filter } from 'rxjs';
 import { HeaderComponent } from '../header/header.component';
 import { MapAsideComponent } from '../map-aside/map-aside.component';
 import { MapComponent } from '../map/map.component';
+import { SearchComponent } from '../search/search.component';
 
 @Component({
   standalone: true,
   imports: [
     CommonModule,
     RouterModule,
-    HeaderComponent,
-    MapComponent,
-    MapAsideComponent,
     NzIconModule,
     NzDrawerModule,
     NzGridModule,
+    HeaderComponent,
+    MapComponent,
+    MapAsideComponent,
+    SearchComponent
   ],
   selector: 'app-map-layout',
   templateUrl: './map-layout.component.html',

@@ -35,43 +35,42 @@
       nzType="info"
       nzShowIcon
       nzMessage="The location is unsafe"
-    >
-      You have visited the location and consider it unsafe for other visitors.
-    </nz-alert>
+      [nzDescription]="
+        'You have visited the location and consider it unsafe for other visitors.'
+      "
+    />
     <nz-alert
       *ngSwitchCase="'irrelevant'"
       nzType="info"
       nzShowIcon
       nzMessage="The location is irrelevant"
-    >
-      The location doesn't show any of the art forms it has claimed or has
-      nothing to do with art.
-    </nz-alert>
+      [nzDescription]="
+        'The location doesn\'t show any of the art forms it has claimed or has nothing to do with art.'
+      "
+    />
     <nz-alert
       *ngSwitchCase="'unreachable'"
       nzType="info"
       nzShowIcon
       nzMessage="The location is unreachable"
-    >
-      You attempted an unsuccessful visit to the location, and followed the
-      instructions in "How to get there" section if any.
-    </nz-alert>
+      [nzDescription]="'You attempted an unsuccessful visit to the location, and followed the instructions in How to get there section if any.'"
+    />
     <nz-alert
       *ngSwitchCase="'reclaim'"
       nzType="info"
       nzShowIcon
       nzMessage="Reclaim the location"
-    >
-      You are the owner of this location and would like to reclaim it.
-    </nz-alert>
+      [nzDescription]="
+        'You are the owner of this location and would like to reclaim it.'
+      "
+    />
     <nz-alert
       *ngSwitchCase="'other'"
       nzType="info"
       nzShowIcon
       nzMessage="Other issues"
-    >
-      Something else is the issue with this location.
-    </nz-alert>
+      [nzDescription]="'ing else is the issue with this location.'"
+    />
   </ng-container>
 
   <nz-form-item>
@@ -99,7 +98,6 @@
       nzType="primary"
       type="submit"
       nzDanger
-      nzGhost
       [disabled]="!flagPinForm.valid"
       [nzLoading]="saving"
     >

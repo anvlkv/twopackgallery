@@ -26,6 +26,7 @@ import {
   PushpinTwoTone,
   RedoOutline,
   SelectOutline,
+  SearchOutline,
   UpOutline,
 } from '@ant-design/icons-angular/icons';
 import { NZ_CONFIG, NzConfig } from 'ng-zorro-antd/core/config';
@@ -76,6 +77,7 @@ const icons = [
   PlusOutline,
   MinusOutline,
   AimOutline,
+  SearchOutline,
 ];
 
 registerLocaleData(en);

@@ -1,0 +1,19 @@
+<nz-input-group [nzPrefix]="searchPrefixTemplate">
+  <input
+    type="search"
+    nz-input
+    nzSize="large"
+    placeholder="Search..."
+    [ngClass]="{'activated': isActivated}"
+    [nzAutocomplete]="auto"
+    (input)="onInput($event)"
+    (focus)="onFocus($event)"
+    (blur)="onBlur($event)"
+  />
+</nz-input-group>
+<ng-template #searchPrefixTemplate><i nz-icon nzType="search"></i></ng-template>
+<nz-autocomplete
+  [nzDataSource]="searchOptions"
+  nzBackfill
+  #auto
+></nz-autocomplete>

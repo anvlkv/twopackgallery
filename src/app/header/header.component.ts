@@ -41,6 +41,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   returnTo: string;
   subs: Subscription[] = [];
   logoLink = ['/', 'map'];
+  currentLink?: string;
 
   constructor(public auth: AuthService, private router: Router) {
     this.returnTo = environment.auth0.redirect_uri;
@@ -50,6 +51,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subs.push(
       this.router.events.subscribe((ev) => {
         if (ev.type === EventType.NavigationEnd) {
+          this.currentLink = ev.url;
           if (ev.url.endsWith('map')) {
             this.logoLink = ['/', 'welcome'];
           } else {
@@ -62,5 +64,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
+  }
+
+  login(ev: MouseEvent) {
+    this.auth.loginWithRedirect({ appState: { target: this.currentLink } });
+    return false;
   }
 }

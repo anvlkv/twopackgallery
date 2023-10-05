@@ -34,7 +34,8 @@ export const isAuthenticated: CanActivateFn = (
             return auth.loginWithRedirect({
               appState: {
                 target: state.url
-              }
+              },
+              
             }).pipe(map(() => false));
           }
         })

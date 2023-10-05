@@ -63,19 +63,6 @@
         "maxSize": 30000,
         "strategy": "freshness"
       }
-    },
-    {
-      "name": "mapbox",
-      "version": 1,
-      "urls": ["https://api.mapbox.com/**"],
-      "cacheQueryOptions": {
-        "ignoreSearch": false
-      },
-      "cacheConfig": {
-        "maxAge": "24h",
-        "maxSize": 90000,
-        "strategy": "performance"
-      }
     }
   ]
 }
