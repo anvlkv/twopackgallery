@@ -17,6 +17,8 @@ export async function sendEmail<D = any>(
   const templateUrl = `${process.env['URL']}/.netlify/functions/emails/${template}`;
 
 
+  throw templateUrl
+
   return await fetch(
     templateUrl,
     {
