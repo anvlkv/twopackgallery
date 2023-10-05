@@ -33,6 +33,7 @@ import { environment } from 'src/environments/environment';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
+  host: { ngSkipHydration: 'true' },
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   @Input('card')

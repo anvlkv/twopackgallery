@@ -64,7 +64,7 @@ const handler: Handler = withAuth0(
         filter: { id: point.publisher!.id },
       });
 
-      const result = await sendEmail(
+      const sendResult = await sendEmail(
         EMailBox.Support,
         publisher.email!,
         `There's possibly an issue with ${point.title} on twopack.gallery`,
@@ -78,7 +78,7 @@ const handler: Handler = withAuth0(
         true
       );
 
-      console.log(result.body);
+      return { statusCode: sendResult.status, body: await sendResult.text() };
     }
 
     return { statusCode: 200, body: '' };

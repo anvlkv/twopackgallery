@@ -16,7 +16,6 @@ export async function sendEmail<D = any>(
   const sender = `${from}@${process.env['NETLIFY_EMAILS_MAILGUN_DOMAIN']}`;
   const templateUrl = `${process.env['URL']}/.netlify/functions/emails/${template}`;
 
-  console.log(process.env['NETLIFY_EMAILS_DIRECTORY'])
 
   return await fetch(
     templateUrl,
