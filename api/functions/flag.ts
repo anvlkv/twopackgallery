@@ -30,9 +30,9 @@ const handler: Handler = withAuth0(
       })
     );
 
-    // if (hasBeenFlagged) {
-    //   throw new Error('Can not flag the same point twice.');
-    // }
+    if (hasBeenFlagged) {
+      throw new Error('Can not flag the same point twice.');
+    }
 
     const point = await client.db.points.getFirstOrThrow({ filter: { id } });
 
@@ -78,6 +78,7 @@ const handler: Handler = withAuth0(
         true
       );
 
+      
       return { statusCode: sendResult.status, body: await sendResult.text() };
     }
 
