@@ -20,10 +20,11 @@ const serverConfig: ApplicationConfig = {
       provide: AuthService,
       useValue: {
         isLoading$: of(false),
-        isAuthenticated$: of(false),
-        user$: of(null),
+        isAuthenticated$: NEVER,
+        user$: NEVER,
         error$: NEVER,
         loginWithRedirect: noop,
+        getAccessTokenSilently: noop
       },
     },
     { provide: AuthConfigService, useValue: {} as any },

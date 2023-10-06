@@ -17,27 +17,12 @@ const handler: Handler = withAuth0(
         },
       });
 
-      const { reason } = JSON.parse(event.body!);
-
-      await client.db.feedback.create({
-        feedback_type: 'delete',
-        user_email: user.email,
-        description: reason,
-      });
-
-      const ownedPoints = await client.db.points
-        .filter({ publisher: { id: user.id } })
-        .getAll({ columns: ['id'] });
-
-      for (let { id } of ownedPoints) {
-        await client.db.points.update({ id, status: 'user_deleted', publisher: null });
-      }
-
-      await client.db.users.deleteOrThrow(user);
-
       await withAuth0Token({
-        url: `/api/v2/users/${sub}`,
-        method: 'DELETE',
+        url: '/jobs/verification-email',
+        data: {
+          client_id: process.env['API_AUTH0_CLIENT_ID'],
+          user_id: sub,
+        },
       });
 
       return { statusCode: 200, body: '' };

@@ -25,7 +25,6 @@ const handler: Handler = async (
         'point.location_description',
         'point.title',
         'point.id',
-        'point.publisher.id',
         'point.longitude',
         'point.latitude',
       ],

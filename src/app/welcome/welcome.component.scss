@@ -3,7 +3,7 @@
   background-image: linear-gradient(to bottom, #1f0221, black 59%);
 }
 
-$rotate-duration-s: 15;
+$rotate-duration-s: 25;
 
 .cta-group {
   display: flex;
@@ -47,8 +47,8 @@ $rotate-duration-s: 15;
     flex-direction: column;
     align-items: center;
     align-self: self-end;
-    background-color: rgba($color: white, $alpha: 0.25);
-    border-radius: 2px;
+    font-style: italic;
+    font-weight: 100;
     span {
       display: block;
       margin-bottom: 0.25rem;

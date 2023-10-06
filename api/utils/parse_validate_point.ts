@@ -1,11 +1,12 @@
 import { HandlerEvent } from '@netlify/functions';
 import { getXataClient } from 'xata';
+import { EPointStatus } from './point_status';
 
 const client = getXataClient();
 
-export async function parseValidatePoint(event: HandlerEvent, id?: string) {
+export async function parseValidatePoint(event: HandlerEvent, publicationAllowed: boolean, id?: string) {
   const data = JSON.parse(event.body!);
-  const { art_forms, latitude, longitude, title } = data;
+  const { art_forms, latitude, longitude, title, status } = data;
 
   if (isNaN(latitude) || isNaN(longitude)) {
     throw new Error('Invalid point position');
@@ -19,6 +20,14 @@ export async function parseValidatePoint(event: HandlerEvent, id?: string) {
     points = points.filter({
       $not: { id },
     });
+  }
+
+  if (status !== EPointStatus.Draft && !publicationAllowed) {
+    throw new Error('Cannot accept non draft');
+  }
+
+  if (![EPointStatus.Draft, EPointStatus.Published].includes(status)) {
+    throw new Error('Cannot accept other status');
   }
 
   const hasPointAtLocation = await points.getFirst({ columns: ['id'] });

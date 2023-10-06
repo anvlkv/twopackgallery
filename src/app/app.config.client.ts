@@ -25,16 +25,17 @@ const clientConfig: ApplicationConfig = {
     ),
     importProvidersFrom(
       AuthModule.forRoot({
+        cacheLocation: 'localstorage',
         domain: environment.auth0.domain,
         clientId: environment.auth0.clientId,
         authorizationParams: {
-          redirect_uri: environment.auth0.redirect_uri,
+          redirect_uri: window.location.origin,
           audience: environment.auth0.audience,
         },
         httpInterceptor: {
           allowedList: [
             {
-              uri: '/.netlify/functions/*',
+              uri: '/.netlify/functions/authorized-*',
               allowAnonymous: true,
             },
           ],

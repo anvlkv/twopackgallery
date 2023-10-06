@@ -1,8 +1,9 @@
-import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
+import { HttpParams } from '@angular/common/http';
 import {
-  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  HostListener,
   Inject,
   Input,
   OnDestroy,
@@ -10,7 +11,7 @@ import {
   PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import type { JSONData } from '@xata.io/client';
 import deepEqual from 'deep-equal';
 import {
@@ -22,7 +23,6 @@ import {
   MapLayerMouseEvent,
   MapboxEvent,
 } from 'mapbox-gl';
-import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import {
   NzNotificationModule,
   NzNotificationService,
@@ -33,10 +33,8 @@ import {
 } from 'ngx-mapbox-gl';
 import {
   BehaviorSubject,
-  Subject,
   Subscription,
   combineLatest,
-  filter,
   map,
   skipWhile,
   takeWhile,
@@ -56,16 +54,17 @@ type MapChangeEvent = MapboxEvent<
 > &
   EventData;
 
-const LAST_USED_KEY = 'mapLocation, zoom';
+const LAST_USED_MAP_VIEW_KEY = 'mapLocation, zoom';
+type LastUsedMapView = {
+  center?: [number, number];
+  zoom?: number;
+};
 
-export const LOCATION_CONSENT_KEY = 'locationPermission';
-export type Consent = { consent: 'accept' | 'deny' };
 @Component({
   standalone: true,
   imports: [
     CommonModule,
     NzNotificationModule,
-    NzModalModule,
     NgxMapboxGLModule,
     CursorComponent,
     AvatarComponent,
@@ -73,8 +72,9 @@ export type Consent = { consent: 'accept' | 'deny' };
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
+export class MapComponent implements OnInit, OnDestroy {
   accessToken = environment.mapBoxTokenRead;
   cursor?: [number, number];
   subs: Subscription[] = [];
@@ -91,6 +91,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
 
   geoJsonPoints = this.geoJsonPoints$.asObservable();
 
+  initialCenter?: [number, number];
   cursorStyle?: string;
 
   private _offset?: number;
@@ -108,21 +109,10 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('mapRef', { read: MglMapComponent })
   mapRef!: MglMapComponent;
 
-  @HostListener('window:focus', ['$event'])
-  handleFocusEvent() {
-    this.loading$.focus.next(false);
-  }
-
   loading$ = {
-    location: new BehaviorSubject(true),
     points: new BehaviorSubject(true),
     map: new BehaviorSubject(true),
-    focus: new BehaviorSubject(true),
   };
-
-  locationConsent = new BehaviorSubject(
-    this.storage.get<Consent>(LOCATION_CONSENT_KEY)
-  );
 
   loading = combineLatest(this.loading$).pipe(
     map((subjects) => Object.values(subjects).some(Boolean))
@@ -133,90 +123,125 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private pts: PointsService,
     private location: LocationService,
+    private browserLocation: Location,
+    private activatedRoute: ActivatedRoute,
     private router: Router,
     private zoomSync: ZoomSyncService,
     private notification: NzNotificationService,
     private storage: BrowserStorageService,
-    private modal: NzModalService,
     private activity: ActivityService,
-    @Inject(DOCUMENT) public document: Document,
+    private ch: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) {
+    const query = activatedRoute.snapshot.queryParams;
+
+    const restoreMapView =
+      this.storage.get<LastUsedMapView>(LAST_USED_MAP_VIEW_KEY) || {};
+
+    try {
+      if (query['lng'] && query['lat']) {
+        const lngLat: [number, number] = [
+          parseFloat(query['lng']),
+          parseFloat(query['lat']),
+        ];
+        if (lngLat.every((v) => !isNaN(v))) {
+          restoreMapView.center = lngLat;
+        } else {
+          throw 'Invalid url coords';
+        }
+      }
+    } catch {
+      this.router.navigate([], {
+        queryParams: { lng: null, lat: null },
+        replaceUrl: true,
+        queryParamsHandling: 'merge',
+        relativeTo: this.activatedRoute,
+      });
+    }
+    try {
+      if (query['zm']) {
+        const zoom = parseFloat(query['zm']);
+        if (!isNaN(zoom)) {
+          restoreMapView.zoom = zoom;
+        } else {
+          throw 'Invalid url zoom';
+        }
+      }
+    } catch {
+      this.router.navigate([], {
+        queryParams: { zm: null },
+        replaceUrl: true,
+        queryParamsHandling: 'merge',
+        relativeTo: this.activatedRoute,
+      });
+    }
+
+    if (restoreMapView.center) {
+      this.initialCenter = this.cursor = restoreMapView.center;
+      this.location.adjust_location(restoreMapView.center);
+    }
+    if (restoreMapView.zoom) {
+      this.initialZoom = [restoreMapView.zoom];
+      this.zoomSync.setZoom(restoreMapView.zoom);
+    }
+  }
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      if (!this.document.hasFocus()) {
-        window.focus();
-      }
-    } else {
-      return;
-    }
-
-    if (!this.storage.get(LOCATION_CONSENT_KEY)) {
-      const consent$ = new Subject<boolean>();
-      this.modal.confirm({
-        nzTitle: 'Please allow using your geo location',
-        nzContent: `To make your experience of using the map more convenient we would like to use your device geo location.
-         After clicking "Yes" you'll be additionally prompted by your browser, please click "Allow" in the browser dialog.
-         Please note we won't store your location data unless you are adding a new pin.`,
-        nzOnOk: () => consent$.next(true),
-        nzOnCancel: () => consent$.next(false),
-        nzOkText: 'Yes',
-        nzCancelText: 'No',
-        nzIconType: 'aim',
-        nzBodyStyle: {
-          'white-space': 'pre-line',
-        },
-      });
-      consent$.subscribe((value) => {
-        this.storage.set<Consent>(LOCATION_CONSENT_KEY, {
-          consent: value ? 'accept' : 'deny',
-        });
-        this.locationConsent.next(this.storage.get(LOCATION_CONSENT_KEY));
-        if (!value) {
-          this.loading$.location.next(false);
-        }
-      });
-    }
-
     this.subs.push(
       combineLatest({
-        map: this.loading$.map,
+        mapLoading: this.loading$.map,
         location: this.location.currentLocation,
+        activity: this.activity.activity,
       })
-        .pipe(skipWhile(({ map }) => map))
-        .subscribe(({ location }) => {
-          this.loading$.location.next(false);
+        .pipe(skipWhile(({ mapLoading }) => mapLoading))
+        .subscribe(({ location, activity }) => {
           this.cursor = location;
-          const center = this.mapRef.mapInstance.getCenter();
-          if (!deepEqual(center.toArray(), location)) {
-            const options: FlyToOptions = { center: location };
-            if (!this.hasInitializedZoom) {
-              options.zoom = 13;
-              this.hasInitializedZoom = true;
-              this.zoomSync.setZoom(options.zoom);
-            }
+
+          const { lng, lat } = this.mapRef.mapInstance.getCenter();
+
+          const options: FlyToOptions = {
+            center: location,
+            zoom: this.zoomSync.getZoom() || 13,
+          };
+
+          if (!deepEqual(options.center, [lng, lat])) {
             this.mapRef.mapInstance.flyTo(options);
           }
+
+          if (
+            [EActivity.CreatePin, EActivity.EditPin, EActivity.None].includes(
+              activity
+            )
+          ) {
+            this.updateUrlMapView({ center: location });
+          } else {
+            this.clearUrlMapView();
+          }
+          this.updateStorageMapView({ center: location });
+
+          this.ch.detectChanges();
         })
     );
 
     this.subs.push(
       this.location.currentBounds.subscribe(() => {
         this.loading$.points.next(true);
+        this.ch.detectChanges();
       })
     );
 
     this.subs.push(
-      this.pts.getPointsInBounds(this.points).subscribe({
+      this.pts.pointsInBounds(this.points).subscribe({
         next: (points) => {
           points.forEach((point) => {
             this.points.set(point.id, point);
           });
           this.nextPoints();
           this.loading$.points.next(false);
+          this.ch.detectChanges();
         },
         error: (err) => {
+          this.loading$.points.next(false);
           this.notification.error('Something went wrong...', err.message);
         },
       })
@@ -226,6 +251,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       this.pts.deletedPoints.subscribe((deleted) => {
         deleted.forEach((id) => this.points.delete(id));
         this.nextPoints();
+        this.ch.detectChanges();
       })
     );
 
@@ -233,42 +259,39 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       this.pts.createdPoint.subscribe((point) => {
         this.points.set(point.id, point);
         this.nextPoints();
+        this.ch.detectChanges();
       })
     );
 
     this.subs.push(
       combineLatest({
-        map: this.loading$.map,
+        mapLoading: this.loading$.map,
         zoom: this.zoomSync.zoom,
+        activity: this.activity.activity,
       })
-        .pipe(skipWhile(({ map }) => map))
-        .subscribe(({ zoom: { value } }) => {
+        .pipe(skipWhile(({ mapLoading }) => mapLoading))
+        .subscribe(({ zoom: { value }, activity }) => {
           this.mapRef.mapInstance.zoomTo(value, { duration: 700 });
+          if (
+            [EActivity.CreatePin, EActivity.EditPin, EActivity.None].includes(
+              activity
+            )
+          ) {
+            this.updateUrlMapView({ zoom: value });
+          } else {
+            this.clearUrlMapView();
+          }
+          this.updateStorageMapView({ zoom: value });
+
+          this.ch.detectChanges();
         })
     );
 
     this.subs.push(
-      this.location.runningLocation.subscribe(
-        (value) => (this.userLocation = value)
-      )
-    );
-
-    this.subs.push(
-      combineLatest({
-        map: this.loading$.map,
-        focus: this.loading$.focus,
-        consent: this.locationConsent,
+      this.location.runningLocation.subscribe((value) => {
+        this.userLocation = value;
+        this.ch.detectChanges();
       })
-        .pipe(
-          filter(
-            ({ map, focus, consent }) =>
-              !map && !focus && !this.cursor && consent?.consent === 'accept'
-          )
-        )
-        .subscribe(() => {
-          this.location.locate(false);
-          this.location.startTrackingLocation();
-        })
     );
 
     this.subs.push(
@@ -287,7 +310,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
               case EActivity.ViewPin: {
                 return;
               }
-              case EActivity.PinNew:
+              case EActivity.CreatePin:
               case EActivity.EditPin: {
                 return `Drag the map to adjust the geo position of this location`;
               }
@@ -312,16 +335,11 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
             }
           })
         )
-        .subscribe((hint) => (this.hint = hint))
+        .subscribe((hint) => {
+          this.hint = hint;
+          this.ch.detectChanges();
+        })
     );
-  }
-
-  ngAfterViewInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      if (this.document.hasFocus()) {
-        this.loading$.focus.next(false);
-      }
-    }
   }
 
   private nextPoints() {
@@ -346,13 +364,35 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  private updateStorageMapView({
+    center = this.cursor,
+    zoom = this.zoomSync.getZoom(),
+  }: LastUsedMapView) {
+    this.storage.set<LastUsedMapView>(LAST_USED_MAP_VIEW_KEY, { center, zoom });
+  }
+  private updateUrlMapView({
+    center = this.cursor,
+    zoom = this.zoomSync.getZoom(),
+  }: LastUsedMapView) {
+    let params = new HttpParams();
+    if (center) {
+      params = params.set('lng', center[0]).set('lat', center[1]);
+    }
+    if (zoom) {
+      params = params.set('zm', zoom);
+    }
+    const path = this.browserLocation.path().split('?')[0];
+    this.browserLocation.replaceState(path, params.toString());
+  }
+  private clearUrlMapView() {
+    const path = this.browserLocation.path().split('?')[0];
+    this.browserLocation.replaceState(path);
+  }
+
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
     this.location.stopTrackingLocation();
-    this.storage.set(LAST_USED_KEY, {
-      center: this.cursor,
-      zoom: this.zoomSync.getZoom(),
-    });
+    this.clearUrlMapView();
   }
 
   mapLoad() {
@@ -370,26 +410,24 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    if (!this.loading$.map.getValue() && this.cursor) {
+    if (!this.loading$.map.getValue()) {
       const nextCenter = this.mapRef.mapInstance.getCenter();
-      if (final) {
-        this.location.adjust_location([nextCenter.lng, nextCenter.lat]);
+      if (final && !ev['isPaddingChange']) {
         this.location.adjust_bounds(
           this.mapRef.mapInstance.getBounds().toArray()
         );
-      } else {
-        this.cursor = [nextCenter.lng, nextCenter.lat];
+
+        this.location.adjust_location([nextCenter.lng, nextCenter.lat]);
       }
+      this.cursor = [nextCenter.lng, nextCenter.lat];
     }
   }
 
   mapZoom(ev: MapChangeEvent, final = true) {
     if (!this.loading$.map.getValue()) {
       const nextZoom = this.mapRef.mapInstance.getZoom();
-      if (ev.originalEvent && final) {
-        this.zoomSync.setZoom(nextZoom);
-      }
       if (final) {
+        this.zoomSync.setZoom(nextZoom);
         this.location.adjust_bounds(
           this.mapRef.mapInstance.getBounds().toArray()
         );
@@ -400,9 +438,15 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   clickPins(ev: MapLayerMouseEvent) {
     if (ev.features) {
       if (ev.features[0].properties!['cluster'] === true) {
-        this.zoomSync.zoomIn();
+        this.mapRef.mapInstance.flyTo({
+          center: ev.lngLat,
+          zoom: this.zoomSync.getZoom()! + 1,
+        });
       } else {
-        this.router.navigate(['map', 'pin', ev.features[0].properties!['id']]);
+        this.router.navigate(['map', 'pin', ev.features[0].properties!['id']], {
+          queryParams: { lat: null, zm: null, lang: null },
+        });
+        this.location.adjust_location(ev.lngLat.toArray() as [number, number]);
       }
     }
   }
@@ -434,6 +478,9 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       top: 0,
       bottom: 0,
     });
-    this.cursor && this.mapRef?.mapInstance.setCenter(this.cursor);
+    this.cursor &&
+      this.mapRef?.mapInstance.setCenter(this.cursor, {
+        isPaddingChange: true,
+      });
   }
 }

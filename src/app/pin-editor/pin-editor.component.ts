@@ -26,7 +26,7 @@ import {
   filter,
   map,
   of,
-  skipWhile,
+  skip,
   switchMap,
 } from 'rxjs';
 import { ActivityService, EActivity } from '../activity.service';
@@ -40,6 +40,8 @@ import { COVER_RATIO } from '../cover-image/consts';
 import { Address, LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
+import { EPointStatus } from 'api/utils/point_status';
+import { UserService } from '../user.service';
 
 @Component({
   standalone: true,
@@ -84,13 +86,13 @@ export class PinEditorComponent implements OnInit, OnDestroy {
       [] as string[],
       Validators.compose([
         (c: AbstractControl<string[]>) => {
-          if (c.value.length < 1) {
+          if (c.value && c.value.length < 1) {
             return { minLength: true };
           }
           return null;
         },
         (c: AbstractControl<string[]>) => {
-          if (c.value.length > 5) {
+          if (c.value && c.value.length > 5) {
             return { maxLength: true };
           }
           return null;
@@ -99,6 +101,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     ],
     description: [''],
     location_description: [''],
+    status: [this.user.verified ? EPointStatus.Published : EPointStatus.Draft, Validators.required]
   });
   coverRatio = COVER_RATIO;
 
@@ -113,7 +116,8 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     private points: PointsService,
     private notification: NzNotificationService,
     private modal: NzModalService,
-    private activity: ActivityService
+    private activity: ActivityService,
+    private user: UserService,
   ) {
     this.id = activatedRoute.snapshot.params['id'];
     this.title = this.id ? 'Edit location' : 'New location';
@@ -125,8 +129,6 @@ export class PinEditorComponent implements OnInit, OnDestroy {
   private leave?: () => void;
 
   ngOnInit(): void {
-    this.artForms.queryArtForms();
-
     this.subs.push(
       this.artForms.fetchedArtForms
         .pipe(
@@ -180,21 +182,28 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             this.pinForm.controls['address'].reset(located);
           })
       );
-      this.leave = this.activity.startActivity(EActivity.PinNew);
+      this.leave = this.activity.startActivity(EActivity.CreatePin);
+      const [lng, lat] = this.location.getCurrentLocation();
+      this.pinForm.controls['longitude'].reset(lng);
+      this.pinForm.controls['latitude'].reset(lat);
     }
 
     this.subs.push(
       this.location.currentLocation
-        .pipe(
-          skipWhile(
-            () =>
-              this.pinForm.controls['address'].dirty ||
-              Boolean(this.id && this.pinForm.disabled)
-          )
-        )
+        .pipe(skip(1))
         .subscribe(([longitude, latitude]) => {
+          const [cLng, cLat] = [
+            this.pinForm.value.longitude,
+            this.pinForm.value.latitude,
+          ];
           this.pinForm.controls['longitude'].setValue(longitude);
+          if (cLng !== longitude) {
+            this.pinForm.controls['longitude'].markAsDirty();
+          }
           this.pinForm.controls['latitude'].setValue(latitude);
+          if (cLat !== latitude) {
+            this.pinForm.controls['latitude'].markAsDirty();
+          }
         })
     );
 
@@ -217,7 +226,9 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             ).coordinates;
             this.location.adjust_location([longitude, latitude]);
             this.pinForm.controls['longitude'].setValue(longitude);
+            this.pinForm.controls['longitude'].markAsDirty();
             this.pinForm.controls['latitude'].setValue(latitude);
+            this.pinForm.controls['latitude'].markAsDirty();
           }
         })
     );
@@ -246,7 +257,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
           }
         : formValue;
       this.submitSubscription = this.points
-        .createNewPoint(value, coverFile)
+        .createNewPoint(value as any, coverFile)
         .subscribe({
           next: (newPoint) => {
             this.saving = false;
@@ -254,8 +265,10 @@ export class PinEditorComponent implements OnInit, OnDestroy {
               "You've just added a new location!",
               `Location "${newPoint.title}" added successfully.`
             );
-            this.router.navigate(['map', 'pin', newPoint.id], {
+            this.router.navigate(['pin', newPoint.id], {
               replaceUrl: true,
+              relativeTo: this.activatedRoute.parent,
+              queryParams: null,
             });
             this.pinForm.markAsPristine();
           },
@@ -277,7 +290,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             }
           : formValue;
       this.submitSubscription = this.points
-        .updatePoint(this.id, value, coverFile)
+        .updatePoint(this.id, value as any, coverFile)
         .subscribe({
           next: (updatedPoint) => {
             this.saving = false;
@@ -347,7 +360,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
       this.submitSubscription.unsubscribe();
       this.submitSubscription = undefined;
     } else {
-      this.router.navigate(['.'], { relativeTo: this.activatedRoute.parent });
+      this.router.navigate(['../'], { relativeTo: this.activatedRoute });
     }
 
     return false;

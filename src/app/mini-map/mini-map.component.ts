@@ -5,8 +5,8 @@ import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { BrowserStorageService } from '../browser-storage.service';
+import { Consent, LOCATION_CONSENT_KEY } from '../locate-me-btn/locate-me-btn.component';
 import { LocationService } from '../location.service';
-import { Consent, LOCATION_CONSENT_KEY } from '../map/map.component';
 
 @Component({
   standalone: true,

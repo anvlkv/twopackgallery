@@ -56,7 +56,7 @@
         *nzSpaceItem
         nz-button
         [nzSize]="isCard ? 'small' : 'default'"
-        (click)="auth.logout({ logoutParams: { returnTo } })"
+        (click)="logout($event)"
       >
         Log out
       </button>

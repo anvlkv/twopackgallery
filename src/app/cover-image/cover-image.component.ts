@@ -10,12 +10,14 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { COVER_RATIO } from './consts';
+import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 
 @Component({
   standalone: true,
   imports: [
-    NgOptimizedImage,
     CommonModule,
+    NgOptimizedImage,
+    NzSkeletonModule,
   ],
   selector: 'app-cover-image',
   templateUrl: './cover-image.component.html',
@@ -37,6 +39,8 @@ export class CoverImageComponent implements AfterViewInit, OnChanges {
 
   ratio = COVER_RATIO.STR;
 
+  loading = true;
+
   constructor(
     private el: ElementRef<HTMLDivElement>,
     private ch: ChangeDetectorRef
@@ -50,6 +54,11 @@ export class CoverImageComponent implements AfterViewInit, OnChanges {
     if (Object.values(changes).some((ch) => !ch.firstChange)) {
       this.ch.detectChanges();
     }
+  }
+
+  onLoad() {
+    this.loading = false;
+    this.ch.detectChanges();
   }
 
   private computeSize() {

@@ -1,8 +1,19 @@
 :host {
   display: block;
+  position: relative;
 }
 
-img {
+img, nz-skeleton-element {
   width: 100%;
   height: auto;
+}
+
+img.loading {
+  opacity: 0;
+}
+
+nz-skeleton-element {
+  position: absolute;
+  top:0;
+  left: 0;
 }

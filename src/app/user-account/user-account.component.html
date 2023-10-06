@@ -1,5 +1,16 @@
 <div nz-row>
   <nz-space nzDirection="vertical" nz-col [nzSpan]="24">
+    <nz-alert *ngIf="verified === false" nzType="warning" [nzMessage]="'Please verify your account before you can publish locations or interact with other users'" [nzAction]="resendVerificationTemplate"></nz-alert>
+    <ng-template #resendVerificationTemplate>
+      <button nz-button [disabled]="!!resentVerification" nzType="link" (click)="resendVerification()">
+        <ng-container *ngIf="resentVerification; else nowTemplate">
+          Next in {{resentVerification}}s
+        </ng-container>
+        <ng-template #nowTemplate>
+          Resend verification email
+        </ng-template>
+      </button>
+    </ng-template>
     <form
       *nzSpaceItem
       nz-form
@@ -25,6 +36,14 @@
         <nz-form-label nzFor="name">Name</nz-form-label>
         <nz-form-control nzErrorTip="A name is required">
           <input nz-input formControlName="name" name="name" id="name" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzFor="tag">Name</nz-form-label>
+        <nz-form-control nzErrorTip="A tag must be unique and may only contain letters a-z and digits">
+          <nz-input-group [nzPrefix]="'@'">
+            <input nz-input formControlName="tag" name="tag" id="tag" />
+          </nz-input-group>
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>

@@ -11,7 +11,9 @@ import type { ArtFormsRecord } from 'xata';
 export class ArtFormsService {
   public fetchedArtForms = new BehaviorSubject<JSONData<ArtFormsRecord>[]>([]);
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.queryArtForms();
+  }
 
   public queryArtForms() {
     this.http

@@ -19,9 +19,12 @@ const handler: Handler = withAuth0(
       },
     });
 
-    const point = await client.db.points.getFirstOrThrow({ filter: { id } });
+    const { point, user: publisher } =
+      await client.db.users_points.getFirstOrThrow({
+        filter: { point: { id }, status: 'owner' },
+      });
 
-    if (point.publisher!.id !== user.id) {
+    if (publisher!.id !== user.id) {
       return {
         statusCode: 403,
         body: 'Can not update a point if one does not own it.',
@@ -34,7 +37,11 @@ const handler: Handler = withAuth0(
     });
 
     if (event.httpMethod.toUpperCase() === 'PATCH') {
-      const { art_forms, ...pointData } = await parseValidatePoint(event, id);
+      const { art_forms, ...pointData } = await parseValidatePoint(
+        event,
+        user.status === 'verified',
+        id
+      );
 
       const updatedPoint = (await client.db.points.update({
         ...pointData,

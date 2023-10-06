@@ -1,86 +1,100 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { CanActivateFn } from '@angular/router';
 import { AuthService, User } from '@auth0/auth0-angular';
 import type { JSONData } from '@xata.io/client';
-import { combineLatest, map, of, switchMap } from 'rxjs';
-import type { ArtFormsPointsRecord, PointsRecord } from 'xata';
-import { ArtFormsService } from './art-forms.service';
+import { BehaviorSubject, map, of, switchMap } from 'rxjs';
+import type { UsersPointsRecord, UsersRecord } from 'xata';
 
+export type UserType = User &
+  JSONData<{
+    user: UsersRecord;
+    ownerships: UsersPointsRecord[];
+    contributions: UsersPointsRecord[];
+  }>;
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  constructor(private http: HttpClient, private artForms: ArtFormsService) {
-    this.artForms.queryArtForms();
+  user$ = new BehaviorSubject(null as null | UserType);
+  verified = false;
+
+  constructor(private http: HttpClient, private auth: AuthService) {
+    this.auth.user$
+      .pipe(
+        switchMap((user) => {
+          if (!user) {
+            return of(null);
+          } else {
+            return this.http
+              .get<JSONData<UserType>>(
+                '/.netlify/functions/authorized-user_data'
+              )
+              .pipe(
+                map((data) => ({
+                  ...data,
+                  ...user,
+                }))
+              );
+          }
+        })
+      )
+      .subscribe((u) => {
+        this.user$.next(u as null | JSONData<UserType>);
+        this.verified = !!u && u['user'].status === 'verified';
+      });
   }
 
-  sendFeedback(feedback: {feedback_type: string, description: string}) {
-    return this.http.post('/.netlify/functions/feedback', feedback)
+  sendFeedback(feedback: { feedback_type: string; description: string }) {
+    return this.http.post('/.netlify/functions/authorized-feedback', feedback);
   }
 
   updateUserData(
     data: Partial<User> & {
       avatarBase64?: { mediaType: string; base64Content: string } | null;
+      tag?: string;
     }
   ) {
-    return this.http.post('/.netlify/functions/update_user', data);
+    return this.http.post('/.netlify/functions/authorized-update_user', data);
+  }
+
+  resendVerification() {
+    return this.http.post(
+      '/.netlify/functions/authorized-resend_verification',
+      {}
+    );
   }
 
   resetPassword() {
-    return this.http.post('/.netlify/functions/reset_password', {});
+    return this.http.post('/.netlify/functions/authorized-reset_password', {});
   }
 
   deleteAccount(reason: { reason: string }) {
-    return this.http.post('/.netlify/functions/delete_user', reason);
+    return this.http.post('/.netlify/functions/authorized-delete_user', reason);
   }
 
   pointOwnership(subId: string, pointId: string) {
     return this.http.get<boolean>(
-      `/.netlify/functions/point_ownership?sub=${subId}&id=${pointId}`
+      `/.netlify/functions/authorized-point_ownership?sub=${subId}&id=${pointId}`
     );
   }
 
-  ownedPoints() {
-    return combineLatest({
-      descriptions: this.http.get<JSONData<ArtFormsPointsRecord>[]>(
-        `/.netlify/functions/owned_points`
-      ),
-      artForms: this.artForms.fetchedArtForms,
-    }).pipe(
-      map(({ descriptions, artForms }) =>
-        descriptions.reduce(
-          (acc, description) => {
-            const form = description.form!;
-
-            const af = artForms.find(({ id }) => id === form.id)!;
-            const id = description.point!.id!;
-            const point_description = acc.get(id) || {
-              ...description.point,
-              art_forms: [],
-            };
-
-            acc.set(id, {
-              ...point_description,
-              art_forms: [
-                ...(point_description?.art_forms || []),
-                af.name as string,
-              ],
-            });
-
-            return acc;
-          },
-          new Map<
-            string,
-            Partial<JSONData<PointsRecord>> & {
-              art_forms: string[];
-            }
-          >()
-        )
-      ),
-      map((d) => Array.from(d.values()))
-    );
-  }
+  validateTag: AsyncValidatorFn = async (control: AbstractControl<string>) => {
+    return this.http
+      .get<boolean>(
+        `/.netlify/functions/authorized-validate_tag?tag=${control.value}`
+      )
+      .pipe(
+        map((valid) => {
+          if (valid) {
+            return null;
+          } else {
+            return { TagIsNotAccepted: true };
+          }
+        })
+      );
+  };
 }
 
 export const isPointOwner =

@@ -74,7 +74,7 @@ export class CoverEditorComponent
     if (typeof obj === 'string') {
       this.pictureUrl = obj;
     } else {
-      throw new Error('wont write');
+      this.fb64.next(obj)
     }
   }
 

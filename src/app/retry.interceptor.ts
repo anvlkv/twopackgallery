@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
 import {
   HttpRequest,
   HttpHandler,
@@ -18,7 +18,7 @@ export class RetryInterceptor implements HttpInterceptor {
     request: HttpRequest<unknown>,
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
-    if (request.headers.has('X-Retry')) {
+    if (request.headers.has('X-Retry') || isDevMode()) {
       return next.handle(request);
     } else {
       request.headers.set('X-Retry', RETRY_COUNT.toString());

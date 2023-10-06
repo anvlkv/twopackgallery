@@ -17,7 +17,14 @@ import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
-import { Subscription, combineLatest, filter, map, switchMap } from 'rxjs';
+import {
+  Subscription,
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  map,
+  switchMap,
+} from 'rxjs';
 import type { PointsRecord } from 'xata';
 import { ActivityService, EActivity } from '../activity.service';
 import { ArtFormsService } from '../art-forms.service';
@@ -75,28 +82,35 @@ export class PinComponent implements OnInit, OnDestroy {
     public auth: AuthService,
     private user: UserService
   ) {
-    this.id = activatedRoute.snapshot.params['id']!;
+    this.id = activatedRoute.snapshot.params['id'];
   }
 
   private leave?: () => void;
   ngOnInit(): void {
-    this.artForms.queryArtForms();
     this.subs.push(
-      combineLatest({
-        description: this.pts.getPointDescription(this.id),
-        artForms: this.artForms.fetchedArtForms,
-      })
+      this.activatedRoute.params
         .pipe(
-          map(({ description, artForms }) => ({
-            ...description,
-            art_forms: description.art_forms
-              .map((id) => ({
-                id,
-                name: artForms.find(({ id: a_id }) => a_id === id)
-                  ?.name as string,
+          map(({ id }) => id),
+          distinctUntilChanged(),
+          switchMap((id) => {
+            this.id = id!;
+            this.data = undefined;
+            return combineLatest({
+              description: this.pts.getPointDescription(id),
+              artForms: this.artForms.fetchedArtForms,
+            }).pipe(
+              map(({ description, artForms }) => ({
+                ...description,
+                art_forms: description.art_forms
+                  .map((id) => ({
+                    id,
+                    name: artForms.find(({ id: a_id }) => a_id === id)
+                      ?.name as string,
+                  }))
+                  .filter(({ name }) => Boolean(name)),
               }))
-              .filter(({ name }) => Boolean(name)),
-          }))
+            );
+          })
         )
         .subscribe({
           next: (data) => {
@@ -126,19 +140,14 @@ export class PinComponent implements OnInit, OnDestroy {
     this.subs.push(
       combineLatest({
         user: this.auth.user$,
-        description: this.pts.getPointDescription(this.id),
+        id: this.activatedRoute.params.pipe(
+          map(({ id }) => id as string),
+          distinctUntilChanged()
+        ),
       })
         .pipe(
           filter((d) => Boolean(d.user)),
-          switchMap(
-            ({
-              user: { sub },
-              description: { id },
-            }: {
-              user: any;
-              description: Partial<JSONData<PointsRecord>>;
-            }) => this.user.pointOwnership(sub, id!)
-          )
+          switchMap(({ user, id }) => this.user.pointOwnership(user!.sub!, id!))
         )
         .subscribe((isOwner) => {
           this.canEdit = isOwner;

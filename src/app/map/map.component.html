@@ -1,14 +1,15 @@
 <ng-container *ngIf="isBrowser; else loadingTemplate">
   <app-cursor
     *ngIf="!cursor"
-    [loading]="!cursor"
+    [loading]="loading | async"
     class="map-loading-cursor"
   ></app-cursor>
 
   <mgl-map
+    [zoom]="initialZoom"
+    [center]="initialCenter"
     [accessToken]="accessToken"
     [style]="'mapbox://styles/packtwo/cln03jvjy02v001nzceog3kko'"
-    [zoom]="initialZoom"
     [centerWithPanTo]="true"
     [interactive]="true"
     (move)="mapMove($event, false)"

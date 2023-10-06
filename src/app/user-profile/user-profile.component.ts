@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { PinCardComponent } from '../pin-card/pin-card.component';
 import { UserService } from '../user.service';
 import { COVER_RATIO } from '../cover-image/consts';
+import { PointsService } from '../points.service';
 
 @Component({
   standalone: true,
@@ -29,11 +30,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   coverRatio = COVER_RATIO.STR
 
-  constructor(private user: UserService, public auth: AuthService) {}
+  constructor(private pts: PointsService, public auth: AuthService) {}
 
   ngOnInit(): void {
     this.subs.push(
-      this.user.ownedPoints().subscribe((d) => {
+      this.pts.ownedPoints().subscribe((d) => {
         this.descriptions = d;
       })
     );

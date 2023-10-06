@@ -25,8 +25,8 @@ import {
   PushpinOutline,
   PushpinTwoTone,
   RedoOutline,
-  SelectOutline,
   SearchOutline,
+  SelectOutline,
   UpOutline,
 } from '@ant-design/icons-angular/icons';
 import { NZ_CONFIG, NzConfig } from 'ng-zorro-antd/core/config';
@@ -37,16 +37,10 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { xataImageLoader } from '../xata.imageloader';
-import { ActivityService } from './activity.service';
-import { ArtFormsService } from './art-forms.service';
 import { BrowserStorageService } from './browser-storage.service';
 import { ErrorInterceptor } from './error.interceptor';
-import { LocationService } from './location.service';
-import { PointsService } from './points.service';
 import { RetryInterceptor } from './retry.interceptor';
 import { TemplatePageTitleStrategy } from './title.strategy';
-import { UserService } from './user.service';
-import { ZoomSyncService } from './zoom-sync.service';
 
 const httpInterceptorProviders = [
   { provide: HTTP_INTERCEPTORS, useClass: RetryInterceptor, multi: true },
@@ -101,13 +95,7 @@ const providersFrom = [
 export const appConfig: ApplicationConfig = {
   providers: [
     provideClientHydration(),
-    PointsService,
-    LocationService,
-    ArtFormsService,
-    ZoomSyncService,
-    ActivityService,
     BrowserStorageService,
-    UserService,
     { provide: NZ_CONFIG, useValue: ngZorroConfig },
     { provide: NZ_I18N, useValue: en_US },
     { provide: TitleStrategy, useClass: TemplatePageTitleStrategy },

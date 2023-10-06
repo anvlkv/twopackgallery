@@ -78,8 +78,9 @@ const handler: Handler = withAuth0(
         true
       );
 
-      
-      return { statusCode: sendResult.status, body: await sendResult.text() };
+      // TODO: verify sending works
+      console.log(sendResult)
+
     }
 
     return { statusCode: 200, body: '' };

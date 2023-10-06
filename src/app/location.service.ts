@@ -5,15 +5,15 @@ import { AbstractControl, ValidationErrors } from '@angular/forms';
 import deepEqual from 'deep-equal';
 import {
   BehaviorSubject,
+  NEVER,
   Observable,
+  catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
   from,
   map,
-  race,
-  skip,
-  take,
+  tap,
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -41,50 +41,46 @@ export class LocationService {
   );
   private watchId?: number;
 
-  runningLocation = this.runningLocation$.pipe(
-    debounceTime(250),
+  runningLocation: Observable<[number, number]> = this.runningLocation$.pipe(
     filter(Boolean)
   );
-  currentLocation = this.currentLocation$.pipe(
+  currentLocation: Observable<[number, number]> = this.currentLocation$.pipe(
     filter(Boolean),
+    distinctUntilChanged(deepEqual),
+  );
+  currentBounds: Observable<number[]> = this.currentBounds$.pipe(
     distinctUntilChanged(deepEqual)
   );
-  currentBounds = this.currentBounds$.pipe(distinctUntilChanged(deepEqual));
 
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  public locate(forceNext = true) {
+  public locate() {
     if (isPlatformBrowser(this.platformId)) {
-      race(
-        this.runningLocation.pipe(take(1)),
-        from(
-          new Promise<[number, number]>((resolve) => {
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(
-                (position) => {
-                  resolve([
-                    position.coords.longitude,
-                    position.coords.latitude,
-                  ]);
-                },
-                () => {
-                  this.locateIp().subscribe((d) => resolve(d));
-                }
-              );
-            } else {
-              this.locateIp().subscribe((d) => resolve(d));
-            }
-          })
-        )
-      )
-        .pipe(filter(() => forceNext || !this.currentLocation$.getValue()))
-        .subscribe((d) => this.currentLocation$.next(d));
+      return from(
+        new Promise<[number, number]>((resolve, reject) => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                resolve([position.coords.longitude, position.coords.latitude]);
+              },
+              () => {
+                reject();
+              }
+            );
+          } else {
+            reject();
+          }
+        })
+      ).pipe(
+        catchError(() => this.locateIp()),
+        tap((d) => this.currentLocation$.next(d))
+      );
+    } else {
+      return NEVER;
     }
-
-    return this.currentLocation$.pipe(skip(1), take(1));
   }
 
   public startTrackingLocation() {

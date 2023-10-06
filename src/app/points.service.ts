@@ -2,24 +2,28 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import type { JSONData } from '@xata.io/client';
+import { LngLat, LngLatBounds } from 'mapbox-gl';
 import {
   BehaviorSubject,
   Observable,
   Subject,
+  combineLatest,
   debounceTime,
-  filter,
+  finalize,
   map,
   of,
   switchMap,
   tap,
 } from 'rxjs';
-import type { PointsRecord } from 'xata';
+import type { ArtFormsPointsRecord, PointsRecord } from 'xata';
+import { ArtFormsService } from './art-forms.service';
 import { LocationService } from './location.service';
-import { LngLatBounds, LngLat } from 'mapbox-gl';
 
-@Injectable({
-  providedIn: 'root',
-})
+type PointsResult = {
+  hasNextPage: boolean;
+  data: JSONData<PointsRecord>[];
+};
+@Injectable({ providedIn: 'root' })
 export class PointsService {
   private deletedPoints$ = new BehaviorSubject([] as string[]);
 
@@ -29,55 +33,51 @@ export class PointsService {
 
   createdPoint = this.createdPoint$.asObservable();
 
-  constructor(private http: HttpClient, private location: LocationService) {}
-
   private checkedBounds = new Map<string, LngLatBounds>();
-  private isContainedBound(
-    ...[minLng, minLat, maxLng, maxLat]: number[]
-  ): boolean {
-    const boundsKey = `${minLng};${minLat};${maxLng};${maxLat};`;
-    if (this.checkedBounds.has(boundsKey)) {
-      return true;
-    }
 
-    const sw = new LngLat(minLng, minLat);
-    const ne = new LngLat(maxLng, maxLat);
+  constructor(
+    private http: HttpClient,
+    private location: LocationService,
+    private artForms: ArtFormsService
+  ) {}
 
-    return Array.from(this.checkedBounds.values()).some((box) => {
-      return box.contains(sw) && box.contains(ne);
-    });
-  }
-  private addChecked(...[minLng, minLat, maxLng, maxLat]: number[]) {
-    const boundsKey = `${minLng};${minLat};${maxLng};${maxLat};`;
-    const sw = new LngLat(minLng, minLat);
-    const ne = new LngLat(maxLng, maxLat);
-    const box = new LngLatBounds(sw, ne);
-    this.checkedBounds.set(boundsKey, box);
-  }
-  public getPointsInBounds(exclude?: Map<string, any>) {
+  public pointsInBounds(exclude: Map<string, any>) {
     return this.location.currentBounds.pipe(
-      filter((bounds) => bounds.length === 4),
       switchMap((bounds) => {
-        if (this.isContainedBound(...bounds)) {
-          return of([]);
-        }
-
-        const url = `/.netlify/functions/points?bBox=${bounds.join(',')}`;
-        let d$;
-        if (exclude && exclude.size > 0) {
-          d$ = this.http.post<JSONData<PointsRecord>[]>(
-            url,
-            Array.from(exclude.keys())
+        if (bounds.length === 0) {
+          const url = `/.netlify/functions/points`;
+          return this.http.get<PointsResult>(url).pipe(
+            tap(({ hasNextPage }) => {
+              if (!hasNextPage) {
+                this.addChecked(0, -90, 360, 90);
+                this.addChecked(-180, -90, 180, 90);
+              }
+            }),
+            map(({ data }) => data)
           );
+        } else if (this.isContainedBound(...bounds)) {
+          return of([]);
         } else {
-          d$ = this.http.get<JSONData<PointsRecord>[]>(url);
-        }
+          const url = `/.netlify/functions/points?bBox=${bounds.join(',')}`;
+          let d$;
+          if (exclude.size > 0) {
+            d$ = this.http.post<PointsResult>(url, Array.from(exclude.keys()));
+          } else {
+            d$ = this.http.get<PointsResult>(url);
+          }
 
-        return d$.pipe(
-          tap(() => {
-            this.addChecked(...bounds);
-          })
-        );
+          return d$.pipe(
+            tap(({ hasNextPage }) => {
+              if (!hasNextPage) {
+                this.addChecked(...bounds);
+              }
+            }),
+            map(({ data }) => data)
+          );
+        }
+      }),
+      finalize(() => {
+        this.checkedBounds.clear();
       })
     );
   }
@@ -87,9 +87,12 @@ export class PointsService {
     cover?: any
   ): Observable<JSONData<PointsRecord>> {
     return this.http
-      .post<JSONData<PointsRecord>>('/.netlify/functions/create_point', {
-        ...formValue,
-      })
+      .post<JSONData<PointsRecord>>(
+        '/.netlify/functions/authorized-create_point',
+        {
+          ...formValue,
+        }
+      )
       .pipe(
         tap((point) => this.createdPoint$.next(point)),
         switchMap((created) => {
@@ -118,7 +121,7 @@ export class PointsService {
   ) {
     return this.http
       .patch<JSONData<PointsRecord>>(
-        `/.netlify/functions/update_point?id=${id}`,
+        `/.netlify/functions/authorized-update_point?id=${id}`,
         {
           ...updateValue,
         }
@@ -138,7 +141,7 @@ export class PointsService {
 
   public updateCover(id: string, cover: any): Observable<any> {
     return this.http.post<any>(
-      `/.netlify/functions/set_point_cover?id=${id}`,
+      `/.netlify/functions/authorized-set_point_cover?id=${id}`,
       cover
     );
   }
@@ -146,7 +149,7 @@ export class PointsService {
   public deletePoint(id: string) {
     return this.http
       .delete<JSONData<PointsRecord>>(
-        `/.netlify/functions/update_point?id=${id}`
+        `/.netlify/functions/authorized-update_point?id=${id}`
       )
       .pipe(
         tap(() => {
@@ -156,24 +159,67 @@ export class PointsService {
   }
 
   public flagPoint(id: string, issue: any) {
-    return this.http.post(`/.netlify/functions/flag?id=${id}`, issue).pipe(
-      tap(() => {
-        this.deletedPoints$.next([...this.deletedPoints$.getValue(), id]);
-      })
+    return this.http
+      .post(`/.netlify/functions/authorized-flag?id=${id}`, issue)
+      .pipe(
+        tap(() => {
+          this.deletedPoints$.next([...this.deletedPoints$.getValue(), id]);
+        })
+      );
+  }
+
+  ownedPoints() {
+    return combineLatest({
+      descriptions: this.http.get<JSONData<ArtFormsPointsRecord>[]>(
+        `/.netlify/functions/authorized-owned_points`
+      ),
+      artForms: this.artForms.fetchedArtForms,
+    }).pipe(
+      map(({ descriptions, artForms }) =>
+        descriptions.reduce(
+          (acc, description) => {
+            const form = description.form!;
+
+            const af = artForms.find(({ id }) => id === form.id)!;
+            const id = description.point!.id!;
+            const point_description = acc.get(id) || {
+              ...description.point,
+              art_forms: [],
+            };
+
+            acc.set(id, {
+              ...point_description,
+              art_forms: [
+                ...(point_description?.art_forms || []),
+                af.name as string,
+              ],
+            });
+
+            return acc;
+          },
+          new Map<
+            string,
+            Partial<JSONData<PointsRecord>> & {
+              art_forms: string[];
+            }
+          >()
+        )
+      ),
+      map((d) => Array.from(d.values()))
     );
   }
 
   public nameValidator = (name: AbstractControl<string>, id?: string) => {
     return this.http
-      .get<JSONData<PointsRecord[]>>(
+      .get<PointsResult>(
         `/.netlify/functions/points?title=${encodeURIComponent(
           name.value
         )}&consistency=consistency`
       )
       .pipe(
         debounceTime(500),
-        map((resp) => {
-          if ((resp.length! > 0 && !id) || resp[0]?.id !== id) {
+        map(({ data }) => {
+          if ((data.length! > 0 && !id) || data[0]?.id !== id) {
             return {
               NameIsNotUnique: true,
             };
@@ -182,4 +228,28 @@ export class PointsService {
         })
       );
   };
+
+  private isContainedBound(
+    ...[minLng, minLat, maxLng, maxLat]: number[]
+  ): boolean {
+    const boundsKey = `${minLng};${minLat};${maxLng};${maxLat};`;
+    if (this.checkedBounds.has(boundsKey)) {
+      return true;
+    }
+
+    const sw = new LngLat(minLng, minLat);
+    const ne = new LngLat(maxLng, maxLat);
+
+    return Array.from(this.checkedBounds.values()).some((box) => {
+      return box.contains(sw) && box.contains(ne);
+    });
+  }
+
+  private addChecked(...[minLng, minLat, maxLng, maxLat]: number[]) {
+    const boundsKey = `${minLng};${minLat};${maxLng};${maxLat};`;
+    const sw = new LngLat(minLng, minLat);
+    const ne = new LngLat(maxLng, maxLat);
+    const box = new LngLatBounds(sw, ne);
+    this.checkedBounds.set(boundsKey, box);
+  }
 }

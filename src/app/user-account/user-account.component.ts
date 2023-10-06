@@ -6,7 +6,12 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { AuthService, User } from '@auth0/auth0-angular';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -14,7 +19,10 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
-import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
+import {
+  NzNotificationModule,
+  NzNotificationService,
+} from 'ng-zorro-antd/notification';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
 import {
@@ -28,6 +36,7 @@ import {
   timer,
 } from 'rxjs';
 import { UserService } from '../user.service';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @Component({
   standalone: true,
@@ -42,6 +51,7 @@ import { UserService } from '../user.service';
     NzDividerModule,
     NzAvatarModule,
     NzNotificationModule,
+    NzAlertModule,
   ],
   selector: 'app-user-account',
   templateUrl: './user-account.component.html',
@@ -57,6 +67,18 @@ export class UserAccountComponent implements OnInit, OnDestroy {
       '',
       Validators.compose([Validators.required, Validators.minLength(2)]),
     ],
+    tag: this.fb.control('', {
+      validators: [
+        ({ value }: AbstractControl<string>) => {
+          if (/[^a-z0-9]/.test(value || '')) {
+            return { InvalidTag: true };
+          } else {
+            return null;
+          }
+        },
+      ],
+      asyncValidators: [this.user.validateTag],
+    }),
     email: ['', Validators.compose([Validators.required, Validators.email])],
     avatarBase64: [null as null | { mediaType: string; base64Content: string }],
   });
@@ -71,6 +93,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   avatarUrl?: string;
   subs: Subscription[] = [];
   saving = false;
+  verified?: boolean;
 
   @ViewChild('deleteAccount')
   deleteAccountTemplate!: TemplateRef<any>;
@@ -100,15 +123,19 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     );
 
     this.subs.push(
-      this.auth.user$.pipe(filter(Boolean)).subscribe((user) => {
-        this.userForm.reset({
-          name: user.name,
-          email: user.email,
-        });
+      this.user.user$
+        .pipe(filter(Boolean))
+        .subscribe(({ user, ...account }) => {
+          this.userForm.reset({
+            name: account.name,
+            email: account.email,
+            tag: user?.tag as string,
+          });
 
-        this.avatarUrl = user.picture;
-        this.userForm.enable();
-      })
+          this.avatarUrl = account.picture;
+          this.verified = user?.status === 'verified';
+          this.userForm.enable();
+        })
     );
 
     this.subs.push(
@@ -118,6 +145,30 @@ export class UserAccountComponent implements OnInit, OnDestroy {
             nzOkDisabled: status !== 'VALID',
           });
         }
+      })
+    );
+  }
+
+  resentVerification?: number;
+  resendVerification() {
+    this.resentVerification = 30;
+    this.subs.push(
+      this.user.resendVerification().subscribe({
+        next: () => {
+          this.notification.info(
+            'Message sent',
+            'Please check your inbox and spam folders'
+          );
+          timer((this.resentVerification as number) * 1000, 1000).subscribe(
+            () => {
+              this.resentVerification = (this.resentVerification as number) - 1;
+            }
+          );
+        },
+        error: (e) => {
+          this.resentVerification = undefined;
+          this.notification.error('Something went wrong...', e.message);
+        },
       })
     );
   }

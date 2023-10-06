@@ -1,0 +1,13 @@
+{
+  "id": "mig_ckg4mvohjvtp4n6kh41g",
+  "parentID": "mig_ckg4mb8hjvtp4n6kh40g",
+  "checksum": "1:6afff328fead52a5c4c91a9b72a57e54adf0aa900e4bab084ea340d1f2ad4b63",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "publisher",
+        "table": "points"
+      }
+    }
+  ]
+}

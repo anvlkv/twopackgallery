@@ -5,6 +5,12 @@ command = "npm run prerender"
 [context.deploy-preview]
 command = "npm run prerender:stage"
 
+# [dev]
+# command = "npm run dev:ssr"
+# publish = "dist/artmap/browser"
+# framework = "#custom"
+# autoLaunch = true
+# targetPort = 4200
 
 
 [functions]

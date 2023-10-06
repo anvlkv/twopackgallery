@@ -34,6 +34,6 @@ export class ZoomSyncService {
     this.zoom$.next(Math.max(Math.min(value, MAX_ZOOM), MIN_ZOOM));
   }
   getZoom() {
-    this.zoom$.getValue() || 0;
+    return this.zoom$.getValue() || 0;
   }
 }

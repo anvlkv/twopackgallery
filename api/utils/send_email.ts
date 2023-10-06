@@ -14,11 +14,9 @@ export async function sendEmail<D = any>(
   bcc = false
 ) {
   const sender = `${from}@${process.env['NETLIFY_EMAILS_MAILGUN_DOMAIN']}`;
-  const templateUrl = `${
-    process.env['DEPLOY_URL']?.includes('localhost') ? 'https://deploy-preview-4.stage.twopack.gallery' : process.env['DEPLOY_URL']
-  }/.netlify/functions/emails/${template}`;
+  const templateUrl = `${process.env['URL']}/.netlify/functions/emails/${template}`;
 
-  return await fetch(templateUrl, {
+  const result = await fetch(templateUrl, {
     method: 'POST',
     headers: {
       'netlify-emails-secret': process.env['NETLIFY_EMAILS_SECRET'] as string,
@@ -26,9 +24,25 @@ export async function sendEmail<D = any>(
     body: JSON.stringify({
       from: sender,
       to,
-      bcc: bcc ? sender : undefined,
       subject,
       parameters,
     }),
   });
+
+  if (bcc) {
+    await fetch(templateUrl, {
+      method: 'POST',
+      headers: {
+        'netlify-emails-secret': process.env['NETLIFY_EMAILS_SECRET'] as string,
+      },
+      body: JSON.stringify({
+        from: sender,
+        to: sender,
+        subject,
+        parameters,
+      }),
+    });
+  }
+
+  return result
 }

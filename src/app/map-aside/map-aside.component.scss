@@ -13,7 +13,7 @@ aside {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  [nz-button] {
+  [nz-button], app-locate-me-btn {
     margin-top: .75rem;
     &.active {
       pointer-events: none;

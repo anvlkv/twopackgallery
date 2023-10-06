@@ -10,17 +10,7 @@
   >
     <span nz-icon nzType="pushpin"></span>
   </a>
-  <button
-    nz-button
-    nzShape="circle"
-    nz-tooltip
-    nzTooltipTitle="Locate me"
-    nzTooltipPlacement="left"
-    [nzLoading]="locating"
-    (click)="handleAim($event)"
-  >
-    <span nz-icon nzType="aim"></span>
-  </button>
+  <app-locate-me-btn></app-locate-me-btn>
   <button
     nz-button
     nzShape="circle"

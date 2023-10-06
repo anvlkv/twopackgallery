@@ -4,28 +4,30 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { Subscription, timer } from 'rxjs';
-import { LocationService } from '../location.service';
+import { LocateMeBtnComponent } from '../locate-me-btn/locate-me-btn.component';
 import { ZoomSyncService } from '../zoom-sync.service';
 
 @Component({
   standalone: true,
-  imports: [RouterModule, NzButtonModule, NzIconModule, NzToolTipModule],
+  imports: [
+    RouterModule,
+    NzButtonModule,
+    NzIconModule,
+    NzToolTipModule,
+    LocateMeBtnComponent,
+  ],
   selector: 'app-map-aside',
   templateUrl: './map-aside.component.html',
   styleUrls: ['./map-aside.component.scss'],
-  host: {ngSkipHydration: 'true'},
+  host: { ngSkipHydration: 'true' },
 })
 export class MapAsideComponent implements OnInit, OnDestroy {
   subs: Subscription[] = [];
 
-  locating = false;
   canZoomIn = true;
   canZoomOut = true;
 
-  constructor(
-    private location: LocationService,
-    private zoomSync: ZoomSyncService
-  ) {}
+  constructor(private zoomSync: ZoomSyncService) {}
 
   ngOnInit(): void {
     this.subs.push(
@@ -38,14 +40,6 @@ export class MapAsideComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {}
 
-  handleAim(ev: MouseEvent) {
-    this.locating = true;
-    this.subs.push(
-      this.location.locate().subscribe(() => (this.locating = false))
-    );
-
-    return false;
-  }
   private handleZoomSub?: Subscription;
 
   handlePlus(ev: MouseEvent) {

@@ -1,0 +1,16 @@
+{
+  "id": "mig_ckg4o0pf6euat44954og",
+  "parentID": "mig_ckg4nkhf6euat44954g0",
+  "checksum": "1:b5d3aa3fc2a8ffae63c766fae4fb83b7edc777fb6d0e229339db1b1e1b1a5e2e",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "status",
+          "type": "string"
+        },
+        "table": "users_points"
+      }
+    }
+  ]
+}

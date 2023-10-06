@@ -5,6 +5,5 @@ export const environment = {
     clientId: 'mRb6igqNRVdsDQnkUiy3tbhIcvy1gJn9',
     domain: 'dev-twopack-gallery.eu.auth0.com',
     audience: 'https://twopack.gallery',
-    redirect_uri: 'https://deploy-preview-4.stage.twopack.gallery/'
   }
 };

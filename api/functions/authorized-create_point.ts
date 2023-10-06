@@ -3,6 +3,7 @@ import { withAuth0 } from '@netlify/auth0';
 import { getXataClient } from 'xata';
 import { getSub } from 'api/utils/sub';
 import { parseValidatePoint } from 'api/utils/parse_validate_point';
+import { UserPointStatus } from 'src/app/point.types';
 
 const client = getXataClient();
 
@@ -16,11 +17,10 @@ const handler: Handler = withAuth0(
         },
       });
 
-      const { art_forms, ...pointData } = await parseValidatePoint(event);
+      const { art_forms, ...pointData } = await parseValidatePoint(event, user.status === 'verified');
 
       const newPoint = await client.db.points.create({
         ...pointData,
-        publisher: user.id,
       });
 
       for (let id of art_forms as string[]) {
@@ -30,7 +30,9 @@ const handler: Handler = withAuth0(
         });
       }
 
-      return { statusCode: 200, body: JSON.stringify(newPoint) };
+      const ownership = await client.db.users_points.create({point: newPoint, user, status: UserPointStatus.Owner})
+
+      return { statusCode: 200, body: JSON.stringify(ownership.point) };
     // } catch (e) {
     //   console.error(e);
     //   return { statusCode: 500, body: 'Could not save new point.' };

@@ -77,7 +77,7 @@
           nzSize="large"
           nzType="primary"
           type="submit"
-          [disabled]="!pinForm.valid"
+          [disabled]="!pinForm.valid || !pinForm.dirty"
           [nzLoading]="saving"
         >
           {{ id ? "Update location" : "Create location" }}

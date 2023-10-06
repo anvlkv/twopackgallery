@@ -6,7 +6,7 @@ import {
   Router,
   RouterModule,
 } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthClientConfig, AuthService } from '@auth0/auth0-angular';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
@@ -39,13 +39,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @Input('card')
   isCard?: boolean;
 
-  returnTo: string;
   subs: Subscription[] = [];
   logoLink = ['/', 'map'];
   currentLink?: string;
+  redirect_uri?: string;
 
-  constructor(public auth: AuthService, private router: Router) {
-    this.returnTo = environment.auth0.redirect_uri;
+  constructor(public auth: AuthService, private authConfig: AuthClientConfig, private router: Router, private activatedRoute: ActivatedRoute) {
+
   }
 
   ngOnInit(): void {
@@ -53,7 +53,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.router.events.subscribe((ev) => {
         if (ev.type === EventType.NavigationEnd) {
           this.currentLink = ev.url;
-          if (ev.url.endsWith('map')) {
+          if (ev.url.split('?')[0].endsWith('map')) {
             this.logoLink = ['/', 'welcome'];
           } else {
             this.logoLink = ['/', 'map'];
@@ -61,6 +61,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
         }
       })
     );
+
+    
+    this.subs.push(
+      this.activatedRoute.url.subscribe(url => {
+        const base = this.authConfig.get().authorizationParams?.redirect_uri
+        this.redirect_uri = `${base}${url.at(0) ? `/${url[0].path}`:''}`
+      })
+    )
   }
 
   ngOnDestroy(): void {
@@ -68,7 +76,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   login(ev: MouseEvent) {
-    this.auth.loginWithRedirect({ appState: { target: this.currentLink } });
+    
+    this.auth.loginWithRedirect({ authorizationParams: { redirect_uri: this.redirect_uri }, appState: { target: this.currentLink } });
+    return false;
+  }
+
+  logout(ev: MouseEvent)  {
+    
+    this.auth.logout({logoutParams: {returnTo: this.redirect_uri }})
     return false;
   }
 }

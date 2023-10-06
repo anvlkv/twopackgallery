@@ -1,14 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { CanActivateFn, Router, RouterModule } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
-import { map } from 'rxjs';
 import { BrowserStorageService } from '../browser-storage.service';
 
 export const WELCOMED_KEY = 'hasBeenWelcomed';
@@ -23,15 +21,15 @@ export const WELCOMED_KEY = 'hasBeenWelcomed';
     NzIconModule,
     NzDividerModule,
     NzTypographyModule,
-    NzButtonModule
+    NzButtonModule,
   ],
   selector: 'app-welcome',
   templateUrl: './welcome.component.html',
   styleUrls: ['./welcome.component.scss'],
 })
 export class WelcomeComponent {
-  viewTitle = `Hey there, it's time to embark on an artistic adventure together! 🎨`;
-  viewSubTitle = `Let's explore the world of art!`;
+  viewTitle = `Every hunter wants to know where the pheasant sits`;
+  viewSubTitle = `Free, fair, and collaborative space for artists from all over the globe`;
   rotatedText = [
     'gallery',
     'studio',
@@ -54,15 +52,11 @@ export class WelcomeComponent {
 
 export const canActivateWelcomePage: CanActivateFn = () => {
   const storage = inject(BrowserStorageService);
-  const auth = inject(AuthService);
   const router = inject(Router);
 
-  return auth.isAuthenticated$.pipe(
-    map((authenticated) => {
-      return !authenticated && !storage.get(WELCOMED_KEY);
-    }),
-    map((canActivate) => {
-      return canActivate || router.createUrlTree(['/', 'map']);
-    })
-  );
+  if (!storage.get(WELCOMED_KEY)) {
+    return true;
+  } else {
+    return router.createUrlTree(['/', 'map']);
+  }
 };

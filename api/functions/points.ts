@@ -46,14 +46,23 @@ const handler: Handler = async (
     });
   }
 
-  const data = await points.getAll({
-    columns: ['title', 'id', 'latitude', 'longitude', 'publisher.id'],
+  const data = await points.getPaginated({
+    columns: ['title', 'id', 'latitude', 'longitude'],
     consistency: consistency ? 'strong' : 'eventual',
+    sort: { 'xata.createdAt': 'desc' },
+    pagination: {
+      size: 30
+    }
   });
+
+  
 
   return {
     statusCode: 200,
-    body: JSON.stringify(data.map((d) => d.toSerializable())),
+    body: JSON.stringify({
+      hasNextPage: data.hasNextPage(),
+      data: data.records.toArray().map(a => a.toSerializable()),
+    }),
   };
   // } catch (e) {
   //   console.error(e);

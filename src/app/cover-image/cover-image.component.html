@@ -1,12 +1,14 @@
 <ng-container *ngIf="!isBase64; else fallBack">
   <img
     *ngIf="width && height"
+    [ngClass]="{loading}"
     [ngSrc]="src"
     [width]="width"
     [height]="height"
     [alt]="alt"
     priority
     [ngStyle]="{ 'aspect-ratio': ratio }"
+    (load)="onLoad()"
     ngSrcset="300w, 420w, 680w, 860w, 1024w, 2048w"
   />
 </ng-container>
@@ -14,9 +16,19 @@
 <ng-template #fallBack>
   <img
     [src]="src"
+    [ngClass]="{loading}"
     [width]="width"
     [height]="height"
     [alt]="alt"
+    (load)="onLoad()"
     [ngStyle]="{ 'aspect-ratio': ratio }"
   />
 </ng-template>
+
+<ng-container *ngIf="loading">
+  <nz-skeleton-element
+    [ngStyle]="{ 'aspect-ratio': ratio }"
+    nzType="image"
+    [nzActive]="true"
+  ></nz-skeleton-element>
+</ng-container>

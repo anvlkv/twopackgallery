@@ -16,20 +16,26 @@ import {
   ActivatedRouteSnapshot,
   EventType,
   Router,
-  RouterModule
+  RouterModule,
 } from '@angular/router';
 import {
   NzDrawerModule,
   NzDrawerRef,
-  NzDrawerService
+  NzDrawerService,
 } from 'ng-zorro-antd/drawer';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Subscription, filter } from 'rxjs';
+import { ActivityService } from '../activity.service';
+import { ArtFormsService } from '../art-forms.service';
 import { HeaderComponent } from '../header/header.component';
+import { LocationService } from '../location.service';
 import { MapAsideComponent } from '../map-aside/map-aside.component';
 import { MapComponent } from '../map/map.component';
+import { PointsService } from '../points.service';
 import { SearchComponent } from '../search/search.component';
+import { UserService } from '../user.service';
+import { ZoomSyncService } from '../zoom-sync.service';
 
 @Component({
   standalone: true,
@@ -42,12 +48,20 @@ import { SearchComponent } from '../search/search.component';
     HeaderComponent,
     MapComponent,
     MapAsideComponent,
-    SearchComponent
+    SearchComponent,
   ],
   selector: 'app-map-layout',
   templateUrl: './map-layout.component.html',
   styleUrls: ['./map-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    PointsService,
+    ArtFormsService,
+    LocationService,
+    ZoomSyncService,
+    ActivityService,
+    UserService,
+  ],
 })
 export class MapLayoutComponent
   implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit
@@ -116,11 +130,12 @@ export class MapLayoutComponent
   private _lastChecked?: ActivatedRouteSnapshot;
 
   toggleRoutedDrawers() {
-    if (this._lastChecked === this.activatedRoute.firstChild?.snapshot) {
+    if (
+      this._lastChecked?.component ===
+      this.activatedRoute.firstChild?.snapshot.component
+    ) {
       return;
-    }
-
-    if (this.drawerRef) {
+    } else if (this.drawerRef) {
       this.drawerRef.close();
       this.drawerRef = undefined;
     }
@@ -153,7 +168,10 @@ export class MapLayoutComponent
   }
 
   close() {
-    this.router.navigate(['.'], { relativeTo: this.activatedRoute });
+    this.router.navigate(this.activatedRoute.snapshot.url, {
+      queryParamsHandling: 'preserve',
+      relativeTo: this.activatedRoute.root,
+    });
     return Promise.resolve();
   }
 }

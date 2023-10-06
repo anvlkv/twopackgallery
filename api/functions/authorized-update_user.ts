@@ -5,6 +5,7 @@ import { withAuth0Token } from 'api/utils/auth0';
 import { getXataClient } from 'xata';
 import sharp from 'sharp';
 import { getSub } from 'api/utils/sub';
+import { validateTag } from 'api/utils/validate_tag';
 
 const client = getXataClient();
 
@@ -20,7 +21,13 @@ const handler: Handler = withAuth0(
     });
 
     // https://auth0.com/docs/api/management/v2/users/patch-users-by-id
-    const { email, name, avatarBase64 } = JSON.parse(event.body!);
+    const { email, name, tag, avatarBase64 } = JSON.parse(event.body!);
+
+    if (tag) {
+      if(!await validateTag(user.id, tag)) {
+        throw new Error('Invalid tag')
+      }
+    }
 
     let picture = user.picture?.url;
 
@@ -63,7 +70,7 @@ const handler: Handler = withAuth0(
       },
     });
 
-    await client.db.users.update({ id: user.id, email, name });
+    await client.db.users.update({ id: user.id, email, name, tag });
 
     return { statusCode: 200, body: '' };
     // } catch (e) {

@@ -1,18 +1,17 @@
 <app-header [card]="true"></app-header>
 
-<app-search></app-search>
+<app-search nz-col nzXs="24" nzSm="24" nzMd="11" nzLg="9" nzXl="7"></app-search>
 
 <app-map [offset]="isChildRouteActivated ? drawerWidth : undefined"></app-map>
 
-<app-map-aside *ngIf="!isChildRouteActivated"></app-map-aside>
+<app-map-aside
+  [ngStyle]="{ right: (isChildRouteActivated ? drawerWidth : 0) + 'px', position: 'fixed' }"
+></app-map-aside>
 
 <div #measureRef nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="10" nzXl="8"></div>
 
 <ng-template #drawerContentTemplate>
   <router-outlet></router-outlet>
-  <app-map-aside
-    [ngStyle]="{ right: drawerWidth + 'px', position: 'fixed' }"
-  ></app-map-aside>
 </ng-template>
 
 <ng-template #drawerExtraTemplate>

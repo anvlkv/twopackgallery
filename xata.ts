@@ -17,17 +17,12 @@ const tables = [
       { name: "description", type: "text" },
       { name: "address", type: "json" },
       { name: "location_description", type: "text" },
-      { name: "publisher", type: "link", link: { table: "users" } },
-      {
-        name: "status",
-        type: "string",
-        notNull: true,
-        defaultValue: "published",
-      },
+      { name: "status", type: "string", notNull: true, defaultValue: "draft" },
     ],
     revLinks: [
       { column: "point", table: "art_forms_points" },
       { column: "point", table: "flags" },
+      { column: "point", table: "users_points" },
     ],
   },
   {
@@ -54,10 +49,12 @@ const tables = [
       },
       { name: "user_id", type: "string", unique: true },
       { name: "picture", type: "file" },
+      { name: "status", type: "string" },
+      { name: "tag", type: "string", unique: true },
     ],
     revLinks: [
-      { column: "publisher", table: "points" },
       { column: "flagged_by", table: "flags" },
+      { column: "user", table: "users_points" },
     ],
   },
   {
@@ -87,6 +84,14 @@ const tables = [
       { name: "user_email", type: "email" },
     ],
   },
+  {
+    name: "users_points",
+    columns: [
+      { name: "point", type: "link", link: { table: "points" } },
+      { name: "user", type: "link", link: { table: "users" } },
+      { name: "status", type: "string" },
+    ],
+  },
 ] as const;
 
 export type SchemaTables = typeof tables;
@@ -110,6 +115,9 @@ export type FlagsRecord = Flags & XataRecord;
 export type Feedback = InferredTypes["feedback"];
 export type FeedbackRecord = Feedback & XataRecord;
 
+export type UsersPoints = InferredTypes["users_points"];
+export type UsersPointsRecord = UsersPoints & XataRecord;
+
 export type DatabaseSchema = {
   points: PointsRecord;
   art_forms: ArtFormsRecord;
@@ -117,6 +125,7 @@ export type DatabaseSchema = {
   users: UsersRecord;
   flags: FlagsRecord;
   feedback: FeedbackRecord;
+  users_points: UsersPointsRecord;
 };
 
 const DatabaseClient = buildClient();
