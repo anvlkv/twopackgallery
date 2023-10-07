@@ -15,7 +15,6 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { Subscription } from 'rxjs';
-import { environment } from 'src/environments/environment';
 import { UserService } from '../user.service';
 
 @Component({
@@ -60,7 +59,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.router.events.subscribe((ev) => {
         if (ev.type === EventType.NavigationEnd) {
           this.currentLink = ev.url;
-          if (ev.url.split('?')[0].endsWith('map')) {
+          if (ev.url.includes('/map')) {
             this.logoLink = ['/', 'welcome'];
           } else {
             this.logoLink = ['/', 'map'];
