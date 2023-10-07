@@ -40,7 +40,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isCard?: boolean;
 
   subs: Subscription[] = [];
-  logoLink = ['/', 'map'];
+  logoLink = ['/', 'welcome'];
   currentLink?: string;
   redirect_uri?: string;
 
@@ -59,7 +59,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.router.events.subscribe((ev) => {
         if (ev.type === EventType.NavigationEnd) {
           this.currentLink = ev.url;
-          if (ev.url.includes('/map')) {
+          if (ev.url.split('?')[0].endsWith('/map')) {
             this.logoLink = ['/', 'welcome'];
           } else {
             this.logoLink = ['/', 'map'];
