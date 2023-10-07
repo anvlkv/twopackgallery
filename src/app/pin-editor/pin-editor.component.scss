@@ -25,3 +25,16 @@ legend {
     margin-bottom: 1rem;
   }
 }
+
+.status-control {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  nz-form-label {
+    flex-grow: 1;
+  }
+  nz-form-control {
+    flex-grow: 0;
+    margin-left: auto;
+  }
+}

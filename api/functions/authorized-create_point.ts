@@ -32,7 +32,7 @@ const handler: Handler = withAuth0(
 
       const ownership = await client.db.users_points.create({point: newPoint, user, status: UserPointStatus.Owner})
 
-      return { statusCode: 200, body: JSON.stringify(ownership.point) };
+      return { statusCode: 200, body: JSON.stringify({point: newPoint, ownership: ownership}) };
     // } catch (e) {
     //   console.error(e);
     //   return { statusCode: 500, body: 'Could not save new point.' };

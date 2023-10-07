@@ -33,7 +33,7 @@ const handler: Handler = async (
 
   // let points = client.db.points
   //   .all()
-  //   .filter({ status: EPointStatus.Published });
+  //   .filter({ status: { $any: [EPointStatus.Published, EPointStatus.Protected] }, });
 
   // if (title) {
   //   points = points.filter({ title });

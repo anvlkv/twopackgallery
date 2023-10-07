@@ -4,7 +4,7 @@ import { AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { CanActivateFn } from '@angular/router';
 import { AuthService, User } from '@auth0/auth0-angular';
 import type { JSONData } from '@xata.io/client';
-import { BehaviorSubject, map, of, switchMap } from 'rxjs';
+import { BehaviorSubject, map, of, skipUntil, switchMap } from 'rxjs';
 import type { UsersPointsRecord, UsersRecord } from 'xata';
 
 export type UserType = User &
@@ -17,8 +17,9 @@ export type UserType = User &
   providedIn: 'root',
 })
 export class UserService {
-  user$ = new BehaviorSubject(null as null | UserType);
-  verified = false;
+  private user$ = new BehaviorSubject(null as null | UserType);
+  user = this.user$.asObservable();
+  verified = new BehaviorSubject(true);
 
   constructor(private http: HttpClient, private auth: AuthService) {
     this.auth.user$
@@ -42,12 +43,27 @@ export class UserService {
       )
       .subscribe((u) => {
         this.user$.next(u as null | JSONData<UserType>);
-        this.verified = !!u && u['user'].status === 'verified';
+        this.verified.next(!!u && u['user'].status === 'verified');
       });
   }
 
   sendFeedback(feedback: { feedback_type: string; description: string }) {
     return this.http.post('/.netlify/functions/authorized-feedback', feedback);
+  }
+
+  onAddOwnership(ownership: JSONData<UsersPointsRecord>) {
+    const user = this.user$.getValue() as UserType;
+
+    user.ownerships!.push(ownership as any);
+
+    this.user$.next({ ...user });
+  }
+  onRemoveOwnership(id: string) {
+    const user = this.user$.getValue() as UserType;
+
+    user.ownerships = user.ownerships!.filter(({id: pointId}) => pointId !== id);
+
+    this.user$.next({ ...user });
   }
 
   updateUserData(
@@ -74,13 +90,7 @@ export class UserService {
     return this.http.post('/.netlify/functions/authorized-delete_user', reason);
   }
 
-  pointOwnership(subId: string, pointId: string) {
-    return this.http.get<boolean>(
-      `/.netlify/functions/authorized-point_ownership?sub=${subId}&id=${pointId}`
-    );
-  }
-
-  validateTag: AsyncValidatorFn = async (control: AbstractControl<string>) => {
+  validateTag: AsyncValidatorFn = (control: AbstractControl<string>) => {
     return this.http
       .get<boolean>(
         `/.netlify/functions/authorized-validate_tag?tag=${control.value}`
@@ -101,17 +111,17 @@ export const isPointOwner =
   (requirement: boolean, param: string): CanActivateFn =>
   (route, snapshot) => {
     const userService = inject(UserService);
-    const auth = inject(AuthService);
 
-    return auth.user$.pipe(
-      switchMap((user) => {
+    return userService.user.pipe(
+      map((user) => {
         if (!user) {
-          return of(false);
+          return false;
         } else {
           const id = route.params[param];
-          return userService
-            .pointOwnership(user.sub!, id)
-            .pipe(map((owner) => owner === requirement));
+          return (
+            Boolean(user.ownerships?.find(({ point }) => point?.id === id)) ===
+            requirement
+          );
         }
       })
     );

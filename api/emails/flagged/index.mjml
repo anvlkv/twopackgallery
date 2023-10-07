@@ -16,7 +16,7 @@
           If you think this is a mistake please <strong>reply to this email</strong>.
           <br />
           <br />
-          In the meantime we will inverstigate the request and make decision on removing your location from the public map.
+          {{notice}}
         </mj-text>
         <mj-text color="#999999">#{{flag_id}}</mj-text>
       </mj-column>

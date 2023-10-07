@@ -62,6 +62,16 @@
       [nzAutosize]="{ minRows: 2, maxRows: 7 }"
     ></textarea>
   </nz-form-item>
+  <nz-form-item class="status-control">
+    <nz-form-label nzFor="status">Published</nz-form-label>
+    <nz-form-control>
+      <nz-switch nzId="status" formControlName="published"></nz-switch>
+    </nz-form-control>
+    <nz-alert *ngIf="!(user.verified | async)" nzType="warning" nzMessage="Make sure your account is verified before you can publish" [nzAction]="verifyAccountLink"></nz-alert>
+    <ng-template #verifyAccountLink>
+      <a routerLink="/account">Go to my account</a>
+    </ng-template>
+  </nz-form-item>
   <nz-divider></nz-divider>
   <legend>
     <small *ngIf="!id">

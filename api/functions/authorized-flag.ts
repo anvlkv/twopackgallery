@@ -34,9 +34,19 @@ const handler: Handler = withAuth0(
       throw new Error('Can not flag the same point twice.');
     }
 
-    const point = await client.db.points.getFirstOrThrow({ filter: { id } });
+    const { point, user: publisher } =
+      await client.db.users_points.getFirstOrThrow({
+        filter: { point: id },
+        columns: [
+          'user.id',
+          'point.status',
+          'point.title',
+          'user.email',
+          'user.name',
+        ],
+      });
 
-    if (point.publisher!.id === user.id) {
+    if (publisher!.id === user.id) {
       throw new Error('Can not flag a point which one owns.');
     }
 
@@ -48,7 +58,7 @@ const handler: Handler = withAuth0(
 
     if (
       ![EPointStatus.Protected, EPointStatus.Flagged].includes(
-        point.status as EPointStatus
+        point!.status as EPointStatus
       )
     ) {
       const pointFlags = await client.db.flags.getMany({
@@ -60,27 +70,28 @@ const handler: Handler = withAuth0(
         await client.db.points.update({ id, status: EPointStatus.Flagged });
       }
 
-      const publisher = await client.db.users.getFirstOrThrow({
-        filter: { id: point.publisher!.id },
-      });
+      const title =
+        pointFlags.length >= 5
+          ? `Location hidden from public view until further investigation`
+          : `There's possibly an issue with ${point!.title} on twopack.gallery`;
 
       const sendResult = await sendEmail(
         EMailBox.Support,
-        publisher.email!,
-        `There's possibly an issue with ${point.title} on twopack.gallery`,
+        publisher!.email!,
+        title,
         'flagged',
         {
-          location_name: point.title,
-          user_name: publisher.name,
+          location_name: point!.title,
+          user_name: publisher!.name,
           flag_issue: flag.issue,
+          notice:
+            pointFlags.length >= 5
+              ? 'Your location has been automatically hidden from public. Please let us know if you think it is a mistake.'
+              : 'In the meantime we will investigate the request and make decision on removing your location from the public map.',
           flag_id,
         },
         true
       );
-
-      // TODO: verify sending works
-      console.log(sendResult)
-
     }
 
     return { statusCode: 200, body: '' };

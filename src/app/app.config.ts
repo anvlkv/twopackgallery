@@ -41,6 +41,7 @@ import { BrowserStorageService } from './browser-storage.service';
 import { ErrorInterceptor } from './error.interceptor';
 import { RetryInterceptor } from './retry.interceptor';
 import { TemplatePageTitleStrategy } from './title.strategy';
+import { UserService } from './user.service';
 
 const httpInterceptorProviders = [
   { provide: HTTP_INTERCEPTORS, useClass: RetryInterceptor, multi: true },
@@ -96,6 +97,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideClientHydration(),
     BrowserStorageService,
+    UserService,
     { provide: NZ_CONFIG, useValue: ngZorroConfig },
     { provide: NZ_I18N, useValue: en_US },
     { provide: TitleStrategy, useClass: TemplatePageTitleStrategy },

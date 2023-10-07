@@ -24,8 +24,8 @@ const handler: Handler = withAuth0(
     const { email, name, tag, avatarBase64 } = JSON.parse(event.body!);
 
     if (tag) {
-      if(!await validateTag(user.id, tag)) {
-        throw new Error('Invalid tag')
+      if (!(await validateTag(user.id, tag))) {
+        throw new Error('Invalid tag');
       }
     }
 
@@ -67,6 +67,7 @@ const handler: Handler = withAuth0(
         email,
         name,
         picture,
+        user_metadata: { tag },
       },
     });
 

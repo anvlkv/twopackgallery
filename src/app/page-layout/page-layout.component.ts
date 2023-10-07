@@ -6,7 +6,6 @@ import { ArtFormsService } from '../art-forms.service';
 import { HeaderComponent } from '../header/header.component';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
-import { UserService } from '../user.service';
 import { ZoomSyncService } from '../zoom-sync.service';
 
 @Component({
@@ -21,7 +20,6 @@ import { ZoomSyncService } from '../zoom-sync.service';
     LocationService,
     ZoomSyncService,
     ActivityService,
-    UserService,
   ],
 })
 export class PageLayoutComponent {}

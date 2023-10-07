@@ -1,14 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AuthService } from '@auth0/auth0-angular';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { Subscription } from 'rxjs';
-import { PinCardComponent } from '../pin-card/pin-card.component';
-import { UserService } from '../user.service';
 import { COVER_RATIO } from '../cover-image/consts';
-import { PointsService } from '../points.service';
+import { PinCardComponent } from '../pin-card/pin-card.component';
+import { UserService, UserType } from '../user.service';
 
 @Component({
   standalone: true,
@@ -18,6 +18,8 @@ import { PointsService } from '../points.service';
     NzGridModule,
     NzSkeletonModule,
     NzCardModule,
+    NzSpaceModule,
+    NzTypographyModule,
   ],
   selector: 'app-user-profile',
   templateUrl: './user-profile.component.html',
@@ -26,16 +28,27 @@ import { PointsService } from '../points.service';
 export class UserProfileComponent implements OnInit, OnDestroy {
   subs: Subscription[] = [];
 
-  descriptions?: any;
+  coverRatio = COVER_RATIO.STR;
 
-  coverRatio = COVER_RATIO.STR
-
-  constructor(private pts: PointsService, public auth: AuthService) {}
+  userData?: UserType;
+  userName?: string;
+  
+  constructor(private user: UserService) {}
 
   ngOnInit(): void {
     this.subs.push(
-      this.pts.ownedPoints().subscribe((d) => {
-        this.descriptions = d;
+      this.user.user.subscribe((user) => {
+        this.userData = user || undefined;
+      })
+    );
+
+    this.subs.push(
+      this.user.user.subscribe((u) => {
+        if (u?.user?.tag) {
+          this.userName = `@${u.user.tag}`;
+        } else {
+          this.userName = u?.name;
+        }
       })
     );
   }

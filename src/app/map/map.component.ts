@@ -82,7 +82,6 @@ export class MapComponent implements OnInit, OnDestroy {
   initialZoom: [number] = [0.1];
   userLocation?: [number, number];
   hasInitializedZoom = false;
-  private points = new Map<string, Partial<JSONData<PointsRecord>>>();
 
   private geoJsonPoints$ = new BehaviorSubject<GeoJSON.FeatureCollection>({
     type: 'FeatureCollection',
@@ -231,12 +230,9 @@ export class MapComponent implements OnInit, OnDestroy {
     );
 
     this.subs.push(
-      this.pts.pointsInBounds(this.points).subscribe({
+      this.pts.pointsInBounds().subscribe({
         next: (points) => {
-          points.forEach((point) => {
-            this.points.set(point.id, point);
-          });
-          this.nextPoints();
+          this.nextPoints(points);
           this.loading$.points.next(false);
           this.ch.detectChanges();
         },
@@ -247,21 +243,6 @@ export class MapComponent implements OnInit, OnDestroy {
       })
     );
 
-    this.subs.push(
-      this.pts.deletedPoints.subscribe((deleted) => {
-        deleted.forEach((id) => this.points.delete(id));
-        this.nextPoints();
-        this.ch.detectChanges();
-      })
-    );
-
-    this.subs.push(
-      this.pts.createdPoint.subscribe((point) => {
-        this.points.set(point.id, point);
-        this.nextPoints();
-        this.ch.detectChanges();
-      })
-    );
 
     this.subs.push(
       combineLatest({
@@ -294,58 +275,58 @@ export class MapComponent implements OnInit, OnDestroy {
       })
     );
 
-    this.subs.push(
-      combineLatest({
-        bounds: this.location.currentBounds,
-        points: this.geoJsonPoints,
-        loading: this.loading,
-        activity: this.activity.activity,
-      })
-        .pipe(
-          takeWhile(() => !this.storage.get(NO_HINTS_KEY)),
-          skipWhile(({ loading }) => loading),
-          skipWhile(() => !this.mapRef.mapInstance.isSourceLoaded('allPins')),
-          map(({ bounds: [minLng, minLat, maxLng, maxLat], activity }) => {
-            switch (activity) {
-              case EActivity.ViewPin: {
-                return;
-              }
-              case EActivity.CreatePin:
-              case EActivity.EditPin: {
-                return `Drag the map to adjust the geo position of this location`;
-              }
-              case EActivity.FlagPin: {
-                return `You're about to flag this location`;
-              }
-              default: {
-                const sw = new LngLat(minLng, minLat);
-                const ne = new LngLat(maxLng, maxLat);
-                const box = new LngLatBounds(sw, ne);
+    // this.subs.push(
+    //   combineLatest({
+    //     bounds: this.location.currentBounds,
+    //     points: this.geoJsonPoints,
+    //     loading: this.loading,
+    //     activity: this.activity.activity,
+    //   })
+    //     .pipe(
+    //       takeWhile(() => !this.storage.get(NO_HINTS_KEY)),
+    //       skipWhile(({ loading }) => loading),
+    //       skipWhile(() => !this.mapRef.mapInstance.isSourceLoaded('allPins')),
+    //       map(({ bounds: [minLng, minLat, maxLng, maxLat], activity }) => {
+    //         switch (activity) {
+    //           case EActivity.ViewPin: {
+    //             return;
+    //           }
+    //           case EActivity.CreatePin:
+    //           case EActivity.EditPin: {
+    //             return `Drag the map to adjust the geo position of this location`;
+    //           }
+    //           case EActivity.FlagPin: {
+    //             return `You're about to flag this location`;
+    //           }
+    //           default: {
+    //             const sw = new LngLat(minLng, minLat);
+    //             const ne = new LngLat(maxLng, maxLat);
+    //             const box = new LngLatBounds(sw, ne);
 
-                const hasPoints = Array.from(this.points.values()).some((p) =>
-                  box.contains([p.longitude, p.latitude] as [number, number])
-                );
+    //             const hasPoints = Array.from(this.points.values()).some((p) =>
+    //               box.contains([p.longitude, p.latitude] as [number, number])
+    //             );
 
-                if (!hasPoints) {
-                  return `There isn't much in this area. Consider adding your art location or exploring further`;
-                } else {
-                  return;
-                }
-              }
-            }
-          })
-        )
-        .subscribe((hint) => {
-          this.hint = hint;
-          this.ch.detectChanges();
-        })
-    );
+    //             if (!hasPoints) {
+    //               return `There isn't much in this area. Consider adding your art location or exploring further`;
+    //             } else {
+    //               return;
+    //             }
+    //           }
+    //         }
+    //       })
+    //     )
+    //     .subscribe((hint) => {
+    //       this.hint = hint;
+    //       this.ch.detectChanges();
+    //     })
+    // );
   }
 
-  private nextPoints() {
+  private nextPoints(points: JSONData<PointsRecord>[]) {
     this.geoJsonPoints$.next({
       type: 'FeatureCollection',
-      features: Array.from(this.points.values()).map(
+      features: points.map(
         (point) =>
           ({
             type: 'Feature',

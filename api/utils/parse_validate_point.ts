@@ -30,6 +30,15 @@ export async function parseValidatePoint(event: HandlerEvent, publicationAllowed
     throw new Error('Cannot accept other status');
   }
 
+  if (id) {
+    const {status: currentStatus} = await client.db.points.getFirstOrThrow({filter: {id}, columns: ['status']});
+
+    if (![EPointStatus.Draft, EPointStatus.Published, EPointStatus.Protected].includes(currentStatus as EPointStatus)) {
+      throw new Error('Wont accept status changes');
+    }
+  }
+
+
   const hasPointAtLocation = await points.getFirst({ columns: ['id'] });
 
   if (hasPointAtLocation) {

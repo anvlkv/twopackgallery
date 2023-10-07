@@ -18,9 +18,29 @@ const handler: Handler = withAuth0(
 
     const ownerships = await client.db.users_points.getAll({
       filter: { user: user.id, status: UserPointStatus.Owner },
+      columns: [
+        'point.id',
+        'point.title',
+        'point.longitude',
+        'point.latitude',
+        'point.description',
+        'point.location_description',
+        'point.status',
+        'point.cover'
+      ],
     });
     const contributions = await client.db.users_points.getAll({
       filter: { user: user.id, status: UserPointStatus.Contributor },
+      columns: [
+        'point.id',
+        'point.title',
+        'point.longitude',
+        'point.latitude',
+        'point.description',
+        'point.location_description',
+        'point.status',
+        'point.cover'
+      ],
     });
 
     return {

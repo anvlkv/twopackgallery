@@ -34,5 +34,8 @@ export async function withAuth0Token<T = any, R = any>(options: AxiosRequestConf
       ...options.headers,
       Authorization: `${token_type} ${access_token}`,
     },
+  }).catch(e => {
+    console.error(e)
+    throw e;
   });
 }

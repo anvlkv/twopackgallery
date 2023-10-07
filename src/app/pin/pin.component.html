@@ -1,4 +1,8 @@
-<nz-space *ngIf="!data" nzDirection="vertical" [ngClass]="['pin-content', isFullPage ? 'full-page' : '']">
+<nz-space
+  *ngIf="!data"
+  nzDirection="vertical"
+  [ngClass]="['pin-content', isFullPage ? 'full-page' : '']"
+>
   <nz-skeleton-element
     *nzSpaceItem
     nzType="image"
@@ -45,7 +49,10 @@
 
 <ng-container *ngIf="data">
   <div class="pin-layout">
-    <nz-space nzDirection="vertical" [ngClass]="['pin-content', isFullPage ? 'full-page' : '']">
+    <nz-space
+      nzDirection="vertical"
+      [ngClass]="['pin-content', isFullPage ? 'full-page' : '']"
+    >
       <app-cover-image
         *nzSpaceItem
         class="cover"
@@ -76,7 +83,17 @@
       </ng-container>
     </nz-space>
     <nz-divider></nz-divider>
-    <div class="form-actions" *ngIf="auth.isAuthenticated$ | async">
+    <div class="form-actions">
+      <button
+        *ngIf="(auth.isAuthenticated$ | async) === false"
+        id="edit-btn"
+        nz-button
+        nzGhost
+        nzSize="large"
+        (click)="logIn($event)"
+      >
+        Log in to interact with pins
+      </button>
       <a
         *ngIf="canEdit"
         id="edit-btn"
@@ -84,8 +101,13 @@
         nzGhost
         nzSize="large"
         [routerLink]="['edit']"
-        >Edit</a
+        [nzType]="data.status === 'draft' ? 'primary' : 'default'"
       >
+        <ng-container *ngIf="data.status === 'published'; else draftButton"
+          >Edit</ng-container
+        >
+        <ng-template #draftButton>Edit and publish</ng-template>
+      </a>
       <a
         *ngIf="canFlag"
         id="flag-btn"

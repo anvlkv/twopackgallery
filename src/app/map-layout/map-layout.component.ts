@@ -60,7 +60,6 @@ import { ZoomSyncService } from '../zoom-sync.service';
     LocationService,
     ZoomSyncService,
     ActivityService,
-    UserService,
   ],
 })
 export class MapLayoutComponent

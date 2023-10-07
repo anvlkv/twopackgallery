@@ -6,7 +6,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, Router, TitleStrategy } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  RouterModule,
+  TitleStrategy,
+} from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
@@ -42,12 +47,15 @@ import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
 import { EPointStatus } from 'api/utils/point_status';
 import { UserService } from '../user.service';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @Component({
   standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     NzDividerModule,
     NzFormModule,
     NzInputModule,
@@ -57,6 +65,8 @@ import { UserService } from '../user.service';
     NzIconModule,
     NzModalModule,
     NzNotificationModule,
+    NzSwitchModule,
+    NzAlertModule,
     CoverEditorComponent,
     AddressComponent,
   ],
@@ -101,7 +111,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     ],
     description: [''],
     location_description: [''],
-    status: [this.user.verified ? EPointStatus.Published : EPointStatus.Draft, Validators.required]
+    published: [false],
   });
   coverRatio = COVER_RATIO;
 
@@ -117,7 +127,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     private notification: NzNotificationService,
     private modal: NzModalService,
     private activity: ActivityService,
-    private user: UserService,
+    public user: UserService
   ) {
     this.id = activatedRoute.snapshot.params['id'];
     this.title = this.id ? 'Edit location' : 'New location';
@@ -148,6 +158,17 @@ export class PinEditorComponent implements OnInit, OnDestroy {
         })
     );
 
+    this.subs.push(
+      this.user.verified.subscribe((v) => {
+        this.pinForm.controls['published'].reset(v);
+        if (!v) {
+          this.pinForm.controls['published'].disable();
+        } else {
+          this.pinForm.controls['published'].enable();
+        }
+      })
+    );
+
     if (this.id) {
       this.subs.push(
         this.points.getPointDescription(this.id).subscribe((point) => {
@@ -158,9 +179,10 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             title: point.title as string,
             description: point.description as string,
             location_description: point.location_description as string,
-            art_forms: point.art_forms as any, //as string[]
+            art_forms: point.art_forms.map(r => r.id) as any, //as string[]
             longitude: point.longitude as number,
             latitude: point.latitude as number,
+            published: point.status === EPointStatus.Published
           });
           this.titleStrategy.entityTitle(point.title as string);
           this.location.adjust_location([
@@ -246,8 +268,12 @@ export class PinEditorComponent implements OnInit, OnDestroy {
       return;
     }
     this.saving = true;
-    const { cover, address, ...formValue } = this.pinForm.value;
+    const { cover, address, published, ...formValue } = this.pinForm.value;
     const coverFile = typeof cover === 'object' ? cover : undefined;
+
+    (formValue as any).status = published
+      ? EPointStatus.Published
+      : EPointStatus.Draft;
 
     if (!this.id) {
       const value = this.pinForm.controls['address'].dirty
@@ -259,18 +285,19 @@ export class PinEditorComponent implements OnInit, OnDestroy {
       this.submitSubscription = this.points
         .createNewPoint(value as any, coverFile)
         .subscribe({
-          next: (newPoint) => {
+          next: ({ point, ownership }) => {
             this.saving = false;
             this.notification.success(
               "You've just added a new location!",
-              `Location "${newPoint.title}" added successfully.`
+              `Location "${point!.title}" added successfully.`
             );
-            this.router.navigate(['pin', newPoint.id], {
+            this.router.navigate(['pin', point!.id], {
               replaceUrl: true,
               relativeTo: this.activatedRoute.parent,
               queryParams: null,
             });
             this.pinForm.markAsPristine();
+            this.user.onAddOwnership({...(ownership!), point});
           },
           error: (err) => {
             this.saving = false;

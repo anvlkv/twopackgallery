@@ -1,14 +1,28 @@
 <div nz-row>
   <nz-space nzDirection="vertical" nz-col [nzSpan]="24">
-    <nz-alert *ngIf="verified === false" nzType="warning" [nzMessage]="'Please verify your account before you can publish locations or interact with other users'" [nzAction]="resendVerificationTemplate"></nz-alert>
+    <ng-container *ngIf="verified === false">
+      <nz-alert
+        *nzSpaceItem
+        nzType="warning"
+        [nzMessage]="
+          'Please verify your account before you can publish locations or interact with other users'
+        "
+        [nzAction]="resendVerificationTemplate"
+      ></nz-alert>
+    </ng-container>
     <ng-template #resendVerificationTemplate>
-      <button nz-button [disabled]="!!resentVerification" nzType="link" (click)="resendVerification()">
+      <button
+        nz-button
+        [disabled]="!!resentVerification"
+        nzType="link"
+        (click)="resendVerification()"
+      >
         <ng-container *ngIf="resentVerification; else nowTemplate">
-          Next in {{resentVerification}}s
+          Next in {{ resentVerification }}s...
+          <br/>
+          Log out and in again after you followed the verification link.
         </ng-container>
-        <ng-template #nowTemplate>
-          Resend verification email
-        </ng-template>
+        <ng-template #nowTemplate> Resend verification email </ng-template>
       </button>
     </ng-template>
     <form
@@ -39,10 +53,18 @@
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
-        <nz-form-label nzFor="tag">Name</nz-form-label>
-        <nz-form-control nzErrorTip="A tag must be unique and may only contain letters a-z and digits">
+        <nz-form-label nzFor="tag">Tag</nz-form-label>
+        <nz-form-control
+          nzErrorTip="A tag must be unique and may only contain letters a-z and digits"
+        >
           <nz-input-group [nzPrefix]="'@'">
-            <input nz-input formControlName="tag" name="tag" id="tag" />
+            <input
+              nz-input
+              (input)="handleTagInput($event)"
+              formControlName="tag"
+              name="tag"
+              id="tag"
+            />
           </nz-input-group>
         </nz-form-control>
       </nz-form-item>

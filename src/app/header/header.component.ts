@@ -16,6 +16,7 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { UserService } from '../user.service';
 
 @Component({
   standalone: true,
@@ -44,9 +45,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentLink?: string;
   redirect_uri?: string;
 
-  constructor(public auth: AuthService, private authConfig: AuthClientConfig, private router: Router, private activatedRoute: ActivatedRoute) {
+  userName?: string;
 
-  }
+  constructor(
+    public auth: AuthService,
+    private user: UserService,
+    private authConfig: AuthClientConfig,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.subs.push(
@@ -62,13 +69,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
       })
     );
 
-    
     this.subs.push(
-      this.activatedRoute.url.subscribe(url => {
-        const base = this.authConfig.get().authorizationParams?.redirect_uri
-        this.redirect_uri = `${base}${url.at(0) ? `/${url[0].path}`:''}`
+      this.activatedRoute.url.subscribe((url) => {
+        const base = this.authConfig.get().authorizationParams?.redirect_uri;
+        this.redirect_uri = `${base}${url.at(0) ? `/${url[0].path}` : ''}`;
       })
-    )
+    );
+
+    this.subs.push(
+      this.user.user.subscribe((u) => {
+        if (u?.user?.tag) {
+          this.userName = `@${u.user.tag}`;
+        } else {
+          this.userName = u?.name;
+        }
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -76,14 +92,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   login(ev: MouseEvent) {
-    
-    this.auth.loginWithRedirect({ authorizationParams: { redirect_uri: this.redirect_uri }, appState: { target: this.currentLink } });
+    this.auth.loginWithRedirect({
+      authorizationParams: { redirect_uri: this.redirect_uri },
+      appState: { target: this.currentLink },
+    });
     return false;
   }
 
-  logout(ev: MouseEvent)  {
-    
-    this.auth.logout({logoutParams: {returnTo: this.redirect_uri }})
+  logout(ev: MouseEvent) {
+    this.auth.logout({ logoutParams: { returnTo: this.redirect_uri } });
     return false;
   }
 }

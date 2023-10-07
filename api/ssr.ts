@@ -1,14 +1,11 @@
 import 'zone.js/node';
 
 import { APP_BASE_HREF } from '@angular/common';
-import { enableProdMode } from '@angular/core';
 import { ngExpressEngine } from '@nguniversal/express-engine';
 import express from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import bootstrap from '../src/main.server';
-
-enableProdMode();
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {

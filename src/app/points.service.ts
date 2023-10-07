@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
-import type { JSONData } from '@xata.io/client';
+import type { Identifiable, JSONData } from '@xata.io/client';
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 import {
   BehaviorSubject,
@@ -15,9 +15,15 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import type { ArtFormsPointsRecord, PointsRecord } from 'xata';
+import type {
+  ArtFormsPointsRecord,
+  ArtFormsRecord,
+  PointsRecord,
+  UsersPointsRecord,
+} from 'xata';
 import { ArtFormsService } from './art-forms.service';
 import { LocationService } from './location.service';
+import { UserService } from './user.service';
 
 type PointsResult = {
   hasNextPage: boolean;
@@ -25,23 +31,49 @@ type PointsResult = {
 };
 @Injectable({ providedIn: 'root' })
 export class PointsService {
-  private deletedPoints$ = new BehaviorSubject([] as string[]);
+  private publishedPoints$ = new BehaviorSubject<JSONData<PointsRecord>[]>([]);
+  private ownedPoints$ = new BehaviorSubject<JSONData<PointsRecord>[]>([]);
+  private deletedPoints$ = new BehaviorSubject<string[]>([]);
+  private contributingPoints$ = new BehaviorSubject<JSONData<PointsRecord>[]>(
+    []
+  );
+  private allPointsSnapshot?: Identifiable[];
 
-  deletedPoints = this.deletedPoints$.asObservable();
-
-  private createdPoint$ = new Subject<JSONData<PointsRecord>>();
-
-  createdPoint = this.createdPoint$.asObservable();
+  public allPoints = combineLatest({
+    published: this.publishedPoints$,
+    owned: this.ownedPoints$,
+    contributing: this.contributingPoints$,
+    deleted: this.deletedPoints$,
+  }).pipe(
+    map(({ published, owned, contributing, deleted }) => {
+      return [
+        ...published.map((p) => ({ ...p, pointType: 'published' })),
+        ...owned.map((p) => ({ ...p, pointType: 'owned' })),
+        ...contributing.map((p) => ({ ...p, pointType: 'contributing' })),
+      ].filter(({ id }) => !deleted.includes(id));
+    })
+  );
 
   private checkedBounds = new Map<string, LngLatBounds>();
 
   constructor(
     private http: HttpClient,
     private location: LocationService,
-    private artForms: ArtFormsService
-  ) {}
+    private user: UserService
+  ) {
+    this.user.user.subscribe((user) => {
+      this.ownedPoints$.next(
+        user?.ownerships?.map((o) => o.point! as any) || []
+      );
+      this.contributingPoints$.next(
+        user?.contributions?.map((o) => o.point! as any) || []
+      );
+    });
 
-  public pointsInBounds(exclude: Map<string, any>) {
+    this.allPoints.subscribe((p) => (this.allPointsSnapshot = p));
+  }
+
+  public pointsInBounds() {
     return this.location.currentBounds.pipe(
       switchMap((bounds) => {
         if (bounds.length === 0) {
@@ -58,10 +90,11 @@ export class PointsService {
         } else if (this.isContainedBound(...bounds)) {
           return of([]);
         } else {
+          const exclude = this.allPointsSnapshot?.map(({ id }) => id) || [];
           const url = `/.netlify/functions/points?bBox=${bounds.join(',')}`;
           let d$;
-          if (exclude.size > 0) {
-            d$ = this.http.post<PointsResult>(url, Array.from(exclude.keys()));
+          if (exclude.length > 0) {
+            d$ = this.http.post<PointsResult>(url, exclude);
           } else {
             d$ = this.http.get<PointsResult>(url);
           }
@@ -76,6 +109,14 @@ export class PointsService {
           );
         }
       }),
+      switchMap((points) => {
+        this.publishedPoints$.next([
+          ...this.publishedPoints$.getValue(),
+          ...points,
+        ]);
+
+        return this.allPoints;
+      }),
       finalize(() => {
         this.checkedBounds.clear();
       })
@@ -85,22 +126,33 @@ export class PointsService {
   public createNewPoint(
     formValue: Partial<Omit<JSONData<PointsRecord>, 'cover'>>,
     cover?: any
-  ): Observable<JSONData<PointsRecord>> {
+  ): Observable<
+    JSONData<{ point: PointsRecord; ownership: UsersPointsRecord }>
+  > {
     return this.http
-      .post<JSONData<PointsRecord>>(
+      .post<JSONData<{ point: PointsRecord; ownership: UsersPointsRecord }>>(
         '/.netlify/functions/authorized-create_point',
         {
           ...formValue,
         }
       )
       .pipe(
-        tap((point) => this.createdPoint$.next(point)),
+        tap(({ ownership }) => this.user.onAddOwnership(ownership!)),
         switchMap((created) => {
           if (!cover) {
             return of(created);
           }
-          return this.updateCover(created.id, cover).pipe(
-            map((cover) => ({ ...created, cover }))
+          return this.updateCover(created.point!.id, cover).pipe(
+            map(
+              (cover) =>
+                ({
+                  ...created,
+                  point: { ...created.point, cover },
+                } as JSONData<{
+                  point: PointsRecord;
+                  ownership: UsersPointsRecord;
+                }>)
+            )
           );
         })
       );
@@ -109,9 +161,9 @@ export class PointsService {
   public getPointDescription(id: string) {
     return this.http.get<
       Partial<JSONData<PointsRecord>> & {
-        art_forms: string[];
+        art_forms: JSONData<ArtFormsRecord>[];
       }
-    >(`/.netlify/functions/point_description?id=${id}`);
+    >(`/.netlify/functions/authorized-point_description?id=${id}`);
   }
 
   public updatePoint(
@@ -127,7 +179,6 @@ export class PointsService {
         }
       )
       .pipe(
-        tap((point) => this.createdPoint$.next(point)),
         switchMap((updated) => {
           if (!updateCover) {
             return of(updated);
@@ -153,6 +204,7 @@ export class PointsService {
       )
       .pipe(
         tap(() => {
+          this.user.onRemoveOwnership(id);
           this.deletedPoints$.next([...this.deletedPoints$.getValue(), id]);
         })
       );
@@ -168,61 +220,22 @@ export class PointsService {
       );
   }
 
-  ownedPoints() {
-    return combineLatest({
-      descriptions: this.http.get<JSONData<ArtFormsPointsRecord>[]>(
-        `/.netlify/functions/authorized-owned_points`
-      ),
-      artForms: this.artForms.fetchedArtForms,
-    }).pipe(
-      map(({ descriptions, artForms }) =>
-        descriptions.reduce(
-          (acc, description) => {
-            const form = description.form!;
-
-            const af = artForms.find(({ id }) => id === form.id)!;
-            const id = description.point!.id!;
-            const point_description = acc.get(id) || {
-              ...description.point,
-              art_forms: [],
-            };
-
-            acc.set(id, {
-              ...point_description,
-              art_forms: [
-                ...(point_description?.art_forms || []),
-                af.name as string,
-              ],
-            });
-
-            return acc;
-          },
-          new Map<
-            string,
-            Partial<JSONData<PointsRecord>> & {
-              art_forms: string[];
-            }
-          >()
-        )
-      ),
-      map((d) => Array.from(d.values()))
-    );
-  }
-
   public nameValidator = (name: AbstractControl<string>, id?: string) => {
     return this.http
-      .get<PointsResult>(
-        `/.netlify/functions/points?title=${encodeURIComponent(
+      .get<JSONData<PointsRecord> | undefined>(
+        `/.netlify/functions/validate_point_title?title=${encodeURIComponent(
           name.value
         )}&consistency=consistency`
       )
       .pipe(
         debounceTime(500),
-        map(({ data }) => {
-          if ((data.length! > 0 && !id) || data[0]?.id !== id) {
-            return {
-              NameIsNotUnique: true,
-            };
+        map((point) => {
+          if (point) {
+            if (point.id === id) {
+              return null;
+            } else {
+              return { NameIsNotUnique: true };
+            }
           }
           return null;
         })

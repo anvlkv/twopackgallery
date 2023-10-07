@@ -9,17 +9,12 @@ const handler: Handler = async (
   context: HandlerContext
 ) => {
   // try {
-  const title = event.queryStringParameters?.['title'];
   const bBox = event.queryStringParameters?.['bBox'];
   const consistency = event.queryStringParameters?.['consistency'];
 
   let points = client.db.points
-    .all()
-    .filter({ status: EPointStatus.Published });
+    .all().filter({ status: { $any: [EPointStatus.Published, EPointStatus.Protected] }, });
 
-  if (title) {
-    points = points.filter({ title });
-  }
 
   if (bBox) {
     const [minLon, minLat, maxLon, maxLat] = bBox

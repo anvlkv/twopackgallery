@@ -4,6 +4,8 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { CoverImageComponent } from '../cover-image/cover-image.component';
+import { JSONData } from '@xata.io/client';
+import { UsersPointsRecord } from 'xata';
 
 @Component({
   standalone: true,
@@ -14,10 +16,5 @@ import { CoverImageComponent } from '../cover-image/cover-image.component';
 })
 export class PinCardComponent {
   @Input('data')
-  data!: {
-    title: string;
-    description: string;
-    id: string;
-    cover: { url: string };
-  };
+  data!: JSONData<UsersPointsRecord> | any;
 }

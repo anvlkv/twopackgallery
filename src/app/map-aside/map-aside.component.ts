@@ -45,16 +45,20 @@ export class MapAsideComponent implements OnInit, OnDestroy {
   handlePlus(ev: MouseEvent) {
     ev.stopPropagation();
     this.endZoomHandle(ev);
+    this.zoomSync.zoomIn(0.3);
     this.handleZoomSub = timer(0, 700).subscribe((i) =>
-      this.zoomSync.zoomIn(0.3 * (i + 1))
+      this.zoomSync.zoomIn(0.3 * i)
     );
+    return false;
   }
   handleMinus(ev: MouseEvent) {
     ev.stopPropagation();
     this.endZoomHandle(ev);
+    this.zoomSync.zoomOut(0.3);
     this.handleZoomSub = timer(0, 700).subscribe((i) =>
-      this.zoomSync.zoomOut(0.3 * (i + 1))
+      this.zoomSync.zoomOut(0.3 * i)
     );
+    return false;
   }
   endZoomHandle(ev: MouseEvent) {
     this.handleZoomSub?.unsubscribe();

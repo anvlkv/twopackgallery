@@ -4,23 +4,23 @@
   [nzActions]="[editActionTemplate]"
 >
   <nz-card-meta
-    [nzTitle]="data.title"
-    [nzDescription]="data.description"
+    [nzTitle]="data.point?.title!"
+    [nzDescription]="data.point?.description!"
   ></nz-card-meta>
 </nz-card>
 
 <ng-template #coverTemplate>
-  <app-cover-image [src]="data.cover.url"></app-cover-image>
+  <app-cover-image [src]="data.point?.cover.url!"></app-cover-image>
 </ng-template>
 
 <ng-template #extraTemplate>
-  <a [routerLink]="['/', 'map', 'pin', data.id]" nz-button nzType="link">
+  <a [routerLink]="['/', 'map', 'pin', data.point?.id!]" nz-button nzType="link">
     <i nz-icon nzType="environment"></i>
   </a>
 </ng-template>
 
 <ng-template #editActionTemplate>
-  <a [routerLink]="['/', 'pin', data.id, 'edit']" nz-button nzType="link">
+  <a [routerLink]="['/', 'pin', data.point?.id!, 'edit']" nz-button nzType="link">
     Edit
   </a>
 </ng-template>

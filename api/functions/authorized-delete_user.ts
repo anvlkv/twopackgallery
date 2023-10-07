@@ -1,7 +1,7 @@
 import { withAuth0 } from '@netlify/auth0';
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import { withAuth0Token } from 'api/utils/auth0';
-import { getSub } from 'api/utils/sub';
+import { userFromSub } from 'api/utils/sub';
 import { UserPointStatus } from 'src/app/point.types';
 import { getXataClient } from 'xata';
 
@@ -10,19 +10,13 @@ const client = getXataClient();
 const handler: Handler = withAuth0(
   async (event: HandlerEvent, context: HandlerContext) => {
     // try {
-      const sub = getSub(context)!;
-
-      const user = await client.db.users.getFirstOrThrow({
-        filter: {
-          user_id: sub,
-        },
-      });
+      const user = await userFromSub(context)
 
       const { reason } = JSON.parse(event.body!);
 
       await client.db.feedback.create({
         feedback_type: 'delete',
-        user_email: user.email,
+        user_email: user!.email,
         description: reason,
       });
 
@@ -43,10 +37,10 @@ const handler: Handler = withAuth0(
         await client.db.users_points.delete(id);
       }
 
-      await client.db.users.deleteOrThrow(user);
+      await client.db.users.deleteOrThrow(user!);
 
       await withAuth0Token({
-        url: `/api/v2/users/${sub}`,
+        url: `/api/v2/users/${user!.user_id}`,
         method: 'DELETE',
       });
 

@@ -6,7 +6,11 @@ import {
   RouterModule,
   TitleStrategy,
 } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
+import {
+  AuthClientConfig,
+  AuthConfig,
+  AuthService,
+} from '@auth0/auth0-angular';
 import type { JSONData } from '@xata.io/client';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
@@ -25,7 +29,7 @@ import {
   map,
   switchMap,
 } from 'rxjs';
-import type { PointsRecord } from 'xata';
+import type { ArtFormsRecord, PointsRecord } from 'xata';
 import { ActivityService, EActivity } from '../activity.service';
 import { ArtFormsService } from '../art-forms.service';
 import { CoverImageComponent } from '../cover-image/cover-image.component';
@@ -62,7 +66,7 @@ export class PinComponent implements OnInit, OnDestroy {
   canEdit = false;
   canFlag = false;
   data?: Partial<JSONData<PointsRecord>> & {
-    art_forms: { id: string; name: string }[];
+    art_forms: JSONData<ArtFormsRecord>[];
   };
   isFullPage = false;
   title = '';
@@ -79,8 +83,9 @@ export class PinComponent implements OnInit, OnDestroy {
     private notification: NzNotificationService,
     private location: LocationService,
     private activity: ActivityService,
-    public auth: AuthService,
-    private user: UserService
+    private user: UserService,
+    private authConfig: AuthClientConfig,
+    public auth: AuthService
   ) {
     this.id = activatedRoute.snapshot.params['id'];
   }
@@ -95,23 +100,8 @@ export class PinComponent implements OnInit, OnDestroy {
           switchMap((id) => {
             this.id = id!;
             this.data = undefined;
-            return combineLatest({
-              description: this.pts.getPointDescription(id),
-              artForms: this.artForms.fetchedArtForms,
-            }).pipe(
-              map(({ description, artForms }) => ({
-                ...description,
-                art_forms: description.art_forms
-                  .map((id) => ({
-                    id,
-                    name: artForms.find(({ id: a_id }) => a_id === id)
-                      ?.name as string,
-                  }))
-                  .filter(({ name }) => Boolean(name)),
-              }))
-            );
-          })
-        )
+            return this.pts.getPointDescription(id)
+          }        ))
         .subscribe({
           next: (data) => {
             this.data = data;
@@ -139,7 +129,7 @@ export class PinComponent implements OnInit, OnDestroy {
 
     this.subs.push(
       combineLatest({
-        user: this.auth.user$,
+        user: this.user.user,
         id: this.activatedRoute.params.pipe(
           map(({ id }) => id as string),
           distinctUntilChanged()
@@ -147,7 +137,10 @@ export class PinComponent implements OnInit, OnDestroy {
       })
         .pipe(
           filter((d) => Boolean(d.user)),
-          switchMap(({ user, id }) => this.user.pointOwnership(user!.sub!, id!))
+          map(
+            ({ user, id }) =>
+              !!user?.ownerships?.find(({ point }) => id === point?.id)
+          )
         )
         .subscribe((isOwner) => {
           this.canEdit = isOwner;
@@ -166,5 +159,21 @@ export class PinComponent implements OnInit, OnDestroy {
     this.subs.forEach((s) => s.unsubscribe());
     this.titleStrategy.clearEntityTitle();
     this.leave && this.leave();
+  }
+
+  logIn(ev: MouseEvent) {
+    const redirect_uri = this.router.url.includes('/map/')
+      ? `${this.authConfig.get().authorizationParams?.redirect_uri}/map`
+      : this.authConfig.get().authorizationParams?.redirect_uri;
+
+    this.auth.loginWithRedirect({
+      authorizationParams: {
+        redirect_uri,
+      },
+      appState: {
+        target: this.router.url,
+      },
+    });
+    return false;
   }
 }

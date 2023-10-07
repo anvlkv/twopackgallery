@@ -33,6 +33,7 @@ import {
   from,
   map,
   switchMap,
+  take,
   timer,
 } from 'rxjs';
 import { UserService } from '../user.service';
@@ -123,7 +124,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     );
 
     this.subs.push(
-      this.user.user$
+      this.user.user
         .pipe(filter(Boolean))
         .subscribe(({ user, ...account }) => {
           this.userForm.reset({
@@ -159,7 +160,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
             'Message sent',
             'Please check your inbox and spam folders'
           );
-          timer((this.resentVerification as number) * 1000, 1000).subscribe(
+          timer((this.resentVerification as number) * 1000, 1000).pipe(take(this.resentVerification!)).subscribe(
             () => {
               this.resentVerification = (this.resentVerification as number) - 1;
             }
@@ -175,6 +176,12 @@ export class UserAccountComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
+  }
+
+  handleTagInput(ev: Event) {
+    const input = ev.target as HTMLInputElement;
+    input.value = input.value.replace(/[^a-z0-9]/g, '');
+    return ev;
   }
 
   beforeUploadAvatar = (file: NzUploadFile) => {

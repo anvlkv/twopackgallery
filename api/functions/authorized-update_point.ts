@@ -1,7 +1,7 @@
 import { withAuth0 } from '@netlify/auth0';
-import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
+import type { Handler, HandlerContext, HandlerEvent } from '@netlify/functions';
 import { parseValidatePoint } from 'api/utils/parse_validate_point';
-import { getSub } from 'api/utils/sub';
+import { userFromSub } from 'api/utils/sub';
 import { getXataClient } from 'xata';
 
 const client = getXataClient();
@@ -11,20 +11,14 @@ const handler: Handler = withAuth0(
     // try {
     const id = event.queryStringParameters!['id']!;
 
-    const sub = getSub(context)!;
-
-    const user = await client.db.users.getFirstOrThrow({
-      filter: {
-        user_id: sub,
-      },
-    });
+    const user = await userFromSub(context);
 
     const { point, user: publisher } =
       await client.db.users_points.getFirstOrThrow({
         filter: { point: { id }, status: 'owner' },
       });
 
-    if (publisher!.id !== user.id) {
+    if (publisher!.id !== user!.id) {
       return {
         statusCode: 403,
         body: 'Can not update a point if one does not own it.',
@@ -39,7 +33,7 @@ const handler: Handler = withAuth0(
     if (event.httpMethod.toUpperCase() === 'PATCH') {
       const { art_forms, ...pointData } = await parseValidatePoint(
         event,
-        user.status === 'verified',
+        user!.status === 'verified',
         id
       );
 
