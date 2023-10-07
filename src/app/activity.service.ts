@@ -4,6 +4,7 @@ import { BehaviorSubject, combineLatest, filter } from 'rxjs';
 export enum EActivity {
   None,
   CreatePin,
+  CreatePinLocked,
   EditPin,
   FlagPin,
   ViewPin,

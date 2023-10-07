@@ -6,7 +6,6 @@ import { LngLat, LngLatBounds } from 'mapbox-gl';
 import {
   BehaviorSubject,
   Observable,
-  Subject,
   combineLatest,
   debounceTime,
   finalize,
@@ -15,13 +14,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import type {
-  ArtFormsPointsRecord,
-  ArtFormsRecord,
-  PointsRecord,
-  UsersPointsRecord,
-} from 'xata';
-import { ArtFormsService } from './art-forms.service';
+import type { ArtFormsRecord, PointsRecord, UsersPointsRecord } from 'xata';
 import { LocationService } from './location.service';
 import { UserService } from './user.service';
 
@@ -125,7 +118,8 @@ export class PointsService {
 
   public createNewPoint(
     formValue: Partial<Omit<JSONData<PointsRecord>, 'cover'>>,
-    cover?: any
+    cover?: any,
+    tile?: any
   ): Observable<
     JSONData<{ point: PointsRecord; ownership: UsersPointsRecord }>
   > {
@@ -154,6 +148,20 @@ export class PointsService {
                 }>)
             )
           );
+        }),
+        switchMap((created) => {
+          if (!tile) {
+            return of(created);
+          }
+          return this.updateTile(created.point!.id, tile).pipe(
+            map(
+              (tile) =>
+                ({
+                  ...created,
+                  point: { ...created.point, tile },
+                } as any)
+            )
+          );
         })
       );
   }
@@ -169,7 +177,8 @@ export class PointsService {
   public updatePoint(
     id: string,
     updateValue: Partial<Omit<JSONData<PointsRecord>, 'cover'>>,
-    updateCover?: any
+    updateCover?: any,
+    updateTile?: any
   ) {
     return this.http
       .patch<JSONData<PointsRecord>>(
@@ -186,6 +195,14 @@ export class PointsService {
           return this.updateCover(updated.id, updateCover).pipe(
             map((cover) => ({ ...updated, cover }))
           );
+        }),
+        switchMap((updated) => {
+          if (!updateTile) {
+            return of(updated);
+          }
+          return this.updateTile(updated.id, updateTile).pipe(
+            map((tile) => ({ ...updated, tile }))
+          );
         })
       );
   }
@@ -194,6 +211,12 @@ export class PointsService {
     return this.http.post<any>(
       `/.netlify/functions/authorized-set_point_cover?id=${id}`,
       cover
+    );
+  }
+  public updateTile(id: string, tile: any): Observable<any> {
+    return this.http.post<any>(
+      `/.netlify/functions/authorized-set_point_tile?id=${id}`,
+      tile
     );
   }
 

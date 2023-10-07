@@ -31,3 +31,7 @@ input,textarea {
 .ant-drawer-right.ant-drawer-open{
   width: auto !important;
 }
+
+.ant-switch-inner, .ant-steps-item-active .ant-steps-icon {
+  color: #211f02 !important;
+}

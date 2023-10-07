@@ -73,7 +73,9 @@ export class CoverEditorComponent
   writeValue(obj: Cover): void {
     if (typeof obj === 'string') {
       this.pictureUrl = obj;
+      this.imageCropped = true;
     } else {
+      this.imageCropped = false;
       this.fb64.next(obj)
     }
   }

@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { canDeactivateFlagPin } from './flag-pin/flag-pin.component';
 import { isAuthenticated } from './isAuthenticated.guard';
 import { canDeactivatePinEditor } from './pin-editor/pin-editor.component';
+import { canDeactivateCreatePin } from './create-pin/create-pin.component';
 import { isPointOwner } from './user.service';
 import { canActivateWelcomePage as canActivateWelcomePageOrRedirect } from './welcome/welcome.component';
 
@@ -9,11 +10,11 @@ const internalRoutes: Routes = [
   {
     path: 'create-pin',
     loadComponent: () =>
-      import('./pin-editor/pin-editor.component').then(
-        (mod) => mod.PinEditorComponent
+      import('./create-pin/create-pin.component').then(
+        (mod) => mod.CreatePinComponent
       ),
-    title: 'New location',
-    canDeactivate: [canDeactivatePinEditor],
+    title: 'New pin',
+    canDeactivate: [canDeactivateCreatePin],
     canActivate: [isAuthenticated],
   },
   {

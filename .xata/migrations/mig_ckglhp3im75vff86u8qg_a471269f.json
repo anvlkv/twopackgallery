@@ -1,0 +1,18 @@
+{
+  "id": "mig_ckglhp3im75vff86u8qg",
+  "parentID": "mig_ckg4o0pf6euat44954og",
+  "checksum": "1:a471269f2824b71a83a4457930b3cfa305df2588e868e42aa05419a8ed7d5d39",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "visitors",
+          "type": "bool",
+          "notNull": true,
+          "defaultValue": "true"
+        },
+        "table": "points"
+      }
+    }
+  ]
+}

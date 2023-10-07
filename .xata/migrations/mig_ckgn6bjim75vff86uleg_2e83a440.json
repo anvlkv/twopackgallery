@@ -1,0 +1,16 @@
+{
+  "id": "mig_ckgn6bjim75vff86uleg",
+  "parentID": "mig_ckglhp3im75vff86u8qg",
+  "checksum": "1:2e83a4404852ab367dfa10467774bf8a5ab4a92ae769368e0d9b7e4e13f3f8a0",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "tile",
+          "type": "file"
+        },
+        "table": "points"
+      }
+    }
+  ]
+}

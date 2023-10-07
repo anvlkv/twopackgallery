@@ -20,6 +20,7 @@ import { NzSelectModule, NzSelectOptionInterface } from 'ng-zorro-antd/select';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { Subscription, noop } from 'rxjs';
 import { Address, LocationService } from '../location.service';
+import { ViewAddressComponent } from '../view-address/view-address.component';
 
 countries.registerLocale(countryCodes);
 
@@ -36,6 +37,7 @@ countries.registerLocale(countryCodes);
     NzToolTipModule,
     NzInputModule,
     NzSelectModule,
+    ViewAddressComponent,
   ],
   selector: 'app-address',
   templateUrl: './address.component.html',
@@ -53,7 +55,6 @@ export class AddressComponent
 {
   geoAddress?: Address;
   isVagueGeoAddress = true;
-  viewAddress?: string;
   subs: Subscription[] = [];
   formVisible = false;
   disabled = false;
@@ -96,10 +97,8 @@ export class AddressComponent
       });
       this.geoAddress = obj;
       this.isVagueGeoAddress = !this.geoAddress.address_1;
-      this.setViewAddress();
     } else {
       this.addressForm.reset();
-      this.setViewAddress();
     }
   }
 
@@ -170,21 +169,6 @@ export class AddressComponent
     }
   }
 
-  setViewAddress() {
-    const address = this.geoAddress!;
-    this.viewAddress = [
-      address.address_1,
-      address.address_2,
-      address.place,
-      address.region,
-      address.country ||
-        (address.code && countries.getName(address.code, 'en')),
-      address.postcode,
-    ]
-      .filter(Boolean)
-      .join(', ');
-  }
-
   onSubmit() {
     this.geoAddress = {
       address_1: this.addressForm.value.address_1 || undefined,
@@ -197,7 +181,6 @@ export class AddressComponent
     };
     this.isVagueGeoAddress = !this.geoAddress.address_1;
     this.formVisible = false;
-    this.setViewAddress();
 
     this._onChange(this.geoAddress);
   }
@@ -216,7 +199,6 @@ export class AddressComponent
     };
     this.isVagueGeoAddress = true;
     this.formVisible = false;
-    this.setViewAddress();
 
     this._onChange(this.geoAddress);
   }

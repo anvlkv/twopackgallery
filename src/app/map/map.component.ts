@@ -386,7 +386,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   mapMove(ev: MapChangeEvent, final = true) {
     if (
-      [EActivity.ViewPin, EActivity.FlagPin].includes(this.activity.current())
+      [EActivity.ViewPin, EActivity.FlagPin, EActivity.CreatePinLocked].includes(this.activity.current())
     ) {
       return;
     }

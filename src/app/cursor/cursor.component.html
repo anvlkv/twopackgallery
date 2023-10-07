@@ -25,6 +25,15 @@
           nzType="pushpin"
         ></i>
       </div>
+      <div class="activity-icon" *ngSwitchCase="eActivity.CreatePinLocked">
+        <i
+          nz-icon
+          nzTheme="twotone"
+          [nzTwotoneColor]="'#EB6FF6'"
+          nzType="pushpin"
+          [nzRotate]="-45"
+        ></i>
+      </div>
       <div class="activity-icon" *ngSwitchCase="eActivity.EditPin">
         <i
           nz-icon

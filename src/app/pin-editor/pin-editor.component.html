@@ -12,8 +12,11 @@
       <app-address formControlName="address"></app-address>
     </nz-form-control>
   </nz-form-item>
+  <nz-form-item *ngIf="isFullPage">
+    <app-mini-map [point]="minMapLocation"></app-mini-map>
+  </nz-form-item>
   <nz-form-item>
-    <nz-form-control nzErrorTip="Please enter a unique name for your location">
+    <nz-form-control nzErrorTip="Please enter a unique name for your pin">
       <nz-input-group>
         <input
           nz-input
@@ -26,7 +29,7 @@
   </nz-form-item>
   <nz-form-item>
     <nz-form-control
-      nzErrorTip="Please select at least one, and no more than 5 art forms for your location"
+      nzErrorTip="Please select at least one, and no more than 5 art forms for your pin"
     >
       <nz-select
         nzAllowClear
@@ -63,13 +66,19 @@
     ></textarea>
   </nz-form-item>
   <nz-form-item class="status-control">
-    <nz-form-label nzFor="status">Published</nz-form-label>
+    <nz-form-label nzFor="visitors">Does this pin accept real world visitors?</nz-form-label>
     <nz-form-control>
-      <nz-switch nzId="status" formControlName="published"></nz-switch>
+      <nz-switch nzId="visitors" formControlName="visitors" nzCheckedChildren="Yes"></nz-switch>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item class="status-control">
+    <nz-form-label nzFor="status">Should this pin be publicly visible on the map?</nz-form-label>
+    <nz-form-control>
+      <nz-switch nzId="status" formControlName="published" nzCheckedChildren="Yes"></nz-switch>
     </nz-form-control>
     <nz-alert *ngIf="!(user.verified | async)" nzType="warning" nzMessage="Make sure your account is verified before you can publish" [nzAction]="verifyAccountLink"></nz-alert>
     <ng-template #verifyAccountLink>
-      <a routerLink="/account">Go to my account</a>
+      <a routerLink="/account" target="_blank">Go to my account</a>
     </ng-template>
   </nz-form-item>
   <nz-divider></nz-divider>

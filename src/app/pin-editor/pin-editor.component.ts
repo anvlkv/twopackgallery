@@ -49,6 +49,7 @@ import { EPointStatus } from 'api/utils/point_status';
 import { UserService } from '../user.service';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { MiniMapComponent } from '../mini-map/mini-map.component';
 
 @Component({
   standalone: true,
@@ -69,6 +70,7 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
     NzAlertModule,
     CoverEditorComponent,
     AddressComponent,
+    MiniMapComponent
   ],
   selector: 'app-pin-editor',
   templateUrl: './pin-editor.component.html',
@@ -87,6 +89,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     longitude: [0, Validators.required],
     latitude: [0, Validators.required],
     cover: ['' as Cover, Validators.required],
+    tile: ['' as Cover, Validators.required],
     title: [
       '',
       Validators.required,
@@ -112,8 +115,11 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     description: [''],
     location_description: [''],
     published: [false],
+    visitors: [true],
   });
   coverRatio = COVER_RATIO;
+  isFullPage: boolean;
+  minMapLocation = [0, 0] as [number, number];
 
   private titleStrategy = inject(TitleStrategy) as TemplatePageTitleStrategy;
 
@@ -121,22 +127,24 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
-    private location: LocationService,
     private artForms: ArtFormsService,
     private points: PointsService,
     private notification: NzNotificationService,
     private modal: NzModalService,
-    private activity: ActivityService,
+    public location: LocationService,
+    public activity: ActivityService,
     public user: UserService
   ) {
     this.id = activatedRoute.snapshot.params['id'];
-    this.title = this.id ? 'Edit location' : 'New location';
+    this.title = this.id ? 'Edit pin' : 'New pin';
+    this.isFullPage = Boolean(this.activatedRoute.snapshot.data['isFullPage'])
 
     if (this.id) {
       this.pinForm.disable();
     }
   }
-  private leave?: () => void;
+  
+  leave?: () => void;
 
   ngOnInit(): void {
     this.subs.push(
@@ -176,13 +184,15 @@ export class PinEditorComponent implements OnInit, OnDestroy {
           this.pinForm.reset({
             address: point.address as Address,
             cover: point.cover?.url,
+            tile: point.tile?.url,
             title: point.title as string,
             description: point.description as string,
             location_description: point.location_description as string,
             art_forms: point.art_forms.map(r => r.id) as any, //as string[]
             longitude: point.longitude as number,
             latitude: point.latitude as number,
-            published: point.status === EPointStatus.Published
+            published: point.status === EPointStatus.Published,
+            visitors: point.visitors
           });
           this.titleStrategy.entityTitle(point.title as string);
           this.location.adjust_location([
@@ -254,6 +264,12 @@ export class PinEditorComponent implements OnInit, OnDestroy {
           }
         })
     );
+
+    this.subs.push(this.activatedRoute.data.subscribe(({fullPage}) => this.isFullPage = fullPage));
+
+    this.subs.push(this.pinForm.valueChanges.subscribe(({longitude, latitude}) => {
+      this.minMapLocation = [longitude || 0, latitude || 0];
+    }))
   }
 
   ngOnDestroy(): void {
@@ -268,8 +284,9 @@ export class PinEditorComponent implements OnInit, OnDestroy {
       return;
     }
     this.saving = true;
-    const { cover, address, published, ...formValue } = this.pinForm.value;
+    const { cover,tile, address, published, ...formValue } = this.pinForm.value;
     const coverFile = typeof cover === 'object' ? cover : undefined;
+    const tileFile = typeof tile === 'object' ? tile : undefined;
 
     (formValue as any).status = published
       ? EPointStatus.Published
@@ -283,13 +300,13 @@ export class PinEditorComponent implements OnInit, OnDestroy {
           }
         : formValue;
       this.submitSubscription = this.points
-        .createNewPoint(value as any, coverFile)
+        .createNewPoint(value as any, coverFile, tileFile)
         .subscribe({
           next: ({ point, ownership }) => {
             this.saving = false;
             this.notification.success(
-              "You've just added a new location!",
-              `Location "${point!.title}" added successfully.`
+              "You've just added a new pin!",
+              `Pin "${point!.title}" added successfully.`
             );
             this.router.navigate(['pin', point!.id], {
               replaceUrl: true,
@@ -317,7 +334,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             }
           : formValue;
       this.submitSubscription = this.points
-        .updatePoint(this.id, value as any, coverFile)
+        .updatePoint(this.id, value as any, coverFile, tileFile)
         .subscribe({
           next: (updatedPoint) => {
             this.saving = false;

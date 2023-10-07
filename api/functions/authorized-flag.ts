@@ -86,8 +86,8 @@ const handler: Handler = withAuth0(
           flag_issue: flag.issue,
           notice:
             pointFlags.length >= 5
-              ? 'Your location has been automatically hidden from public. Please let us know if you think it is a mistake.'
-              : 'In the meantime we will investigate the request and make decision on removing your location from the public map.',
+              ? 'Your pin has been automatically hidden from public. Please let us know if you think it is a mistake.'
+              : 'In the meantime we will investigate the request and make decision on removing your pin from the public map.',
           flag_id,
         },
         true

@@ -1,7 +1,5 @@
 <i nz-icon nzType="environment"></i>
-<address *ngIf="viewAddress">
-  {{ viewAddress }}
-</address>
+<app-view-address [address]="geoAddress"></app-view-address>
 <button
   nz-button
   nz-popover
