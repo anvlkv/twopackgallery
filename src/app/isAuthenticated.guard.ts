@@ -3,9 +3,9 @@ import {
   ActivatedRouteSnapshot,
   CanActivateFn,
   Params,
-  RouterStateSnapshot
+  RouterStateSnapshot,
 } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthClientConfig, AuthService } from '@auth0/auth0-angular';
 import { catchError, map, of, skipWhile, switchMap } from 'rxjs';
 
 export const AUTH_REDIRECTS_KEY = 'auth_redirects';
@@ -20,6 +20,7 @@ export const isAuthenticated: CanActivateFn = (
   state: RouterStateSnapshot
 ) => {
   const auth = inject(AuthService);
+  const authConfig = inject(AuthClientConfig);
 
   return auth.isLoading$.pipe(
     skipWhile(Boolean),
@@ -32,6 +33,11 @@ export const isAuthenticated: CanActivateFn = (
             return auth.getAccessTokenSilently().pipe(
               catchError(() =>
                 auth.loginWithRedirect({
+                  authorizationParams: {
+                    redirect_uri: `${
+                      authConfig.get()?.authorizationParams?.redirect_uri
+                    }${state.url.includes('/map') ? '/map' : ''}`,
+                  },
                   appState: {
                     target: state.url,
                   },
