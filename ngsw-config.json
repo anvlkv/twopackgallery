@@ -40,7 +40,7 @@
     },
     {
       "name": "points",
-      "version": 1,
+      "version": 2,
       "urls": ["/.netlify/functions/points"],
       "cacheQueryOptions": {
         "ignoreSearch": false
@@ -53,7 +53,7 @@
     },
     {
       "name": "point_description",
-      "version": 1,
+      "version": 2,
       "urls": ["/.netlify/functions/point_description"],
       "cacheQueryOptions": {
         "ignoreSearch": false

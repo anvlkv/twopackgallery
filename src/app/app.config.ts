@@ -92,6 +92,7 @@ const providersFrom = [
     // Register the ServiceWorker as soon as the application is stable
     // or after 30 seconds (whichever comes first).
     registrationStrategy: 'registerWhenStable:30000',
+    scope: './'
   }),
   NzIconModule.forRoot(icons),
 ].map((mod) => importProvidersFrom(mod));

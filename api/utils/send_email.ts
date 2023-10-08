@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export enum EMailBox {
-  NoReply = 'noreply',
+  Hello = 'hello',
   Support = 'support',
 }
 

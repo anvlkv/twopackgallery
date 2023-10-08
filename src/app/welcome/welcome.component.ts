@@ -31,7 +31,7 @@ export const WELCOMED_KEY = 'hasBeenWelcomed';
 })
 export class WelcomeComponent implements OnInit, OnDestroy {
   viewTitle = `Every hunter wishes to know where the pheasant sits`;
-  viewSubTitle = `A tool for those who hunts for works art and those who creates art`;
+  viewSubTitle = `A tool for those who hunts for works art and those who create them`;
   createPinLink = ['/', 'map', 'create-pin'];
 
   subs: Subscription[] = [];
