@@ -20,7 +20,7 @@
   >
     <a *nzSpaceItem [routerLink]="logoLink" class="logo">
       <h1 nz-typography [ngStyle]="{ 'font-weight': 'normal' }">
-        twopack.gallery
+        twopack.gallery<sup><i>⍺</i></sup>
       </h1>
     </a>
     <ng-container *ngIf="auth.isAuthenticated$ | async; else logInTemplate">
