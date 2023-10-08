@@ -29,7 +29,7 @@ export const WELCOMED_KEY = 'hasBeenWelcomed';
 })
 export class WelcomeComponent {
   viewTitle = `Every hunter wishes to know where the pheasant sits`;
-  viewSubTitle = `Free, fair, and collaborative space for artists from all over the globe`;
+  viewSubTitle = `Free, fair, and collaborative app for those creating and hunting art from all over the globe`;
   rotatedText = [
     'gallery',
     'studio',

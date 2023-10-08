@@ -24,9 +24,11 @@
     <mj-section>
       <mj-column width="420px">
         <mj-text line-height="1.2" font-style="italic">
-          Free, fair, and collaborative space
+          Free, fair, and collaborative app 
           <br/>
-          for artists from all over the globe
+          for those creating and hunting art
+          <br/>
+          from all over the globe
           <br/>
           <a href="https://twopack.gallery">twopack.gallery</a>
         </mj-text>
