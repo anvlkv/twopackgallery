@@ -31,7 +31,6 @@ import {
 } from 'rxjs';
 import type { ArtFormsRecord, PointsRecord } from 'xata';
 import { ActivityService, EActivity } from '../activity.service';
-import { ArtFormsService } from '../art-forms.service';
 import { CoverImageComponent } from '../cover-image/cover-image.component';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
@@ -41,6 +40,7 @@ import { COVER_RATIO } from '../cover-image/consts';
 import { MiniMapComponent } from '../mini-map/mini-map.component';
 import { PaddedPageContentComponent } from '../padded-page-content/padded-page-content.component';
 import { UserTagComponent } from '../user-tag/user-tag.component';
+import { ViewAddressComponent } from '../view-address/view-address.component';
 
 @Component({
   standalone: true,
@@ -59,6 +59,7 @@ import { UserTagComponent } from '../user-tag/user-tag.component';
     MiniMapComponent,
     PaddedPageContentComponent,
     UserTagComponent,
+    ViewAddressComponent
   ],
   selector: 'app-pin',
   templateUrl: './pin.component.html',

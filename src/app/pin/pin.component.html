@@ -54,7 +54,9 @@
       <div nz-row nzAlign="middle" class="title-group">
         <h2 nz-col nzSpan="21" nz-typography>
           {{ data.title }}
-          <small>by <app-user-tag [user]="data.publisher"></app-user-tag></small>
+          <small
+            >by <app-user-tag [user]="data.publisher"></app-user-tag
+          ></small>
         </h2>
         <a
           *ngIf="isFullPage"
@@ -79,11 +81,17 @@
           {{ data.description }}
         </p>
       </ng-container>
-      <ng-container *ngIf="data.location_description">
-        <h4 nz-typography>How to get there</h4>
-        <p nz-typography>
-          {{ data.location_description }}
-        </p>
+      <ng-container *ngIf="data.visitors">
+        <app-view-address
+          *ngIf="data.address"
+          [address]="data.address"
+        ></app-view-address>
+        <ng-container *ngIf="data.location_description">
+          <h4 nz-typography>How to get there</h4>
+          <p nz-typography>
+            {{ data.location_description }}
+          </p>
+        </ng-container>
       </ng-container>
       <ng-container *ngIf="isFullPage">
         <app-mini-map [point]="mapPoint"></app-mini-map>

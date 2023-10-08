@@ -56,7 +56,7 @@
           ></nz-switch>
         </nz-form-control>
       </nz-form-item>
-      <nz-form-item>
+      <nz-form-item *ngIf="pinForm.controls['visitors'].value">
         <textarea
           nz-input
           placeholder="How to get there? (or leave empty)"

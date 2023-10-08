@@ -120,7 +120,8 @@
       </nz-form-control>
       <nz-alert
         *ngIf="
-          !(user.user | async)?.user?.tag && !pinForm.controls['anonymous'].value
+          !(user.user | async)?.user?.tag &&
+          !pinForm.controls['anonymous'].value
         "
         nzType="warning"
         nzMessage="Your account doesn't seem to have a personal tag yet. Pins created with public tag will be shown as anonymous"
@@ -132,7 +133,7 @@
     </nz-form-item>
     <nz-divider></nz-divider>
     <legend>
-      <small *ngIf="pinForm.controls['published'].value">
+      <small *ngIf="pinForm.controls['published'].value" 📍>
         By publishing this pin 📍 on twopack.gallery map, you confirm it
         features the chosen art form, is safe for visitors, and that you are the
         exhibiting artist. Please note, irrelevant or unsafe pins 📍 will be
@@ -147,8 +148,9 @@
             type="submit"
             [disabled]="!pinForm.valid || !pinForm.dirty"
             [nzLoading]="saving"
+            (click)="onSubmit()"
           >
-            {{ id ? "Update location" : "Create location" }}
+            {{ id ? "Update pin 📍" : "Create pin  📍" }}
           </button>
           <ng-container *ngIf="id">
             <button
@@ -158,22 +160,24 @@
               nzType="primary"
               nzGhost
               [nzDropdownMenu]="menu"
+              nzTrigger="click"
               nzPlacement="topRight"
               [ngStyle]="{ 'flex-grow': 0 }"
             >
               <i nz-icon nzType="up"></i>
             </button>
             <nz-dropdown-menu #menu>
-              <button
-                nz-button
-                nzDanger
-                nzSize="large"
-                nzType="primary"
-                (click)="onDelete($event)"
-                [nzLoading]="saving"
-              >
-                Delete location
-              </button>
+              <div nz-menu>
+                <button
+                  nz-menu-item
+                  nzDanger
+                  nzSize="large"
+                  nzType="primary"
+                  (click)="onDelete($event)"
+                >
+                  Delete location
+                </button>
+              </div>
             </nz-dropdown-menu>
           </ng-container>
         </nz-button-group>
