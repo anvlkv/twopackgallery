@@ -1,127 +1,129 @@
-<div nz-row>
-  <nz-space nzDirection="vertical" nz-col [nzSpan]="24">
-    <ng-container *ngIf="verified === false">
-      <nz-alert
+<app-padded-page-content>
+  <div nz-row>
+    <nz-space nzDirection="vertical" nz-col [nzSpan]="24">
+      <ng-container *ngIf="verified === false">
+        <nz-alert
+          *nzSpaceItem
+          nzType="warning"
+          [nzMessage]="
+            'Please verify your account before you can publish locations or interact with other users'
+          "
+          [nzAction]="resendVerificationTemplate"
+        ></nz-alert>
+      </ng-container>
+      <ng-template #resendVerificationTemplate>
+        <button
+          nz-button
+          [disabled]="!!resentVerification"
+          nzType="link"
+          (click)="resendVerification()"
+        >
+          <ng-container *ngIf="resentVerification; else nowTemplate">
+            Next in {{ resentVerification }}s...
+            <br />
+            Log out and in again after you followed the verification link.
+          </ng-container>
+          <ng-template #nowTemplate> Resend verification email </ng-template>
+        </button>
+      </ng-template>
+      <form
         *nzSpaceItem
-        nzType="warning"
-        [nzMessage]="
-          'Please verify your account before you can publish locations or interact with other users'
-        "
-        [nzAction]="resendVerificationTemplate"
-      ></nz-alert>
-    </ng-container>
-    <ng-template #resendVerificationTemplate>
-      <button
-        nz-button
-        [disabled]="!!resentVerification"
-        nzType="link"
-        (click)="resendVerification()"
+        nz-form
+        [nzLayout]="'vertical'"
+        [formGroup]="userForm"
+        (ngSubmit)="onSubmit()"
       >
-        <ng-container *ngIf="resentVerification; else nowTemplate">
-          Next in {{ resentVerification }}s...
-          <br/>
-          Log out and in again after you followed the verification link.
-        </ng-container>
-        <ng-template #nowTemplate> Resend verification email </ng-template>
-      </button>
-    </ng-template>
-    <form
-      *nzSpaceItem
-      nz-form
-      [nzLayout]="'vertical'"
-      [formGroup]="userForm"
-      (ngSubmit)="onSubmit()"
-    >
-      <nz-form-item>
-        <nz-upload
-          class="avatar-uploader"
-          nzName="avatar"
-          nzListType="picture-card"
-          [(nzFileList)]="avatarFile"
-          [nzBeforeUpload]="beforeUploadAvatar"
-          [nzShowUploadList]="false"
-          [nzFileType]="'image/png,image/jpeg,image/gif,image/bmp'"
-          [nzMultiple]="false"
-        >
-          <nz-avatar [nzSize]="128" [nzSrc]="avatarUrl"></nz-avatar>
-        </nz-upload>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label nzFor="name">Name</nz-form-label>
-        <nz-form-control nzErrorTip="A name is required">
-          <input nz-input formControlName="name" name="name" id="name" />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label nzFor="tag">Tag</nz-form-label>
-        <nz-form-control
-          nzErrorTip="A tag must be unique and may only contain letters a-z and digits"
-        >
-          <nz-input-group [nzPrefix]="'@'">
+        <nz-form-item>
+          <nz-upload
+            class="avatar-uploader"
+            nzName="avatar"
+            nzListType="picture-card"
+            [(nzFileList)]="avatarFile"
+            [nzBeforeUpload]="beforeUploadAvatar"
+            [nzShowUploadList]="false"
+            [nzFileType]="'image/png,image/jpeg,image/gif,image/bmp'"
+            [nzMultiple]="false"
+          >
+            <nz-avatar [nzSize]="128" [nzSrc]="avatarUrl"></nz-avatar>
+          </nz-upload>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="name">Name</nz-form-label>
+          <nz-form-control nzErrorTip="A name is required">
+            <input nz-input formControlName="name" name="name" id="name" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="tag">Tag</nz-form-label>
+          <nz-form-control
+            nzErrorTip="A tag must be unique and may only contain letters a-z and digits"
+          >
+            <nz-input-group [nzPrefix]="'@'">
+              <input
+                nz-input
+                (input)="handleTagInput($event)"
+                formControlName="tag"
+                name="tag"
+                id="tag"
+              />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="email">E-mail</nz-form-label>
+          <nz-form-control nzErrorTip="Please enter a valid email address">
             <input
               nz-input
-              (input)="handleTagInput($event)"
-              formControlName="tag"
-              name="tag"
-              id="tag"
+              formControlName="email"
+              name="email"
+              type="email"
+              id="email"
             />
-          </nz-input-group>
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label nzFor="email">E-mail</nz-form-label>
-        <nz-form-control nzErrorTip="Please enter a valid email address">
-          <input
-            nz-input
-            formControlName="email"
-            name="email"
-            type="email"
-            id="email"
-          />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-space>
-        <button
-          *nzSpaceItem
-          nz-button
-          nzSize="large"
-          nzType="primary"
-          [disabled]="!(userForm.valid && userForm.dirty)"
-          type="submit"
-          [nzLoading]="saving"
-        >
-          Save changes
-        </button>
-        <button *nzSpaceItem nz-button nzSize="large" (click)="onReset()">
-          Cancel
-        </button>
-      </nz-space>
-    </form>
-    <nz-divider *nzSpaceItem></nz-divider>
-    <button
-      *nzSpaceItem
-      nz-button
-      nzSize="large"
-      nzType="primary"
-      [disabled]="saving"
-      (click)="onResetPassword()"
-    >
-      Reset password
-    </button>
-    <nz-divider *nzSpaceItem></nz-divider>
-    <button
-      *nzSpaceItem
-      nz-button
-      nzType="primary"
-      nzSize="large"
-      nzDanger
-      [disabled]="saving"
-      (click)="onDeleteAccount()"
-    >
-      Delete account
-    </button>
-  </nz-space>
-</div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-space>
+          <button
+            *nzSpaceItem
+            nz-button
+            nzSize="large"
+            nzType="primary"
+            [disabled]="!(userForm.valid && userForm.dirty)"
+            type="submit"
+            [nzLoading]="saving"
+          >
+            Save changes
+          </button>
+          <button *nzSpaceItem nz-button nzSize="large" (click)="onReset()">
+            Cancel
+          </button>
+        </nz-space>
+      </form>
+      <nz-divider *nzSpaceItem></nz-divider>
+      <button
+        *nzSpaceItem
+        nz-button
+        nzSize="large"
+        nzType="primary"
+        [disabled]="saving"
+        (click)="onResetPassword()"
+      >
+        Reset password
+      </button>
+      <nz-divider *nzSpaceItem></nz-divider>
+      <button
+        *nzSpaceItem
+        nz-button
+        nzType="primary"
+        nzSize="large"
+        nzDanger
+        [disabled]="saving"
+        (click)="onDeleteAccount()"
+      >
+        Delete account
+      </button>
+    </nz-space>
+  </div>
+</app-padded-page-content>
 
 <ng-template #deleteAccount>
   <form nz-form [formGroup]="deleteForm">

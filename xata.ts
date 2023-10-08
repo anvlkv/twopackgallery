@@ -20,6 +20,7 @@ const tables = [
       { name: "status", type: "string", notNull: true, defaultValue: "draft" },
       { name: "visitors", type: "bool", notNull: true, defaultValue: "true" },
       { name: "tile", type: "file" },
+      { name: "anonymous", type: "bool", notNull: true, defaultValue: "false" },
     ],
     revLinks: [
       { column: "point", table: "art_forms_points" },

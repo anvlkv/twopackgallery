@@ -7,6 +7,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { Subscription } from 'rxjs';
 import { COVER_RATIO } from '../cover-image/consts';
+import { PaddedPageContentComponent } from '../padded-page-content/padded-page-content.component';
 import { PinCardComponent } from '../pin-card/pin-card.component';
 import { UserService, UserType } from '../user.service';
 
@@ -20,6 +21,7 @@ import { UserService, UserType } from '../user.service';
     NzCardModule,
     NzSpaceModule,
     NzTypographyModule,
+    PaddedPageContentComponent,
   ],
   selector: 'app-user-profile',
   templateUrl: './user-profile.component.html',
@@ -32,7 +34,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   userData?: UserType;
   userName?: string;
-  
+
   constructor(private user: UserService) {}
 
   ngOnInit(): void {

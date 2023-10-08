@@ -5,25 +5,23 @@ import {
   Component,
   Inject,
   OnDestroy,
-  OnInit,
   PLATFORM_ID,
   TemplateRef,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { AuthModule, AuthService } from '@auth0/auth0-angular';
+import { AuthModule } from '@auth0/auth0-angular';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 import {
   NzNotificationRef,
   NzNotificationService,
 } from 'ng-zorro-antd/notification';
-import { Subscription, catchError, of, switchMap } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { BrowserStorageService } from './browser-storage.service';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { UserService } from './user.service';
+import { BreakPointComponent } from './break-point/break-point.component';
 
 const COOKIE_CONSENT = 'hasGivenCookieConsent';
-const VERIFY_EMAIL_ERR = 'VERIFY_EMAIL_ADDRESS';
 @Component({
   standalone: true,
   imports: [
@@ -32,6 +30,7 @@ const VERIFY_EMAIL_ERR = 'VERIFY_EMAIL_ADDRESS';
     AuthModule,
     ServiceWorkerModule,
     NzButtonModule,
+    BreakPointComponent
   ],
   selector: 'app-root',
   templateUrl: './app.component.html',

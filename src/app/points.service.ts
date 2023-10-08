@@ -170,6 +170,7 @@ export class PointsService {
     return this.http.get<
       Partial<JSONData<PointsRecord>> & {
         art_forms: JSONData<ArtFormsRecord>[];
+        publisher: string
       }
     >(`/.netlify/functions/authorized-point_description?id=${id}`);
   }

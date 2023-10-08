@@ -1,11 +1,9 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewChecked,
   AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef,
   OnDestroy,
   OnInit,
   TemplateRef,
@@ -25,17 +23,18 @@ import {
 } from 'ng-zorro-antd/drawer';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { Subscription, filter } from 'rxjs';
+import { Subscription, combineLatest, filter } from 'rxjs';
 import { ActivityService } from '../activity.service';
 import { ArtFormsService } from '../art-forms.service';
+import { BreakPointService, EBreakPoint } from '../break-point.service';
 import { HeaderComponent } from '../header/header.component';
 import { LocationService } from '../location.service';
 import { MapAsideComponent } from '../map-aside/map-aside.component';
 import { MapComponent } from '../map/map.component';
 import { PointsService } from '../points.service';
 import { SearchComponent } from '../search/search.component';
-import { UserService } from '../user.service';
 import { ZoomSyncService } from '../zoom-sync.service';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 
 @Component({
   standalone: true,
@@ -45,6 +44,7 @@ import { ZoomSyncService } from '../zoom-sync.service';
     NzIconModule,
     NzDrawerModule,
     NzGridModule,
+    NzButtonModule,
     HeaderComponent,
     MapComponent,
     MapAsideComponent,
@@ -62,14 +62,9 @@ import { ZoomSyncService } from '../zoom-sync.service';
     ActivityService,
   ],
 })
-export class MapLayoutComponent
-  implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit
-{
+export class MapLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
   subs: Subscription[] = [];
   isChildRouteActivated = false;
-
-  @ViewChild('measureRef')
-  measureRef!: ElementRef<HTMLDivElement>;
 
   @ViewChild('drawerContentTemplate')
   drawerContentTemplate!: TemplateRef<any>;
@@ -78,16 +73,22 @@ export class MapLayoutComponent
   drawerExtraTemplate!: TemplateRef<any>;
 
   drawerWidth = 100;
+  drawerHeight = 100;
 
   extraLink?: string[];
+  mobile: boolean;
+  mapOffset?: [number, number];
 
   private drawerRef?: NzDrawerRef;
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private drawers: NzDrawerService,
-    private ch: ChangeDetectorRef
-  ) {}
+    private ch: ChangeDetectorRef,
+    private bp: BreakPointService
+  ) {
+    this.mobile = this.bp.getBreakPoint() < EBreakPoint.Md;
+  }
 
   ngOnInit(): void {
     this.subs.push(
@@ -106,6 +107,37 @@ export class MapLayoutComponent
           this.toggleRoutedDrawers();
         })
     );
+
+    this.subs.push(
+      combineLatest({
+        mobile: this.bp.query((b) => b < EBreakPoint.Md),
+        width: this.bp.columnsQuery({
+          [EBreakPoint.Xs]: 24,
+          [EBreakPoint.Md]: 12,
+          [EBreakPoint.Lg]: 10,
+          [EBreakPoint.XXl]: 9,
+        }),
+        height: this.bp.heightQuery({
+          [EBreakPoint.Xs]: 2 / 3,
+          [EBreakPoint.Sm]: 1 / 2,
+          [EBreakPoint.Md]: 1,
+        }),
+      }).subscribe(({ mobile, width, height }) => {
+        this.mobile = mobile;
+        this.drawerWidth = width;
+        this.drawerHeight = height;
+        if (this.drawerRef) {
+          this.drawerRef.nzPlacement = this.mobile ? 'bottom' : 'right';
+          this.drawerRef.nzWidth = width;
+          this.drawerRef.nzHeight = height;
+          this.mapOffset = this.mobile
+            ? [0, this.drawerHeight]
+            : [this.drawerWidth, 0];
+        }
+
+        this.ch.detectChanges();
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -115,15 +147,6 @@ export class MapLayoutComponent
 
   ngAfterViewInit(): void {
     this.toggleRoutedDrawers();
-  }
-
-  ngAfterViewChecked(): void {
-    this.drawerWidth = this.measureRef.nativeElement.clientWidth;
-
-    if (this.drawerRef && this.drawerRef.nzWidth !== this.drawerWidth) {
-      this.drawerRef.nzWidth = this.drawerWidth;
-      this.ch.detectChanges();
-    }
   }
 
   private _lastChecked?: ActivatedRouteSnapshot;
@@ -137,6 +160,7 @@ export class MapLayoutComponent
     } else if (this.drawerRef) {
       this.drawerRef.close();
       this.drawerRef = undefined;
+      this.mapOffset = undefined;
     }
 
     if (this.activatedRoute.firstChild) {
@@ -148,11 +172,17 @@ export class MapLayoutComponent
         nzContent: this.drawerContentTemplate,
         nzExtra: this.drawerExtraTemplate,
         nzWidth: this.drawerWidth,
+        nzHeight: this.drawerHeight,
         nzTitle: snapshot.title,
-        nzPlacement: 'right',
+        nzPlacement: this.mobile ? 'bottom' : 'right',
         nzWrapClassName: 'drawer-layout-wrapper',
         nzOnCancel: this.close.bind(this),
       });
+
+      this.mapOffset = this.mobile
+        ? [0, this.drawerHeight]
+        : [this.drawerWidth, 0];
+
       this.isChildRouteActivated = true;
       this.extraLink = snapshot.url.map(({ path }) => path);
       this.extraLink.unshift(

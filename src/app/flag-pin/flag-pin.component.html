@@ -5,106 +5,108 @@
   [formGroup]="flagPinForm"
   (ngSubmit)="onSubmit()"
 >
-  <legend>
-    <h3 nz-typography>Flagging location "{{ pin.title }}"</h3>
-    <p nz-typography>
-      Thank you for taking the time to make twopack.gallery more accurate and
-      safe. Please explain what's the issue with this location in the form
-      below.
-    </p>
-  </legend>
-
-  <nz-form-item>
-    <nz-form-label nzFor="issue"
-      >The "{{ pin.title }}" location is:</nz-form-label
-    >
-    <nz-form-control nzErrorTip="Please select one of the issues.">
-      <nz-radio-group formControlName="issue">
-        <label nz-radio-button nzValue="unsafe">Unsafe</label>
-        <label nz-radio-button nzValue="irrelevant">Irrelevant</label>
-        <label nz-radio-button nzValue="unreachable">Unreachable</label>
-        <label nz-radio-button nzValue="reclaim">Reclaim</label>
-        <label nz-radio-button nzValue="other">Other...</label>
-      </nz-radio-group>
-    </nz-form-control>
-  </nz-form-item>
-
-  <ng-container [ngSwitch]="flagPinForm.controls['issue'].value">
-    <nz-alert
-      *ngSwitchCase="'unsafe'"
-      nzType="info"
-      nzShowIcon
-      nzMessage="The location is unsafe"
-      [nzDescription]="
-        'You have visited the location and consider it unsafe for other visitors.'
-      "
-    />
-    <nz-alert
-      *ngSwitchCase="'irrelevant'"
-      nzType="info"
-      nzShowIcon
-      nzMessage="The location is irrelevant"
-      [nzDescription]="
-        'The location doesn\'t show any of the art forms it has claimed or has nothing to do with art.'
-      "
-    />
-    <nz-alert
-      *ngSwitchCase="'unreachable'"
-      nzType="info"
-      nzShowIcon
-      nzMessage="The location is unreachable"
-      [nzDescription]="'You attempted an unsuccessful visit to the location, and followed the instructions in How to get there section if any.'"
-    />
-    <nz-alert
-      *ngSwitchCase="'reclaim'"
-      nzType="info"
-      nzShowIcon
-      nzMessage="Reclaim the location"
-      [nzDescription]="
-        'You are the owner of this location and would like to reclaim it.'
-      "
-    />
-    <nz-alert
-      *ngSwitchCase="'other'"
-      nzType="info"
-      nzShowIcon
-      nzMessage="Other issues"
-      [nzDescription]="'ing else is the issue with this location.'"
-    />
-  </ng-container>
-
-  <nz-form-item>
-    <nz-form-control
-      nzErrorTip="Please provide a description using at least 100 characters."
-    >
-      <textarea
-        nz-input
-        placeholder="Issue description"
-        formControlName="description"
-        [nzAutosize]="{ minRows: 5, maxRows: 17 }"
-      ></textarea>
-    </nz-form-control>
-    <small
-      >{{ flagPinForm.controls["description"].value?.length || 0 }} / 100</small
-    >
-  </nz-form-item>
-
-  <nz-divider></nz-divider>
-
-  <div class="form-actions">
-    <button
-      nz-button
-      nzSize="large"
-      nzType="primary"
-      type="submit"
-      nzDanger
-      [disabled]="!flagPinForm.valid"
-      [nzLoading]="saving"
-    >
-      Flag location
-    </button>
-    <button nz-button nzSize="large" nzType="default" (click)="onCancel()">
-      Cancel
-    </button>
-  </div>
+  <app-padded-page-content [narrow]="!isFullPage">
+    <legend>
+      <h3 nz-typography>Flagging pin 📍 "{{ pin.title }}"</h3>
+      <p nz-typography>
+        Thank you for taking the time to make twopack.gallery more accurate and
+        safe. Please explain what's the issue with this pin 📍 in the form
+        below.
+      </p>
+    </legend>
+  
+    <nz-form-item>
+      <nz-form-label nzFor="issue"
+        >The "{{ pin.title }}" pin 📍 is:</nz-form-label
+      >
+      <nz-form-control nzErrorTip="Please select one of the issues.">
+        <nz-radio-group formControlName="issue">
+          <label nz-radio-button nzValue="unsafe">Unsafe</label>
+          <label nz-radio-button nzValue="irrelevant">Irrelevant</label>
+          <label nz-radio-button nzValue="unreachable">Unreachable</label>
+          <label nz-radio-button nzValue="reclaim">Reclaim</label>
+          <label nz-radio-button nzValue="other">Other...</label>
+        </nz-radio-group>
+      </nz-form-control>
+    </nz-form-item>
+  
+    <ng-container [ngSwitch]="flagPinForm.controls['issue'].value">
+      <nz-alert
+        *ngSwitchCase="'unsafe'"
+        nzType="info"
+        nzShowIcon
+        nzMessage="The pin 📍 is unsafe"
+        [nzDescription]="
+          'You have visited the pin 📍 and consider it unsafe for other visitors.'
+        "
+      />
+      <nz-alert
+        *ngSwitchCase="'irrelevant'"
+        nzType="info"
+        nzShowIcon
+        nzMessage="The pin 📍 is irrelevant"
+        [nzDescription]="
+          'The pin 📍 doesn\'t show any of the art forms it has claimed or has nothing to do with art.'
+        "
+      />
+      <nz-alert
+        *ngSwitchCase="'unreachable'"
+        nzType="info"
+        nzShowIcon
+        nzMessage="The pin 📍 is unreachable"
+        [nzDescription]="'You attempted an unsuccessful visit to the pin 📍, and followed the instructions in How to get there section if any.'"
+      />
+      <nz-alert
+        *ngSwitchCase="'reclaim'"
+        nzType="info"
+        nzShowIcon
+        nzMessage="Reclaim the this pin 📍"
+        [nzDescription]="
+          'You are the actual artist at this pin 📍 location and would like to reclaim it.'
+        "
+      />
+      <nz-alert
+        *ngSwitchCase="'other'"
+        nzType="info"
+        nzShowIcon
+        nzMessage="Other issues"
+        [nzDescription]="'Something else is the issue with this pin 📍.'"
+      />
+    </ng-container>
+  
+    <nz-form-item>
+      <nz-form-control
+        nzErrorTip="Please provide a description using at least 100 characters."
+      >
+        <textarea
+          nz-input
+          placeholder="Issue description"
+          formControlName="description"
+          [nzAutosize]="{ minRows: 5, maxRows: 17 }"
+        ></textarea>
+      </nz-form-control>
+      <small
+        >{{ flagPinForm.controls["description"].value?.length || 0 }} / 100</small
+      >
+    </nz-form-item>
+  
+    <nz-divider></nz-divider>
+  
+    <div class="form-actions">
+      <button
+        nz-button
+        nzSize="large"
+        nzType="primary"
+        type="submit"
+        nzDanger
+        [disabled]="!flagPinForm.valid"
+        [nzLoading]="saving"
+      >
+        Flag pin 📍
+      </button>
+      <button nz-button nzSize="large" nzType="default" (click)="onCancel()">
+        Cancel
+      </button>
+    </div>
+  </app-padded-page-content>
 </form>

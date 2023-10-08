@@ -13,6 +13,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { AuthService, User } from '@auth0/auth0-angular';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
@@ -36,8 +37,8 @@ import {
   take,
   timer,
 } from 'rxjs';
+import { PaddedPageContentComponent } from '../padded-page-content/padded-page-content.component';
 import { UserService } from '../user.service';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 @Component({
   standalone: true,
@@ -53,6 +54,7 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
     NzAvatarModule,
     NzNotificationModule,
     NzAlertModule,
+    PaddedPageContentComponent,
   ],
   selector: 'app-user-account',
   templateUrl: './user-account.component.html',
@@ -124,19 +126,17 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     );
 
     this.subs.push(
-      this.user.user
-        .pipe(filter(Boolean))
-        .subscribe(({ user, ...account }) => {
-          this.userForm.reset({
-            name: account.name,
-            email: account.email,
-            tag: user?.tag as string,
-          });
+      this.user.user.pipe(filter(Boolean)).subscribe(({ user, ...account }) => {
+        this.userForm.reset({
+          name: account.name,
+          email: account.email,
+          tag: user?.tag as string,
+        });
 
-          this.avatarUrl = account.picture;
-          this.verified = user?.status === 'verified';
-          this.userForm.enable();
-        })
+        this.avatarUrl = account.picture;
+        this.verified = user?.status === 'verified';
+        this.userForm.enable();
+      })
     );
 
     this.subs.push(
@@ -160,11 +160,11 @@ export class UserAccountComponent implements OnInit, OnDestroy {
             'Message sent',
             'Please check your inbox and spam folders'
           );
-          timer((this.resentVerification as number) * 1000, 1000).pipe(take(this.resentVerification!)).subscribe(
-            () => {
+          timer((this.resentVerification as number) * 1000, 1000)
+            .pipe(take(this.resentVerification!))
+            .subscribe(() => {
               this.resentVerification = (this.resentVerification as number) - 1;
-            }
-          );
+            });
         },
         error: (e) => {
           this.resentVerification = undefined;

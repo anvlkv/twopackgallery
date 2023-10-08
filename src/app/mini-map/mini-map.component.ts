@@ -1,52 +1,75 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { NgxMapboxGLModule } from 'ngx-mapbox-gl';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
+import {
+  MapComponent as MglMapComponent,
+  NgxMapboxGLModule,
+} from 'ngx-mapbox-gl';
 import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { BrowserStorageService } from '../browser-storage.service';
-import { Consent, LOCATION_CONSENT_KEY } from '../locate-me-btn/locate-me-btn.component';
+import {
+  Consent,
+  LOCATION_CONSENT_KEY,
+} from '../locate-me-btn/locate-me-btn.component';
 import { LocationService } from '../location.service';
+import { CursorComponent } from '../cursor/cursor.component';
+import { MapAsideComponent } from '../map-aside/map-aside.component';
+import { ZoomSyncService } from '../zoom-sync.service';
+import type { EventData, MapboxEvent } from 'mapbox-gl';
+import deepEqual from 'deep-equal';
 
+type MapChangeEvent = MapboxEvent<
+  MouseEvent | TouchEvent | WheelEvent | undefined
+> &
+  EventData;
 @Component({
   standalone: true,
-  imports: [CommonModule, NgxMapboxGLModule, AvatarComponent],
+  imports: [
+    CommonModule,
+    NgxMapboxGLModule,
+    AvatarComponent,
+    CursorComponent,
+    MapAsideComponent,
+  ],
   selector: 'app-mini-map',
   templateUrl: './mini-map.component.html',
   styleUrls: ['./mini-map.component.scss'],
 })
-export class MiniMapComponent implements OnInit, OnDestroy {
+export class MiniMapComponent implements OnInit, OnDestroy, OnChanges {
   accessToken = environment.mapBoxTokenRead;
-  initialZoom: [number] = [13];
-
-  subs: Subscription[] = [];
+  initialZoom: [number] = [0.1];
+  initialPosition?: [number, number] = this.point;
   userLocation?: [number, number];
 
-  public pinSrc: GeoJSON.Feature = {
-    type: 'Feature',
-    geometry: { coordinates: [0, 0], type: 'Point' },
-    properties: {},
-  };
+  subs: Subscription[] = [];
+
   @Input('point')
-  set point(coordinates: [number, number]) {
-    this.pinSrc = {
-      ...this.pinSrc,
-      geometry: {
-        type: 'Point',
-        coordinates,
-      },
-    };
-  }
-  get point(): [number, number] {
-    return (this.pinSrc.geometry as GeoJSON.Point).coordinates as [
-      number,
-      number
-    ];
-  }
+  point?: [number, number];
+
+  @Input('animateCursor')
+  animateCursor?: boolean
+
+  @Output('pointChange')
+  pointChange = new EventEmitter<[number, number]>();
+
+  @ViewChild('mapRef', { read: MglMapComponent })
+  mapRef?: MglMapComponent;
 
   constructor(
     private location: LocationService,
-    private storage: BrowserStorageService
+    private storage: BrowserStorageService,
+    private zoomSync: ZoomSyncService
   ) {}
 
   ngOnInit(): void {
@@ -58,10 +81,54 @@ export class MiniMapComponent implements OnInit, OnDestroy {
         )
       );
     }
+
+    this.subs.push(
+      this.zoomSync.zoom.subscribe(({ value }) => {
+        this.mapRef?.mapInstance.setZoom(value);
+      })
+    );
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      !deepEqual(
+        changes['point'].currentValue,
+        changes['point'].previousValue
+      ) &&
+      changes['point'].currentValue
+    ) {
+      this.mapRef?.mapInstance.setCenter(changes['point'].currentValue);
+    }
+
+    if(changes['point'].firstChange) {
+      this.initialPosition = changes['point'].currentValue
+
+      if (changes['point'].currentValue) {
+        this.initialZoom = [13];
+        this.zoomSync.setZoom(13);
+      }
+    }
   }
 
   ngOnDestroy(): void {
     this.location.stopTrackingLocation();
     this.subs.forEach((s) => s.unsubscribe());
+  }
+
+  onZoom(ev: MapChangeEvent) {
+    if (this.mapRef?.mapInstance && ev.originalEvent) {
+      this.zoomSync.setZoom(this.mapRef.mapInstance.getZoom());
+    }
+    return false;
+  }
+  onMove(ev: MapChangeEvent, final = true) {
+    const center = this.mapRef?.mapInstance.getCenter().toArray() as [number, number];
+    if (center && ev.originalEvent && final) {
+      this.pointChange.emit(center);
+    }
+    if (this.animateCursor) {
+      this.point = center;
+    }
+    return false;
   }
 }

@@ -1,12 +1,18 @@
 .layout {
   min-height: 100vh;
 }
+
 nz-header {
   position: fixed;
   width: 100%;
   z-index: 10;
+  padding: 0;
+  app-padded-page-content {
+    margin-top: -.75rem;
+    display: block;
+  }
 }
+
 nz-content {
   margin-top: 64px; // header height
-  padding: 1rem 50px;
 }

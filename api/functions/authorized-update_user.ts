@@ -4,7 +4,7 @@ import { XataFile } from '@xata.io/client';
 import { withAuth0Token } from 'api/utils/auth0';
 import { getXataClient } from 'xata';
 import sharp from 'sharp';
-import { getSub } from 'api/utils/sub';
+import { getSub, userFromSub } from 'api/utils/sub';
 import { validateTag } from 'api/utils/validate_tag';
 
 const client = getXataClient();
@@ -12,16 +12,13 @@ const client = getXataClient();
 const handler: Handler = withAuth0(
   async (event: HandlerEvent, context: HandlerContext) => {
     // try {
-    const sub = getSub(context)!;
 
-    const user = await client.db.users.getFirstOrThrow({
-      filter: {
-        user_id: sub,
-      },
-    });
+    const user = (await userFromSub(context))!;
 
     // https://auth0.com/docs/api/management/v2/users/patch-users-by-id
+
     const { email, name, tag, avatarBase64 } = JSON.parse(event.body!);
+
 
     if (tag) {
       if (!(await validateTag(user.id, tag))) {
@@ -60,18 +57,22 @@ const handler: Handler = withAuth0(
       picture = updatedPicture!.url;
     }
 
+    const emailValue = email || user.email;
+    const nameValue = name || user.name;
+    const tagValue = typeof tag === 'string' ? tag : user.tag;
+
     await withAuth0Token({
-      url: `/api/v2/users/${sub}`,
+      url: `/api/v2/users/${user.user_id}`,
       method: 'PATCH',
       data: {
-        email,
-        name,
+        email:emailValue,
+        name:nameValue,
         picture,
-        user_metadata: { tag },
+        user_metadata: { tag: tagValue },
       },
     });
 
-    await client.db.users.update({ id: user.id, email, name, tag });
+    await client.db.users.update({ id: user.id, email: emailValue, name: nameValue, tag: tagValue });
 
     return { statusCode: 200, body: '' };
     // } catch (e) {

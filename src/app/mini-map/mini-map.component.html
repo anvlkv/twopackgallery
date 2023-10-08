@@ -1,27 +1,23 @@
 <mgl-map
   [accessToken]="accessToken"
   [style]="'mapbox://styles/packtwo/cln03jvjy02v001nzceog3kko'"
-  [center]="point"
+  [center]="initialPosition"
   [zoom]="initialZoom"
   [centerWithPanTo]="true"
   [interactive]="true"
   [attributionControl]="false"
   [scrollZoom]="false"
+  [touchZoomRotate]="true"
+  (zoomEnd)="onZoom($event)"
+  (mapMouseMove)="onMove($event)"
+  (move)="onMove($event, false)"
+  #mapRef
 >
-  <mgl-control mglNavigation></mgl-control>
+  <mgl-marker *ngIf="point" [lngLat]="point">
+    <app-cursor></app-cursor>
+  </mgl-marker>
   <mgl-marker *ngIf="userLocation" [lngLat]="userLocation">
     <app-avatar size="small" icon="aim"></app-avatar>
   </mgl-marker>
-  <mgl-geojson-source id="gjsSrc" [data]="pinSrc"> </mgl-geojson-source>
-  <mgl-layer
-    id="pinLayer"
-    type="symbol"
-    source="gjsSrc"
-    [layout]="{
-      'icon-image': ['image', 'twopack-gallery-marker'],
-      'icon-size': 0.75,
-      'icon-anchor': 'bottom'
-    }"
-  >
-  </mgl-layer>
 </mgl-map>
+<app-map-aside [noCreate]="true"></app-map-aside>

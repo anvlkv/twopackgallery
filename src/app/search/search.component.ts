@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzAutocompleteModule, AutocompleteDataSourceItem } from 'ng-zorro-antd/auto-complete';
@@ -23,6 +23,9 @@ export class SearchComponent implements OnInit, OnDestroy {
   search = new FormControl('')
 
   subs: Subscription[] = [];
+
+  @Input('wideActivated')
+  wideActivated = false;
 
   constructor(private service: SearchService) {
     

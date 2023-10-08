@@ -1,19 +1,21 @@
-<h2 nz-typography>Pins owned by {{ userName }}</h2>
-<ng-container *ngIf="userData; else skeletonTemplate">
-  <div nz-row [nzGutter]="[16, 24]">
-    <div nz-col [nzSpan]="6" *ngFor="let d of userData.ownerships">
-      <app-pin-card [data]="d"></app-pin-card>
+<app-padded-page-content>
+  <h2 nz-typography>Pins owned by {{ userName }}</h2>
+  <ng-container *ngIf="userData; else skeletonTemplate">
+    <div nz-row [nzGutter]="[16, 24]">
+      <div nz-col [nzSpan]="6" *ngFor="let d of userData.ownerships">
+        <app-pin-card [data]="d"></app-pin-card>
+      </div>
     </div>
-  </div>
-</ng-container>
-<h2 nz-typography>Pins where {{ userName }} contributes</h2>
-<ng-container *ngIf="userData; else skeletonTemplate">
-  <div nz-row [nzGutter]="[16, 24]">
-    <div nz-col [nzSpan]="6" *ngFor="let d of userData.contributions">
-      <app-pin-card [data]="d"></app-pin-card>
+  </ng-container>
+  <h2 nz-typography>Pins where {{ userName }} contributes</h2>
+  <ng-container *ngIf="userData; else skeletonTemplate">
+    <div nz-row [nzGutter]="[16, 24]">
+      <div nz-col [nzSpan]="6" *ngFor="let d of userData.contributions">
+        <app-pin-card [data]="d"></app-pin-card>
+      </div>
     </div>
-  </div>
-</ng-container>
+  </ng-container>
+</app-padded-page-content>
 
 <ng-template #skeletonTemplate>
   <div nz-row [nzGutter]="[16, 24]">

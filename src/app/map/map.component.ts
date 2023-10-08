@@ -14,14 +14,12 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import type { JSONData } from '@xata.io/client';
 import deepEqual from 'deep-equal';
-import {
+import type {
   ErrorEvent,
   EventData,
   FlyToOptions,
-  LngLat,
-  LngLatBounds,
   MapLayerMouseEvent,
-  MapboxEvent,
+  MapboxEvent
 } from 'mapbox-gl';
 import {
   NzNotificationModule,
@@ -36,15 +34,14 @@ import {
   Subscription,
   combineLatest,
   map,
-  skipWhile,
-  takeWhile,
+  skipWhile
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import type { PointsRecord } from 'xata';
 import { ActivityService, EActivity } from '../activity.service';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { BrowserStorageService } from '../browser-storage.service';
-import { CursorComponent, NO_HINTS_KEY } from '../cursor/cursor.component';
+import { CursorComponent } from '../cursor/cursor.component';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { ZoomSyncService } from '../zoom-sync.service';
@@ -93,16 +90,16 @@ export class MapComponent implements OnInit, OnDestroy {
   initialCenter?: [number, number];
   cursorStyle?: string;
 
-  private _offset?: number;
+  private _offset?: [number, number];
   @Input('offset')
-  set offset(val: number | undefined) {
+  set offset(val: [number, number] | undefined) {
     this._offset = val;
     if (!this.loading$.map.getValue()) {
       this.applyMapPadding();
     }
   }
-  get offset(): number {
-    return this._offset || 0;
+  get offset(): [number, number] {
+    return this._offset || [0, 0];
   }
 
   @ViewChild('mapRef', { read: MglMapComponent })
@@ -454,10 +451,10 @@ export class MapComponent implements OnInit, OnDestroy {
 
   private applyMapPadding() {
     this.mapRef?.mapInstance.setPadding({
-      right: this.offset,
+      right: this.offset[0],
       left: 0,
       top: 0,
-      bottom: 0,
+      bottom: this.offset[1],
     });
     this.cursor &&
       this.mapRef?.mapInstance.setCenter(this.cursor, {

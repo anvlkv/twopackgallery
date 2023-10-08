@@ -32,16 +32,18 @@ export const isAuthenticated: CanActivateFn = (
           } else {
             return auth.getAccessTokenSilently().pipe(
               catchError(() =>
-                auth.loginWithRedirect({
-                  authorizationParams: {
-                    redirect_uri: `${
-                      authConfig.get()?.authorizationParams?.redirect_uri
-                    }${state.url.includes('/map') ? '/map' : ''}`,
-                  },
-                  appState: {
-                    target: state.url,
-                  },
-                })
+                auth
+                  .loginWithRedirect({
+                    authorizationParams: {
+                      redirect_uri: `${
+                        authConfig.get()?.authorizationParams?.redirect_uri
+                      }${state.url.includes('/map') ? '/map' : ''}`,
+                    },
+                    appState: {
+                      target: state.url,
+                    },
+                  })
+                  .pipe(map(() => false))
               ),
               map((token) => !!token)
             );

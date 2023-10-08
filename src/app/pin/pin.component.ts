@@ -39,6 +39,8 @@ import { TemplatePageTitleStrategy } from '../title.strategy';
 import { UserService } from '../user.service';
 import { COVER_RATIO } from '../cover-image/consts';
 import { MiniMapComponent } from '../mini-map/mini-map.component';
+import { PaddedPageContentComponent } from '../padded-page-content/padded-page-content.component';
+import { UserTagComponent } from '../user-tag/user-tag.component';
 
 @Component({
   standalone: true,
@@ -55,6 +57,8 @@ import { MiniMapComponent } from '../mini-map/mini-map.component';
     NzTypographyModule,
     CoverImageComponent,
     MiniMapComponent,
+    PaddedPageContentComponent,
+    UserTagComponent,
   ],
   selector: 'app-pin',
   templateUrl: './pin.component.html',
@@ -67,6 +71,7 @@ export class PinComponent implements OnInit, OnDestroy {
   canFlag = false;
   data?: Partial<JSONData<PointsRecord>> & {
     art_forms: JSONData<ArtFormsRecord>[];
+    publisher: string;
   };
   isFullPage = false;
   title = '';
@@ -79,7 +84,6 @@ export class PinComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private pts: PointsService,
-    private artForms: ArtFormsService,
     private notification: NzNotificationService,
     private location: LocationService,
     private activity: ActivityService,

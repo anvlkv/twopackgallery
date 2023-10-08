@@ -4,60 +4,62 @@
   [formGroup]="feedbackForm"
   (ngSubmit)="onSubmit()"
 >
-  <nz-form-item>
-    <nz-form-control>
-      <nz-input-group>
-        <input
+  <app-padded-page-content>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <input
+            nz-input
+            nzSize="large"
+            placeholder="Email"
+            formControlName="email"
+            readonly="readonly"
+          />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzFor="feedback_type"
+        >What kind of feedback are you providing?</nz-form-label
+      >
+      <nz-form-control nzErrorTip="Please select one of the options">
+        <nz-radio-group formControlName="feedback_type">
+          <label nz-radio-button nzValue="issue">Issue</label>
+          <label nz-radio-button nzValue="idea">Idea</label>
+          <label nz-radio-button nzValue="testimonial">Testimonial</label>
+          <label nz-radio-button nzValue="other">Other...</label>
+        </nz-radio-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <textarea
           nz-input
-          nzSize="large"
-          placeholder="Email"
-          formControlName="email"
-          readonly="readonly"
-        />
-      </nz-input-group>
-    </nz-form-control>
-  </nz-form-item>
-  <nz-form-item>
-    <nz-form-label nzFor="feedback_type"
-      >What kind of feedback are you providing?</nz-form-label
-    >
-    <nz-form-control nzErrorTip="Please select one of the options">
-      <nz-radio-group formControlName="feedback_type">
-        <label nz-radio-button nzValue="issue">Issue</label>
-        <label nz-radio-button nzValue="idea">Idea</label>
-        <label nz-radio-button nzValue="testimonial">Testimonial</label>
-        <label nz-radio-button nzValue="other">Other...</label>
-      </nz-radio-group>
-    </nz-form-control>
-  </nz-form-item>
+          placeholder="Enter your message"
+          formControlName="description"
+          [nzAutosize]="{ minRows: 5, maxRows: 17 }"
+        ></textarea>
+      </nz-form-control>
+    </nz-form-item>
 
-  <nz-form-item>
-    <nz-form-control>
-      <textarea
-        nz-input
-        placeholder="Enter your message"
-        formControlName="description"
-        [nzAutosize]="{ minRows: 5, maxRows: 17 }"
-      ></textarea>
-    </nz-form-control>
-  </nz-form-item>
+    <nz-divider></nz-divider>
 
-  <nz-divider></nz-divider>
-
-  <div class="form-actions">
-    <button
-      nz-button
-      nzSize="large"
-      nzType="primary"
-      type="submit"
-      nzGhost
-      [disabled]="!feedbackForm.valid"
-      [nzLoading]="saving"
-    >
-      Send message
-    </button>
-    <button nz-button nzSize="large" nzType="default" (click)="onCancel()">
-      Cancel
-    </button>
-  </div>
+    <div class="form-actions">
+      <button
+        nz-button
+        nzSize="large"
+        nzType="primary"
+        type="submit"
+        nzGhost
+        [disabled]="!feedbackForm.valid"
+        [nzLoading]="saving"
+      >
+        Send message
+      </button>
+      <button nz-button nzSize="large" nzType="default" (click)="onCancel()">
+        Cancel
+      </button>
+    </div>
+  </app-padded-page-content>
 </form>

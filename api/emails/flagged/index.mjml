@@ -2,14 +2,14 @@
   <mj-body>
     <mj-section>
       <mj-column width="420px">
-        <mj-text font-size="20px" align="center" line-height="1.2">Your pin "{{location_name}}" has been flagged</mj-text>
+        <mj-text font-size="20px" align="center" line-height="1.2">Your pin 📍"{{location_name}}" has been flagged</mj-text>
       </mj-column>
     </mj-section>
     <mj-section>
       <mj-column width="420px" background-color="#f0f0f0" border-radius="30px" padding="20px">
         <mj-text line-height="1.7">Hey {{user_name}},
           <br />
-          This email is to let you know that someone has flagged your pin <a href="{{location_url}}">{{location_name}}</a>
+          This email is to let you know that someone has flagged your pin 📍<a href="{{location_url}}">{{location_name}}</a>
           as "{{flag_issue}}".
           <br />
           <br />

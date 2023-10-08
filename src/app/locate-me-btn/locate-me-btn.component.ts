@@ -57,6 +57,7 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
     private location: LocationService,
     private notification: NzNotificationService,
     private ch: ChangeDetectorRef,
+    private zoomSync: ZoomSyncService,
   ) {}
 
   ngOnInit(): void {
@@ -90,7 +91,12 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.locating = false;
-            this.ch.detectChanges();
+            if (this.zoomSync.getZoom() < 13) {
+              this.zoomSync.setZoom(13);
+            }
+            else {
+              this.ch.detectChanges();
+            }
           },
           error: () => {
             this.locating = false;

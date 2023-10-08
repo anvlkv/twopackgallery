@@ -32,6 +32,14 @@ input,textarea {
   width: auto !important;
 }
 
+.ant-drawer-bottom.ant-drawer-open {
+  height: auto !important;
+}
+
 .ant-switch-inner, .ant-steps-item-active .ant-steps-icon {
   color: #211f02 !important;
+}
+
+::selection{
+  color: #211f02;
 }

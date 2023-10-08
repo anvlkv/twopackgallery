@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -6,10 +6,13 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { Subscription, timer } from 'rxjs';
 import { LocateMeBtnComponent } from '../locate-me-btn/locate-me-btn.component';
 import { ZoomSyncService } from '../zoom-sync.service';
+import { BreakPointService, EBreakPoint } from '../break-point.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,
   imports: [
+    CommonModule,
     RouterModule,
     NzButtonModule,
     NzIconModule,
@@ -27,7 +30,16 @@ export class MapAsideComponent implements OnInit, OnDestroy {
   canZoomIn = true;
   canZoomOut = true;
 
-  constructor(private zoomSync: ZoomSyncService) {}
+  createPinLink = ['/', 'map', 'create-pin'];
+
+  @Input('noCreate')
+  noCreate: boolean = false;
+
+
+  constructor(
+    private zoomSync: ZoomSyncService,
+    private bp: BreakPointService
+  ) {}
 
   ngOnInit(): void {
     this.subs.push(
@@ -36,14 +48,29 @@ export class MapAsideComponent implements OnInit, OnDestroy {
         this.canZoomOut = canZoomOut;
       })
     );
+
+    this.subs.push(
+      this.bp
+        .query((bp) => bp < EBreakPoint.Md)
+        .subscribe((mobile) => {
+          if (mobile) {
+            this.createPinLink = ['/', 'create-pin'];
+          } else {
+            this.createPinLink = ['/', 'map', 'create-pin'];
+          }
+        })
+    );
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe())
+  }
 
   private handleZoomSub?: Subscription;
 
   handlePlus(ev: MouseEvent) {
     ev.stopPropagation();
+    ev.preventDefault();
     this.endZoomHandle(ev);
     this.zoomSync.zoomIn(0.3);
     this.handleZoomSub = timer(0, 700).subscribe((i) =>
@@ -53,6 +80,7 @@ export class MapAsideComponent implements OnInit, OnDestroy {
   }
   handleMinus(ev: MouseEvent) {
     ev.stopPropagation();
+    ev.preventDefault();
     this.endZoomHandle(ev);
     this.zoomSync.zoomOut(0.3);
     this.handleZoomSub = timer(0, 700).subscribe((i) =>
@@ -62,6 +90,7 @@ export class MapAsideComponent implements OnInit, OnDestroy {
   }
   endZoomHandle(ev: MouseEvent) {
     this.handleZoomSub?.unsubscribe();
+    ev.preventDefault();
     return false;
   }
 }

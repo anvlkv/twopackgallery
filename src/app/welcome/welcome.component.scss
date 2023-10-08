@@ -3,8 +3,6 @@
   background-image: linear-gradient(to bottom, #1f0221, black 59%);
 }
 
-$rotate-duration-s: 25;
-
 .cta-group {
   display: flex;
   margin-top: 0.75rem;
@@ -31,53 +29,8 @@ $rotate-duration-s: 25;
   }
 }
 
-.add-your-btn {
-  display: flex;
-  align-items: baseline;
-  .static-text,
-  .rotated-text {
-    display: block;
-    height: 1.5em;
-  }
-  .rotated-text {
-    margin-left: 0.25rem;
-    margin-right: 0.25rem;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    align-self: self-end;
-    font-style: italic;
-    font-weight: 100;
-    span {
-      display: block;
-      margin-bottom: 0.25rem;
-      padding-left: .25rem;
-      padding-right: .25rem;
-      height: 1.5em;
-      &:first-child {
-        margin-top: -0.5em;
-        animation: rotate-text #{$rotate-duration-s}s ease-out 500ms infinite;
-      }
-    }
-  }
-}
 
 [nz-typography] {
   max-width: 793.07px;
   width: auto;
-}
-
-@keyframes rotate-text {
-  0%,
-  1.5% {
-    margin-top: -0.5;
-  }
-  @for $i from 1 through 10 {
-    #{$i * 10%},
-    #{$i * 10% - 1.5%} {
-      $min-i: $i - 1;
-      margin-top: -#{$min-i * 1.5 + $min-i * 0.25 + 0.5}em;
-    }
-  }
 }

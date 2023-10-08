@@ -1,11 +1,12 @@
 <aside>
   <a
+    *ngIf="!noCreate"
     nz-button
     nz-tooltip
-    nzTooltipTitle="Create new pin"
+    nzTooltipTitle="Create new pin 📍"
     nzTooltipPlacement="left"
     nzShape="circle"
-    routerLink="create-pin"
+    [routerLink]="createPinLink"
     routerLinkActive="active ant-btn-primary"
   >
     <span nz-icon nzType="pushpin"></span>

@@ -6,9 +6,13 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
+import {
+  NzNotificationModule,
+  NzNotificationService,
+} from 'ng-zorro-antd/notification';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { Subscription } from 'rxjs';
+import { PaddedPageContentComponent } from '../padded-page-content/padded-page-content.component';
 import { UserService } from '../user.service';
 
 @Component({
@@ -21,6 +25,7 @@ import { UserService } from '../user.service';
     NzButtonModule,
     NzRadioModule,
     NzNotificationModule,
+    PaddedPageContentComponent,
   ],
   selector: 'app-feedback',
   templateUrl: './feedback.component.html',

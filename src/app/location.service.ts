@@ -68,6 +68,9 @@ export class LocationService {
               },
               () => {
                 reject();
+              },
+              {
+                maximumAge: 10000,
               }
             );
           } else {
@@ -91,6 +94,10 @@ export class LocationService {
             position.coords.longitude,
             position.coords.latitude,
           ]);
+        }, () => {
+
+        }, {
+          maximumAge: 10000,
         });
       }
     }

@@ -13,8 +13,9 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
-import { AvatarComponent } from '../avatar/avatar.component';
 import { Subscription } from 'rxjs';
+import { AvatarComponent } from '../avatar/avatar.component';
+import { BreakPointService, EBreakPoint } from '../break-point.service';
 import { UserService } from '../user.service';
 
 @Component({
@@ -40,26 +41,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isCard?: boolean;
 
   subs: Subscription[] = [];
-  logoLink = ['/', 'welcome'];
+  logoLink = ['/', 'map'];
   currentLink?: string;
   redirect_uri?: string;
 
   userName?: string;
+  mobile: boolean;
 
   constructor(
     public auth: AuthService,
     private user: UserService,
     private authConfig: AuthClientConfig,
     private router: Router,
-    private activatedRoute: ActivatedRoute
-  ) {}
+    private activatedRoute: ActivatedRoute,
+    private bp: BreakPointService
+  ) {
+    this.mobile = this.bp.getBreakPoint() < EBreakPoint.Md;
+    if (
+      activatedRoute.snapshot.url[activatedRoute.snapshot.url.length - 1]
+        ?.path === 'map'
+    ) {
+      this.logoLink = ['/', 'welcome'];
+    } else {
+      this.logoLink = ['/', 'map'];
+    }
+  }
 
   ngOnInit(): void {
     this.subs.push(
       this.router.events.subscribe((ev) => {
         if (ev.type === EventType.NavigationEnd) {
           this.currentLink = ev.url;
-          if (ev.url.split('?')[0].endsWith('/map')) {
+          const path = ev.url.split('?')[0];
+          if (path.endsWith('/map')) {
             this.logoLink = ['/', 'welcome'];
           } else {
             this.logoLink = ['/', 'map'];
@@ -83,6 +97,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
           this.userName = u?.name;
         }
       })
+    );
+
+    this.subs.push(
+      this.bp
+        .query((s) => s < EBreakPoint.Md)
+        .subscribe((mobile) => {
+          this.mobile = mobile;
+        })
     );
   }
 

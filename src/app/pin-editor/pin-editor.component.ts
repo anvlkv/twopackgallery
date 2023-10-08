@@ -50,6 +50,8 @@ import { UserService } from '../user.service';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { MiniMapComponent } from '../mini-map/mini-map.component';
+import { PaddedPageContentComponent } from '../padded-page-content/padded-page-content.component';
+import { UserTagComponent } from '../user-tag/user-tag.component';
 
 @Component({
   standalone: true,
@@ -70,7 +72,9 @@ import { MiniMapComponent } from '../mini-map/mini-map.component';
     NzAlertModule,
     CoverEditorComponent,
     AddressComponent,
-    MiniMapComponent
+    MiniMapComponent,
+    PaddedPageContentComponent,
+    UserTagComponent
   ],
   selector: 'app-pin-editor',
   templateUrl: './pin-editor.component.html',
@@ -89,7 +93,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     longitude: [0, Validators.required],
     latitude: [0, Validators.required],
     cover: ['' as Cover, Validators.required],
-    tile: ['' as Cover, Validators.required],
+    tile: ['' as Cover],
     title: [
       '',
       Validators.required,
@@ -115,6 +119,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     description: [''],
     location_description: [''],
     published: [false],
+    anonymous: [false],
     visitors: [true],
   });
   coverRatio = COVER_RATIO;
@@ -126,18 +131,18 @@ export class PinEditorComponent implements OnInit, OnDestroy {
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private fb: FormBuilder,
     private artForms: ArtFormsService,
     private points: PointsService,
     private notification: NzNotificationService,
     private modal: NzModalService,
+    public fb: FormBuilder,
     public location: LocationService,
     public activity: ActivityService,
     public user: UserService
   ) {
     this.id = activatedRoute.snapshot.params['id'];
     this.title = this.id ? 'Edit pin' : 'New pin';
-    this.isFullPage = Boolean(this.activatedRoute.snapshot.data['isFullPage'])
+    this.isFullPage = Boolean(this.activatedRoute.snapshot.data['fullPage'])
 
     if (this.id) {
       this.pinForm.disable();
@@ -192,7 +197,8 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             longitude: point.longitude as number,
             latitude: point.latitude as number,
             published: point.status === EPointStatus.Published,
-            visitors: point.visitors
+            visitors: point.visitors,
+            anonymous: point.anonymous,
           });
           this.titleStrategy.entityTitle(point.title as string);
           this.location.adjust_location([
@@ -215,14 +221,15 @@ export class PinEditorComponent implements OnInit, OnDestroy {
           })
       );
       this.leave = this.activity.startActivity(EActivity.CreatePin);
-      const [lng, lat] = this.location.getCurrentLocation();
-      this.pinForm.controls['longitude'].reset(lng);
-      this.pinForm.controls['latitude'].reset(lat);
+      if (this.location.getCurrentLocation()) {
+        const [lng, lat] = this.location.getCurrentLocation();
+        this.pinForm.controls['longitude'].reset(lng);
+        this.pinForm.controls['latitude'].reset(lat);
+      }
     }
 
     this.subs.push(
       this.location.currentLocation
-        .pipe(skip(1))
         .subscribe(([longitude, latitude]) => {
           const [cLng, cLat] = [
             this.pinForm.value.longitude,
@@ -278,7 +285,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     this.leave && this.leave();
   }
 
-  private submitSubscription?: Subscription;
+  submitSubscription?: Subscription;
   onSubmit() {
     if (!this.pinForm.valid) {
       return;
@@ -408,6 +415,10 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     }
 
     return false;
+  }
+
+  onMiniMapLocationChange(ev: [number, number]) {
+    this.location.adjust_location(ev);
   }
 
   confirmDeactivate(): Observable<boolean> {

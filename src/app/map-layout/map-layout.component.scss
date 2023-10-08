@@ -4,14 +4,18 @@ app-header {
   left: 0.75rem;
   z-index: 2;
 }
-app-search {
+
+app-search:not(.mobile) {
   position: fixed;
   top: 0.75rem;
   right: 0.75rem;
-  z-index: 2;
 }
 
 app-map {
   width: 100vw;
   height: 100vh;
+}
+
+app-map-aside {
+  padding: 1rem;
 }

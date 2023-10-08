@@ -1,21 +1,36 @@
-<app-header [card]="true"></app-header>
+<app-header [card]="true">
+  <app-search
+    *ngIf="!mobile; else mobileSearch"
+    nz-col
+    nzXs="24"
+    nzSm="24"
+    nzMd="11"
+    nzLg="9"
+    nzXl="7"
+  ></app-search>
+  <ng-template #mobileSearch>
+    <a nz-button routerLink="/search" nzType="primary" nzSize="small" nzShape="circle">
+      <i nz-icon nzType="search"></i>
+    </a>
+  </ng-template>
+</app-header>
 
-<app-search nz-col nzXs="24" nzSm="24" nzMd="11" nzLg="9" nzXl="7"></app-search>
-
-<app-map [offset]="isChildRouteActivated ? drawerWidth : undefined"></app-map>
+<app-map [offset]="mapOffset"></app-map>
 
 <app-map-aside
-  [ngStyle]="{ right: (isChildRouteActivated ? drawerWidth : 0) + 'px', position: 'fixed' }"
+  [ngStyle]="{
+    right: (mapOffset ? mapOffset[0] : 0) + 'px',
+    bottom: (mapOffset ? mapOffset[1] : 0) + 'px',
+    position: 'fixed'
+  }"
 ></app-map-aside>
-
-<div #measureRef nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="10" nzXl="8"></div>
 
 <ng-template #drawerContentTemplate>
   <router-outlet></router-outlet>
 </ng-template>
 
 <ng-template #drawerExtraTemplate>
-  <a *ngIf="extraLink" [routerLink]="extraLink" nz-button nzType="link" >
-    <i nz-icon nzType="select" ></i>
+  <a *ngIf="extraLink" [routerLink]="extraLink" nz-button nzType="link">
+    <i nz-icon nzType="select"></i>
   </a>
 </ng-template>

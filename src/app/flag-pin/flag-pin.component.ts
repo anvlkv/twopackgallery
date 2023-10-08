@@ -9,12 +9,16 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
-import { NzNotificationModule, NzNotificationService } from 'ng-zorro-antd/notification';
+import {
+  NzNotificationModule,
+  NzNotificationService,
+} from 'ng-zorro-antd/notification';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { Observable, Subject, Subscription, of } from 'rxjs';
 import type { PointsRecord } from 'xata';
 import { ActivityService, EActivity } from '../activity.service';
+import { PaddedPageContentComponent } from '../padded-page-content/padded-page-content.component';
 import { PointsService } from '../points.service';
 import { TemplatePageTitleStrategy } from '../title.strategy';
 
@@ -32,6 +36,7 @@ import { TemplatePageTitleStrategy } from '../title.strategy';
     NzRadioModule,
     NzModalModule,
     NzNotificationModule,
+    PaddedPageContentComponent,
   ],
   selector: 'app-flag-pin',
   templateUrl: './flag-pin.component.html',
@@ -52,6 +57,7 @@ export class FlagPinComponent implements OnInit, OnDestroy {
   });
 
   private titleStrategy = inject(TitleStrategy) as TemplatePageTitleStrategy;
+  isFullPage: boolean;
 
   constructor(
     private pts: PointsService,
@@ -63,6 +69,7 @@ export class FlagPinComponent implements OnInit, OnDestroy {
     private activity: ActivityService
   ) {
     this.id = activatedRoute.snapshot.params['id']!;
+    this.isFullPage = activatedRoute.snapshot.data['fullPage'];
     this.flagPinForm.disable();
   }
 
@@ -76,6 +83,12 @@ export class FlagPinComponent implements OnInit, OnDestroy {
       })
     );
     this.leave = this.activity.startActivity(EActivity.FlagPin);
+
+    this.subs.push(
+      this.activatedRoute.data.subscribe(({ fullPage }) => {
+        this.isFullPage = fullPage;
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -87,7 +100,7 @@ export class FlagPinComponent implements OnInit, OnDestroy {
   private submitSubscription?: Subscription;
   onSubmit() {
     if (!this.flagPinForm.valid) {
-      return
+      return;
     }
     this.saving = true;
     this.submitSubscription = this.pts

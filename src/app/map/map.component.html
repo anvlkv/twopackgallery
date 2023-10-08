@@ -12,13 +12,14 @@
     [style]="'mapbox://styles/packtwo/cln03jvjy02v001nzceog3kko'"
     [centerWithPanTo]="true"
     [interactive]="true"
+    [touchZoomRotate]="true"
+    [cursorStyle]="cursorStyle"
+    [attributionControl]="false"
     (move)="mapMove($event, false)"
     (moveEnd)="mapMove($event)"
     (zoomEnd)="mapZoom($event)"
     (mapLoad)="mapLoad()"
     (mapMouseMove)="onMouseMoveMap($event)"
-    [cursorStyle]="cursorStyle"
-    [attributionControl]="false"
     (mapError)="onMapBoxError($event)"
     #mapRef
   >

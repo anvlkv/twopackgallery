@@ -17,15 +17,16 @@ const handler: Handler = withAuth0(
 
     let af_pts = client.db.art_forms_points.all();
 
-    const ownership =
-      user &&
-      (await client.db.users_points.getFirst({
-        filter: {
-          user: user.id,
-          point: id,
-          status: UserPointStatus.Owner,
-        },
-      }));
+    const owner = await client.db.users_points.getFirst({
+      filter: {
+        point: id,
+        status: UserPointStatus.Owner,
+      },
+      columns: ['user.id', 'user.tag'],
+    });
+
+    const ownership = user?.id === owner?.user!.id;
+
     if (ownership) {
       af_pts = af_pts.filter({ point: id });
     } else {
@@ -60,14 +61,24 @@ const handler: Handler = withAuth0(
         'longitude',
         'latitude',
         'status',
+        'visitors',
+        'anonymous',
       ],
     });
+
+    let publisher = '(anonymous)';
+    if (!pointData.anonymous && owner?.user!.tag) {
+      publisher = `@${owner.user.tag}`;
+    }
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        art_forms: pointArtForms.map(({ form }) => form?.toSerializable()),
+        art_forms: Array.from(
+          pointArtForms.map(({ form }) => form?.toSerializable())
+        ),
         ...pointData.toSerializable(),
+        publisher,
       }),
     };
     // } catch (e) {

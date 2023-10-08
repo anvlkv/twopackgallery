@@ -7,10 +7,11 @@ import { HeaderComponent } from '../header/header.component';
 import { LocationService } from '../location.service';
 import { PointsService } from '../points.service';
 import { ZoomSyncService } from '../zoom-sync.service';
+import { PaddedPageContentComponent } from '../padded-page-content/padded-page-content.component';
 
 @Component({
   standalone: true,
-  imports: [RouterModule, NzLayoutModule, HeaderComponent],
+  imports: [RouterModule, NzLayoutModule, HeaderComponent, PaddedPageContentComponent],
   selector: 'app-page-layout',
   templateUrl: './page-layout.component.html',
   styleUrls: ['./page-layout.component.scss'],

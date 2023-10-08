@@ -43,6 +43,13 @@ const internalRoutes: Routes = [
     canDeactivate: [canDeactivateFlagPin],
     canActivate: [isAuthenticated, isPointOwner(false, 'id')],
   },
+  {
+    path: 'search',
+    title: 'Search',
+    loadComponent:() => import('./search-results/search-results.component').then(
+      (mod) => mod.SearchResultsComponent
+    ),
+  }
 ];
 
 export const appRoutes: Routes = [

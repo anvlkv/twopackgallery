@@ -1,13 +1,9 @@
 :host {
   display:block;
-  position: relative;
   min-width: 200px;
 }
 
 nz-input-group{
-  position: absolute;
-  top: 0;
-  right: 0;
   width: 100%;
   min-height: 100%;
   background-color: #1f0221;
@@ -15,6 +11,8 @@ nz-input-group{
 
   &.activated {
      font-size: larger;
-     width: 250%;
+     &.wide {
+      width: 250%;
+     }
   }
 }

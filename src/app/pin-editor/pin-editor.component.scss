@@ -19,7 +19,6 @@ app-cover-editor {
 legend {
   margin-top: auto;
   margin-bottom: 0;
-  padding: 1rem;
   small {
     display: block;
     margin-bottom: 1rem;
@@ -32,9 +31,15 @@ legend {
   justify-content: space-between;
   nz-form-label {
     flex-grow: 1;
+    
   }
   nz-form-control {
     flex-grow: 0;
     margin-left: auto;
   }
+}
+
+app-mini-map {
+  width: 100%;
+  height: 50vh;
 }

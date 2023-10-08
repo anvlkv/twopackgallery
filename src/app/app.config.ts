@@ -28,6 +28,7 @@ import {
   SearchOutline,
   SelectOutline,
   UpOutline,
+  UserOutline,
 } from '@ant-design/icons-angular/icons';
 import { NZ_CONFIG, NzConfig } from 'ng-zorro-antd/core/config';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
@@ -37,6 +38,7 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { xataImageLoader } from '../xata.imageloader';
+import { BreakPointService } from './break-point.service';
 import { BrowserStorageService } from './browser-storage.service';
 import { ErrorInterceptor } from './error.interceptor';
 import { RetryInterceptor } from './retry.interceptor';
@@ -56,23 +58,24 @@ const ngZorroConfig: NzConfig = {
 };
 
 const icons = [
+  AimOutline,
   CheckCircleOutline,
-  PushpinOutline,
-  PushpinTwoTone,
+  CloseOutline,
+  EditOutline,
+  EnvironmentOutline,
   EyeOutline,
   EyeTwoTone,
-  SelectOutline,
-  EnvironmentOutline,
   FlagOutline,
   FlagTwoTone,
-  EditOutline,
-  CloseOutline,
-  RedoOutline,
-  UpOutline,
-  PlusOutline,
   MinusOutline,
-  AimOutline,
+  PlusOutline,
+  PushpinOutline,
+  PushpinTwoTone,
+  RedoOutline,
   SearchOutline,
+  SelectOutline,
+  UpOutline,
+  UserOutline,
 ];
 
 registerLocaleData(en);
@@ -98,6 +101,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(),
     BrowserStorageService,
     UserService,
+    BreakPointService,
     { provide: NZ_CONFIG, useValue: ngZorroConfig },
     { provide: NZ_I18N, useValue: en_US },
     { provide: TitleStrategy, useClass: TemplatePageTitleStrategy },

@@ -1,0 +1,9 @@
+<app-padded-page-content [narrow]="!isFullPage"> 
+  <app-search></app-search>
+  <nz-divider></nz-divider>
+  <nz-empty [nzNotFoundImage]="nothingFoundTemplate" nzNotFoundContent="Try searching for pins 📍, art forms, artist, cities..."></nz-empty>
+</app-padded-page-content>
+
+<ng-template #nothingFoundTemplate>
+  <i nz-icon nzType="search" [ngStyle]="{'font-size': '100px', 'opacity':.25, 'line-height': 1}"></i>
+</ng-template>

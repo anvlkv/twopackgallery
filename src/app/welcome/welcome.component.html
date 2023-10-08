@@ -14,38 +14,49 @@
           routerLink="/map"
           (click)="markWelcomed()"
         >
-          Find art locations near you
+          Find art locations around the world
         </a>
         <a
           nz-button
+          class="add-your-btn"
           nzSize="large"
           nzType="primary"
-          routerLink="/map/create-pin"
+          [routerLink]="createPinLink"
           (click)="markWelcomed()"
         >
-          Add your pin to the map
+          Add your pin 📍 to the map
         </a>
       </div>
       <nz-divider *nzSpaceItem></nz-divider>
-      <h1 *nzSpaceItem nz-typography>twopack.gallery<sup><i>⍺</i></sup></h1>
+      <h1 *nzSpaceItem nz-typography>
+        twopack.gallery<sup><i>⍺</i></sup>
+      </h1>
       <p *nzSpaceItem nz-typography>
-        Thanks for checking us out! We're still in the early stages and are
-        calling for artists from all over the globe to join. Our aim is to
-        create a free and collaborative space for both independent and
-        professional artists.
+        Whether you're a curator, collector, art journalist, or simply looking
+        for the perfect painting for your living room, this app is a valuable
+        tool for <a routerLink="/map">discovering local artists</a>.
       </p>
       <p *nzSpaceItem nz-typography>
-        Not an artist yourself? Feel free to
-        <a routerLink="/map">explore the map</a>, and if you like what you see,
-        spread the word to any artists you may know.
+        If you're an artist, all you have to do is
+        <a [routerLink]="createPinLink">drop a pin</a> on your studio location,
+        and anyone searching for you can easily find you. It's that simple!
       </p>
       <p *nzSpaceItem nz-typography>
-        This public prototype comes with no guarantees or liabilities.
-        Feel free to use and display information on this website at your own discretion and risk.
-        Nevertheless, we greatly value our users and encourage you to
+        Why twopack.gallery? Well, because at its core, we're two artists who
+        dreamt of having a gallery. But as our vision evolved, it transformed
+        into a map for everyone. That's the story behind it.
+      </p>
+      <p *nzSpaceItem nz-typography>
+        This public prototype comes with no guarantees or liabilities. Feel free
+        to use and display information on this website at your own discretion
+        and risk. Nevertheless, we greatly value our users and encourage you to
         <a routerLink="/feedback">reach out</a>
         with any issues or suggestions you may have. Your feedback is important
         to us!
+      </p>
+      <p *nzSpaceItem nz-typography>
+        This project is entirely non-profit, driven by our passion for art and
+        the creative community.
       </p>
       <p
         *nzSpaceItem
@@ -160,7 +171,6 @@
           />
         </g>
       </g>
-      
     </g>
     <g id="pack2">
       <path
