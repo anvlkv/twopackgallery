@@ -28,7 +28,7 @@ export const WELCOMED_KEY = 'hasBeenWelcomed';
   styleUrls: ['./welcome.component.scss'],
 })
 export class WelcomeComponent {
-  viewTitle = `Every hunter wants to know where the pheasant sits`;
+  viewTitle = `Every hunter wishes to know where the pheasant sits`;
   viewSubTitle = `Free, fair, and collaborative space for artists from all over the globe`;
   rotatedText = [
     'gallery',
