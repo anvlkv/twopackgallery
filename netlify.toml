@@ -11,7 +11,18 @@ command = "npm run prerender:stage"
 # framework = "#custom"
 # autoLaunch = true
 # targetPort = 4200
-
+[[redirects]]
+  from = "/pin/*"
+  to = "/pin/*/index.html"
+  status = 200
+[[redirects]]
+  from = "/map/*"
+  to = "/map/index.html"
+  status = 200
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [functions]
 directory = "api/functions"
