@@ -35,7 +35,6 @@ export class MapAsideComponent implements OnInit, OnDestroy {
   @Input('noCreate')
   noCreate: boolean = false;
 
-
   constructor(
     private zoomSync: ZoomSyncService,
     private bp: BreakPointService
@@ -63,7 +62,7 @@ export class MapAsideComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach(s => s.unsubscribe())
+    this.subs.forEach((s) => s.unsubscribe());
   }
 
   private handleZoomSub?: Subscription;
@@ -73,9 +72,12 @@ export class MapAsideComponent implements OnInit, OnDestroy {
     ev.preventDefault();
     this.endZoomHandle(ev);
     this.zoomSync.zoomIn(0.3);
-    this.handleZoomSub = timer(0, 700).subscribe((i) =>
-      this.zoomSync.zoomIn(0.3 * i)
-    );
+    this.handleZoomSub = timer(0, 700).subscribe((i) => {
+      this.zoomSync.zoomIn(0.3 * i);
+      if (!this.canZoomIn) {
+        this.endZoomHandle();
+      }
+    });
     return false;
   }
   handleMinus(ev: MouseEvent) {
@@ -83,14 +85,17 @@ export class MapAsideComponent implements OnInit, OnDestroy {
     ev.preventDefault();
     this.endZoomHandle(ev);
     this.zoomSync.zoomOut(0.3);
-    this.handleZoomSub = timer(0, 700).subscribe((i) =>
-      this.zoomSync.zoomOut(0.3 * i)
-    );
+    this.handleZoomSub = timer(0, 700).subscribe((i) => {
+      this.zoomSync.zoomOut(0.3 * i);
+      if (!this.canZoomOut) {
+        this.endZoomHandle();
+      }
+    });
     return false;
   }
-  endZoomHandle(ev: MouseEvent) {
+  endZoomHandle(ev?: MouseEvent) {
+    ev?.preventDefault();
     this.handleZoomSub?.unsubscribe();
-    ev.preventDefault();
     return false;
   }
 }

@@ -104,7 +104,7 @@
         nz-button
         nzSize="large"
         nzType="primary"
-        [disabled]="saving"
+        [nzLoading]="saving"
         (click)="onResetPassword()"
       >
         Reset password
@@ -116,7 +116,7 @@
         nzType="primary"
         nzSize="large"
         nzDanger
-        [disabled]="saving"
+        [nzLoading]="saving"
         (click)="onDeleteAccount()"
       >
         Delete account
@@ -126,16 +126,27 @@
 </app-padded-page-content>
 
 <ng-template #deleteAccount>
+  <nz-alert
+    nzType="error"
+    nzShowIcon
+    nzMessage="This action is irreversible and will prevent automatic account creation in future."
+    nzDescription="This will delete your account at twopack.gallery, remove related records from our data base, prevent your email address from creating new account automatically."
+  ></nz-alert>
   <form nz-form [formGroup]="deleteForm">
     <nz-form-item>
-      <textarea
-        id="reason"
-        name="reason"
-        nz-input
-        placeholder="Please explain why are you deleting your account?"
-        formControlName="reason"
-        [nzAutosize]="{ minRows: 2, maxRows: 7 }"
-      ></textarea>
+      <nz-form-control
+        nzErrorTip="Please provide a reason for deleting your account using at least 10 characters."
+      >
+        <textarea
+          id="reason"
+          name="reason"
+          nz-input
+          placeholder="Please explain why are you deleting your account?"
+          formControlName="reason"
+          [nzAutosize]="{ minRows: 2, maxRows: 7 }"
+        ></textarea>
+      </nz-form-control>
+      <small>{{ deleteForm.controls["reason"].value?.length || 0 }} / 10</small>
     </nz-form-item>
   </form>
 </ng-template>

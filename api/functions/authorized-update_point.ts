@@ -44,7 +44,7 @@ const handler: Handler = withAuth0(
         pointData.status === EPointStatus.Published &&
         point?.status === EPointStatus.Draft
       ) {
-        await sendEmail(
+        const sendResult = await sendEmail(
           EMailBox.Hello,
           user.email as string,
           'Your new pin 📍 at twopack.gallery',
@@ -52,9 +52,12 @@ const handler: Handler = withAuth0(
           {
             location_name: pointData.title,
             user_name: user.name,
+            location_url: `${process.env['URL']}/pin/${point.id}`,
           },
           true
         );
+
+        // console.log(sendResult)
       }
 
       const updatedPoint = (await client.db.points.update({

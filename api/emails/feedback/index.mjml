@@ -1,0 +1,28 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column width="420px">
+        <mj-text font-size="20px" align="center" line-height="1.2">You feedback to twopack.gallery</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column width="420px" background-color="#f0f0f0" border-radius="30px" padding="20px">
+        <mj-text line-height="1.7">Hi {{user_name}},
+          <p>This message is to acknwoledge the {{feedback_type}} you submitted at twopack.gallery.</p>
+          <blockquote cite="{{user_name}}">
+            {{feedback_text}}
+          </blockquote>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column width="420px">
+        <mj-text line-height="1.2" font-style="italic">
+          A tool for those who hunts for works art and those who create them
+          <br/>
+          <a href="https://twopack.gallery">twopack.gallery</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

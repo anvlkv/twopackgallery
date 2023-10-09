@@ -14,8 +14,10 @@ export async function sendEmail<D = any>(
   bcc = false
 ) {
   const sender = `${from}@${process.env['NETLIFY_EMAILS_MAILGUN_DOMAIN']}`;
-  const templateUrl = `${process.env['URL']?.includes('localhost') ? 'https://deploy-preview-4.stage.twopack.gallery' : process.env['URL']}/.netlify/functions/emails/${template}`;
+  // TODO: get stage url
+  const templateUrl = `${process.env['URL']}/.netlify/functions/emails/${template}`;
 
+  console.log(templateUrl);
   const result = await fetch(templateUrl, {
     method: 'POST',
     headers: {

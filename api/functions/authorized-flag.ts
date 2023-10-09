@@ -84,6 +84,7 @@ const handler: Handler = withAuth0(
           location_name: point!.title,
           user_name: publisher!.name,
           flag_issue: flag.issue,
+          location_url: `${process.env['URL']}/pin/${point!.id}`,
           notice:
             pointFlags.length >= 5
               ? 'Your pin 📍 has been automatically hidden from public. Please let us know if you think it is a mistake.'

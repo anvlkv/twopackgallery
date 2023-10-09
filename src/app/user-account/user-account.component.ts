@@ -12,7 +12,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthService, User } from '@auth0/auth0-angular';
+import { AuthClientConfig, AuthService, User } from '@auth0/auth0-angular';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -106,6 +106,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
+    private authConfig: AuthClientConfig,
     private user: UserService,
     private notification: NzNotificationService,
     private modal: NzModalService
@@ -245,12 +246,16 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   }
 
   onResetPassword() {
+    this.saving = true;
     this.user.resetPassword().subscribe({
       next: () => {
         this.notification.success(
           'Resetting your password.',
           'Email with further instructions for resetting your password was sent.'
         );
+        timer(10000).subscribe(() => {
+          this.saving = false;
+        })
       },
       error: (err) => {
         this.notification.error('Something went wrong...', err.message);
@@ -282,9 +287,9 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         next: () => {
           this.notification.success(
             'Deleting your account.',
-            'All done. This page will reload now...'
+            'All done. This page will exit now...'
           );
-          this.reload();
+          this.logOut();
         },
         error: (err) => {
           this.notification.error('Something went wrong...', err.message);
@@ -295,6 +300,12 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   private reload() {
     timer(1500).subscribe(() => {
       window.location.reload();
+    });
+  }
+  private logOut() {
+    const returnTo = this.authConfig.get()?.authorizationParams?.redirect_uri;
+    timer(1500).subscribe(() => {
+      this.auth.logout({ logoutParams: { returnTo } })
     });
   }
 }

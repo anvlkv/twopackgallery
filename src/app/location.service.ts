@@ -7,12 +7,15 @@ import {
   BehaviorSubject,
   NEVER,
   Observable,
+  Subscription,
   catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
   from,
+  interval,
   map,
+  switchMap,
   tap,
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -39,14 +42,14 @@ export class LocationService {
   private runningLocation$ = new BehaviorSubject<[number, number] | undefined>(
     undefined
   );
-  private watchId?: number;
+  private watchLocationSubscription?: Subscription;
 
   runningLocation: Observable<[number, number]> = this.runningLocation$.pipe(
     filter(Boolean)
   );
   currentLocation: Observable<[number, number]> = this.currentLocation$.pipe(
     filter(Boolean),
-    distinctUntilChanged(deepEqual),
+    distinctUntilChanged(deepEqual)
   );
   currentBounds: Observable<number[]> = this.currentBounds$.pipe(
     distinctUntilChanged(deepEqual)
@@ -58,57 +61,48 @@ export class LocationService {
   ) {}
 
   public locate() {
+    return from(this.geoLocation()).pipe(
+      catchError(() => this.locateIp()),
+      tap((d) => this.currentLocation$.next(d))
+    );
+  }
+
+  private geoLocation() {
     if (isPlatformBrowser(this.platformId)) {
-      return from(
-        new Promise<[number, number]>((resolve, reject) => {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                resolve([position.coords.longitude, position.coords.latitude]);
-              },
-              () => {
-                reject();
-              },
-              {
-                maximumAge: 10000,
-              }
-            );
-          } else {
-            reject();
-          }
-        })
-      ).pipe(
-        catchError(() => this.locateIp()),
-        tap((d) => this.currentLocation$.next(d))
-      );
-    } else {
-      return NEVER;
+      return new Promise<[number, number]>((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              resolve([position.coords.longitude, position.coords.latitude]);
+            },
+            () => {
+              reject();
+            },
+            {
+              maximumAge: 10000,
+            }
+          );
+        } else {
+          reject();
+        }
+      });
+    }
+    else {
+      return NEVER
     }
   }
 
   public startTrackingLocation() {
-    if (isPlatformBrowser(this.platformId)) {
-      if (navigator.geolocation) {
-        this.watchId = navigator.geolocation.watchPosition((position) => {
-          this.runningLocation$.next([
-            position.coords.longitude,
-            position.coords.latitude,
-          ]);
-        }, () => {
-
-        }, {
-          maximumAge: 10000,
-        });
-      }
-    }
+    this.watchLocationSubscription = interval(3000)
+      .pipe(switchMap(() => from(this.geoLocation())))
+      .subscribe(([lng, lat]) => {
+        this.runningLocation$.next([lng, lat]);
+      });
   }
 
   public stopTrackingLocation() {
-    if (isPlatformBrowser(this.platformId)) {
-      if (navigator.geolocation && this.watchId !== undefined) {
-        navigator.geolocation.clearWatch(this.watchId);
-      }
-    }
+    this.watchLocationSubscription &&
+      this.watchLocationSubscription.unsubscribe();
   }
 
   private locateIp() {

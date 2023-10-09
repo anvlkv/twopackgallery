@@ -50,13 +50,14 @@ const handler: Handler = withAuth0(
         'Your new pin 📍 at twopack.gallery',
         'created',
         {
-          location_name: pointData.title,
+          location_name: newPoint.title,
           user_name: user.name,
+          location_url: `${process.env['URL']}/pin/${newPoint.id}`,
         },
         true
       );
 
-      console.log(sendResult)
+      // console.log(sendResult)
     }
 
     return {

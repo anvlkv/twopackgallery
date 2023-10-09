@@ -1,6 +1,7 @@
 import { withAuth0 } from '@netlify/auth0';
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import { withAuth0Token } from 'api/utils/auth0';
+import { sendEmail, EMailBox } from 'api/utils/send_email';
 import { userFromSub } from 'api/utils/sub';
 import { UserPointStatus } from 'src/app/point.types';
 import { getXataClient } from 'xata';
@@ -18,6 +19,11 @@ const handler: Handler = withAuth0(
         feedback_type: 'delete',
         user_email: user!.email,
         description: reason,
+      });
+
+      await withAuth0Token({
+        url: `/api/v2/users/${user!.user_id}`,
+        method: 'DELETE',
       });
 
       const ownedPoints = await client.db.users_points
@@ -39,10 +45,18 @@ const handler: Handler = withAuth0(
 
       await client.db.users.deleteOrThrow(user!);
 
-      await withAuth0Token({
-        url: `/api/v2/users/${user!.user_id}`,
-        method: 'DELETE',
-      });
+      const sendResult = await sendEmail(
+        EMailBox.Support,
+        user!.email!,
+        `Bye ${user!.name} 😢`,
+        'deleted_account',
+        {
+          user_name: user!.name,
+          owned_count: ownedPoints.length,
+          other_count: otherPoints.length,
+        },
+        true
+      );
 
       return { statusCode: 200, body: '' };
     // } catch (e) {
@@ -58,3 +72,7 @@ const handler: Handler = withAuth0(
 );
 
 export { handler };
+
+export const config = {
+  type: 'experimental-background',
+}

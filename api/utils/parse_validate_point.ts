@@ -4,7 +4,11 @@ import { EPointStatus } from './point_status';
 
 const client = getXataClient();
 
-export async function parseValidatePoint(event: HandlerEvent, publicationAllowed: boolean, id?: string) {
+export async function parseValidatePoint(
+  event: HandlerEvent,
+  publicationAllowed: boolean,
+  id?: string
+) {
   const data = JSON.parse(event.body!);
   const { art_forms, latitude, longitude, title, status } = data;
 
@@ -12,7 +16,11 @@ export async function parseValidatePoint(event: HandlerEvent, publicationAllowed
     throw new Error('Invalid point position');
   }
 
-  let points = client.db.points.all();
+  let points = client.db.points
+    .all()
+    .filter({
+      status: { $any: [EPointStatus.Published, EPointStatus.Protected] },
+    });
 
   points = points.filter({ longitude, latitude });
 
@@ -31,13 +39,21 @@ export async function parseValidatePoint(event: HandlerEvent, publicationAllowed
   }
 
   if (id) {
-    const {status: currentStatus} = await client.db.points.getFirstOrThrow({filter: {id}, columns: ['status']});
+    const { status: currentStatus } = await client.db.points.getFirstOrThrow({
+      filter: { id },
+      columns: ['status'],
+    });
 
-    if (![EPointStatus.Draft, EPointStatus.Published, EPointStatus.Protected].includes(currentStatus as EPointStatus)) {
+    if (
+      ![
+        EPointStatus.Draft,
+        EPointStatus.Published,
+        EPointStatus.Protected,
+      ].includes(currentStatus as EPointStatus)
+    ) {
       throw new Error('Wont accept status changes');
     }
   }
-
 
   const hasPointAtLocation = await points.getFirst({ columns: ['id'] });
 

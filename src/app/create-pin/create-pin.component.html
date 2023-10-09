@@ -210,14 +210,14 @@
         </ng-template>
       </nz-form-item>
       <nz-divider></nz-divider>
-      <div class="form-actions">
+      <legend>
         <small *ngIf="pinForm.controls['published'].value">
           By publishing this pin 📍 on twopack.gallery map, you confirm it
           features the chosen art form, is safe for visitors, and that you are
           the exhibiting artist. Please note, irrelevant or unsafe pins 📍 will
           be removed from public display.
         </small>
-      </div>
+      </legend>
       <ng-container [ngTemplateOutlet]="doneButton"></ng-container>
     </div>
   </div>

@@ -87,7 +87,7 @@ export class UserService {
   }
 
   deleteAccount(reason: { reason: string }) {
-    return this.http.post('/.netlify/functions/authorized-delete_user', reason);
+    return this.http.post('/.netlify/functions/authorized-delete_user-background', reason);
   }
 
   validateTag: AsyncValidatorFn = (control: AbstractControl<string>) => {
