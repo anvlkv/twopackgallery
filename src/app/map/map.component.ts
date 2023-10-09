@@ -197,7 +197,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
           const options: FlyToOptions = {
             center: location,
-            zoom: this.zoomSync.getZoom() || 13,
+            zoom: Math.max(this.zoomSync.getZoom(), 12.17),
           };
 
           if (!deepEqual(options.center, [lng, lat])) {
@@ -370,7 +370,6 @@ export class MapComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subs.forEach((s) => s.unsubscribe());
     this.location.stopTrackingLocation();
-    this.clearUrlMapView();
   }
 
   mapLoad() {
@@ -446,6 +445,7 @@ export class MapComponent implements OnInit, OnDestroy {
   onMapBoxError(ev: ErrorEvent & EventData) {
     this.router.navigate(['/', 'error'], {
       state: { error: ev.error.message, url: window.location.toString() },
+      queryParams: { lat: null, zm: null, lang: null },
     });
   }
 

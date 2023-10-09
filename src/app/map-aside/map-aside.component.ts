@@ -8,6 +8,7 @@ import { LocateMeBtnComponent } from '../locate-me-btn/locate-me-btn.component';
 import { ZoomSyncService } from '../zoom-sync.service';
 import { BreakPointService, EBreakPoint } from '../break-point.service';
 import { CommonModule } from '@angular/common';
+import { CreatePinBtnComponent } from '../create-pin-btn/create-pin-btn.component';
 
 @Component({
   standalone: true,
@@ -18,6 +19,7 @@ import { CommonModule } from '@angular/common';
     NzIconModule,
     NzToolTipModule,
     LocateMeBtnComponent,
+    CreatePinBtnComponent,
   ],
   selector: 'app-map-aside',
   templateUrl: './map-aside.component.html',
@@ -30,7 +32,7 @@ export class MapAsideComponent implements OnInit, OnDestroy {
   canZoomIn = true;
   canZoomOut = true;
 
-  createPinLink = ['/', 'map', 'create-pin'];
+  buttonSize = 'default' as 'default' | 'large';
 
   @Input('noCreate')
   noCreate: boolean = false;
@@ -53,9 +55,9 @@ export class MapAsideComponent implements OnInit, OnDestroy {
         .query((bp) => bp < EBreakPoint.Md)
         .subscribe((mobile) => {
           if (mobile) {
-            this.createPinLink = ['/', 'create-pin'];
+            this.buttonSize = 'large';
           } else {
-            this.createPinLink = ['/', 'map', 'create-pin'];
+            this.buttonSize = 'default';
           }
         })
     );

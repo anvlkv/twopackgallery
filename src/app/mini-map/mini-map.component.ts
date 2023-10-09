@@ -104,8 +104,8 @@ export class MiniMapComponent implements OnInit, OnDestroy, OnChanges {
       this.initialPosition = changes['point'].currentValue
 
       if (changes['point'].currentValue) {
-        this.initialZoom = [13];
-        this.zoomSync.setZoom(13);
+        this.initialZoom = [12.17];
+        this.zoomSync.setZoom(12.17);
       }
     }
   }

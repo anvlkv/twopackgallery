@@ -1,19 +1,12 @@
 <aside>
-  <a
+  <app-create-pin-btn
     *ngIf="!noCreate"
-    nz-button
-    nz-tooltip
-    nzTooltipTitle="Create new pin 📍"
-    nzTooltipPlacement="left"
-    nzShape="circle"
-    [routerLink]="createPinLink"
-    routerLinkActive="active ant-btn-primary"
-  >
-    <span nz-icon nzType="pushpin"></span>
-  </a>
-  <app-locate-me-btn></app-locate-me-btn>
+    [nzSize]="buttonSize"
+  ></app-create-pin-btn>
+  <app-locate-me-btn [nzSize]="buttonSize"></app-locate-me-btn>
   <button
     nz-button
+    [nzSize]="buttonSize"
     nzShape="circle"
     nz-tooltip
     nzTooltipTitle="Zoom in map view"
@@ -26,6 +19,7 @@
   </button>
   <button
     nz-button
+    [nzSize]="buttonSize"
     nz-tooltip
     nzTooltipTitle="Zoom out map view"
     nzTooltipPlacement="left"

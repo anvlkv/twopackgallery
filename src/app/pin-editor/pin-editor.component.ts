@@ -33,6 +33,7 @@ import {
   of,
   skip,
   switchMap,
+  take,
 } from 'rxjs';
 import { ActivityService, EActivity } from '../activity.service';
 import { AddressComponent } from '../address/address.component';
@@ -74,7 +75,7 @@ import { UserTagComponent } from '../user-tag/user-tag.component';
     AddressComponent,
     MiniMapComponent,
     PaddedPageContentComponent,
-    UserTagComponent
+    UserTagComponent,
   ],
   selector: 'app-pin-editor',
   templateUrl: './pin-editor.component.html',
@@ -142,16 +143,26 @@ export class PinEditorComponent implements OnInit, OnDestroy {
   ) {
     this.id = activatedRoute.snapshot.params['id'];
     this.title = this.id ? 'Edit pin' : 'New pin';
-    this.isFullPage = Boolean(this.activatedRoute.snapshot.data['fullPage'])
+    this.isFullPage = Boolean(this.activatedRoute.snapshot.data['fullPage']);
 
     if (this.id) {
       this.pinForm.disable();
     }
   }
-  
+
   leave?: () => void;
 
   ngOnInit(): void {
+    this.subs.push(
+      this.activatedRoute.queryParams
+        .pipe(take(1))
+        .subscribe(({ lng, lat }) => {
+          if (lng && lat) {
+            this.pinForm.controls['longitude'].setValue(parseFloat(lng));
+            this.pinForm.controls['latitude'].setValue(parseFloat(lat));
+          }
+        })
+    );
     this.subs.push(
       this.artForms.fetchedArtForms
         .pipe(
@@ -193,7 +204,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             title: point.title as string,
             description: point.description as string,
             location_description: point.location_description as string,
-            art_forms: point.art_forms.map(r => r.id) as any, //as string[]
+            art_forms: point.art_forms.map((r) => r.id) as any, //as string[]
             longitude: point.longitude as number,
             latitude: point.latitude as number,
             published: point.status === EPointStatus.Published,
@@ -229,21 +240,20 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     }
 
     this.subs.push(
-      this.location.currentLocation
-        .subscribe(([longitude, latitude]) => {
-          const [cLng, cLat] = [
-            this.pinForm.value.longitude,
-            this.pinForm.value.latitude,
-          ];
-          this.pinForm.controls['longitude'].setValue(longitude);
-          if (cLng !== longitude) {
-            this.pinForm.controls['longitude'].markAsDirty();
-          }
-          this.pinForm.controls['latitude'].setValue(latitude);
-          if (cLat !== latitude) {
-            this.pinForm.controls['latitude'].markAsDirty();
-          }
-        })
+      this.location.currentLocation.subscribe(([longitude, latitude]) => {
+        const [cLng, cLat] = [
+          this.pinForm.value.longitude,
+          this.pinForm.value.latitude,
+        ];
+        this.pinForm.controls['longitude'].setValue(longitude);
+        if (cLng !== longitude) {
+          this.pinForm.controls['longitude'].markAsDirty();
+        }
+        this.pinForm.controls['latitude'].setValue(latitude);
+        if (cLat !== latitude) {
+          this.pinForm.controls['latitude'].markAsDirty();
+        }
+      })
     );
 
     this.subs.push(
@@ -272,11 +282,17 @@ export class PinEditorComponent implements OnInit, OnDestroy {
         })
     );
 
-    this.subs.push(this.activatedRoute.data.subscribe(({fullPage}) => this.isFullPage = fullPage));
+    this.subs.push(
+      this.activatedRoute.data.subscribe(
+        ({ fullPage }) => (this.isFullPage = fullPage)
+      )
+    );
 
-    this.subs.push(this.pinForm.valueChanges.subscribe(({longitude, latitude}) => {
-      this.minMapLocation = [longitude || 0, latitude || 0];
-    }))
+    this.subs.push(
+      this.pinForm.valueChanges.subscribe(({ longitude, latitude }) => {
+        this.minMapLocation = [longitude || 0, latitude || 0];
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -291,7 +307,8 @@ export class PinEditorComponent implements OnInit, OnDestroy {
       return;
     }
     this.saving = true;
-    const { cover,tile, address, published, ...formValue } = this.pinForm.value;
+    const { cover, tile, address, published, ...formValue } =
+      this.pinForm.value;
     const coverFile = typeof cover === 'object' ? cover : undefined;
     const tileFile = typeof tile === 'object' ? tile : undefined;
 
@@ -321,7 +338,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
               queryParams: null,
             });
             this.pinForm.markAsPristine();
-            this.user.onAddOwnership({...(ownership!), point});
+            this.user.onAddOwnership({ ...ownership!, point });
           },
           error: (err) => {
             this.saving = false;

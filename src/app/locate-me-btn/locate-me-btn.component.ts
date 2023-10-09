@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
@@ -40,9 +47,12 @@ export type Consent = { consent: 'accept' | 'deny' };
   ],
   templateUrl: './locate-me-btn.component.html',
   styleUrls: ['./locate-me-btn.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LocateMeBtnComponent implements OnInit, OnDestroy {
+  @Input('nzSize')
+  nzSize?: 'default' | 'large';
+
   locationConsent = new BehaviorSubject(
     this.storage.get<Consent>(LOCATION_CONSENT_KEY)
   );
@@ -57,7 +67,7 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
     private location: LocationService,
     private notification: NzNotificationService,
     private ch: ChangeDetectorRef,
-    private zoomSync: ZoomSyncService,
+    private zoomSync: ZoomSyncService
   ) {}
 
   ngOnInit(): void {
@@ -91,12 +101,7 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.locating = false;
-            if (this.zoomSync.getZoom() < 13) {
-              this.zoomSync.setZoom(13);
-            }
-            else {
-              this.ch.detectChanges();
-            }
+            this.ch.detectChanges();
           },
           error: () => {
             this.locating = false;

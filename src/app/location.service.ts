@@ -15,8 +15,9 @@ import {
   from,
   interval,
   map,
+  skip,
   switchMap,
-  tap,
+  take
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -61,10 +62,13 @@ export class LocationService {
   ) {}
 
   public locate() {
-    return from(this.geoLocation()).pipe(
-      catchError(() => this.locateIp()),
-      tap((d) => this.currentLocation$.next(d))
-    );
+    from(this.geoLocation())
+      .pipe(catchError(() => this.locateIp()))
+      .subscribe((d) => {
+        this.currentLocation$.next(d);
+      });
+
+    return this.currentLocation$.pipe(skip(1), take(1));
   }
 
   private geoLocation() {
@@ -86,9 +90,8 @@ export class LocationService {
           reject();
         }
       });
-    }
-    else {
-      return NEVER
+    } else {
+      return NEVER;
     }
   }
 
