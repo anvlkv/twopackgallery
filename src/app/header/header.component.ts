@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   ActivatedRoute,
   EventType,
@@ -35,6 +35,7 @@ import { UserService } from '../user.service';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   host: { ngSkipHydration: 'true' },
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   @Input('card')
@@ -54,7 +55,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private authConfig: AuthClientConfig,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private bp: BreakPointService
+    private bp: BreakPointService,
+    private ch: ChangeDetectorRef
   ) {
     this.mobile = this.bp.getBreakPoint() < EBreakPoint.Md;
     if (
@@ -78,6 +80,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           } else {
             this.logoLink = ['/', 'map'];
           }
+          this.ch.detectChanges();
         }
       })
     );
@@ -86,6 +89,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.activatedRoute.url.subscribe((url) => {
         const base = this.authConfig.get().authorizationParams?.redirect_uri;
         this.redirect_uri = `${base}${url.at(0) ? `/${url[0].path}` : ''}`;
+        this.ch.detectChanges();
       })
     );
 
@@ -96,6 +100,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         } else {
           this.userName = u?.name;
         }
+        this.ch.detectChanges();
       })
     );
 
@@ -104,6 +109,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         .query((s) => s < EBreakPoint.Md)
         .subscribe((mobile) => {
           this.mobile = mobile;
+          this.ch.detectChanges();
         })
     );
   }
@@ -117,11 +123,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
       authorizationParams: { redirect_uri: this.redirect_uri },
       appState: { target: this.currentLink },
     });
+    this.ch.detectChanges();
     return false;
   }
 
   logout(ev: MouseEvent) {
     this.auth.logout({ logoutParams: { returnTo: this.redirect_uri } });
+    this.ch.detectChanges();
     return false;
   }
 }

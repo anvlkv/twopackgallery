@@ -1,5 +1,11 @@
 app-padded-page-content {
   > * {
-    margin-bottom: .75rem;
+    margin-bottom: 0.75rem;
   }
+}
+
+.empty-state-icon {
+  font-size: 100px;
+  opacity: 0.25;
+  line-height: 1;
 }

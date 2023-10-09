@@ -37,24 +37,31 @@ const handler: Handler = withAuth0(
     const height = Math.min(meta.width!, 2048);
     const width = height;
 
-    const webpBuff = await shImg.resize({ height, width, fit: 'fill' }).toBuffer();
+    const webpBuff = await shImg
+      .resize({ height, width, fit: 'fill' })
+      .toBuffer();
 
     const tile = XataFile.fromBuffer(webpBuff, {
       mediaType: 'image/webp',
-      enablePublicUrl: true,
+      signedUrlTimeout: 6000
     });
 
     if (tile.size! > 3e6) {
       return { statusCode: 400, body: 'File size exceeded.' };
     }
 
-    const savedPoint = await client.db.points.update(pointId, {
+    await client.db.points.update(pointId, {
       tile,
+    });
+
+    const withTile = await client.db.points.getFirstOrThrow({
+      filter: { id: pointId },
+      columns: ['tile.signedUrl'],
     });
 
     return {
       statusCode: 200,
-      body: JSON.stringify(savedPoint?.tile),
+      body: JSON.stringify(withTile.tile),
     };
     // } catch (e) {
     //   console.error(e);

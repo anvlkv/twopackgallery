@@ -63,6 +63,32 @@
         "maxSize": 30000,
         "strategy": "freshness"
       }
+    },
+    {
+      "name": "search_init_data",
+      "version": 1,
+      "urls": ["/.netlify/functions/search_init_data"],
+      "cacheQueryOptions": {
+        "ignoreSearch": false
+      },
+      "cacheConfig": {
+        "maxAge": "1d",
+        "maxSize": 30000,
+        "strategy": "performance"
+      }
+    },
+    {
+      "name": "search_results",
+      "version": 1,
+      "urls": ["/.netlify/functions/search"],
+      "cacheQueryOptions": {
+        "ignoreSearch": false
+      },
+      "cacheConfig": {
+        "maxAge": "3h",
+        "maxSize": 30000,
+        "strategy": "freshness"
+      }
     }
   ]
 }

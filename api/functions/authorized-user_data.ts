@@ -26,7 +26,7 @@ const handler: Handler = withAuth0(
         'point.description',
         'point.location_description',
         'point.status',
-        'point.cover'
+        'point.cover.signedUrl'
       ],
     });
     const contributions = await client.db.users_points.getAll({

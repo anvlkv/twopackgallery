@@ -153,6 +153,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
   leave?: () => void;
 
   ngOnInit(): void {
+    this.artForms.queryArtForms();
     this.subs.push(
       this.activatedRoute.queryParams
         .pipe(take(1))

@@ -10,17 +10,23 @@ import { COVER_RATIO } from '../cover-image/consts';
 import { PaddedPageContentComponent } from '../padded-page-content/padded-page-content.component';
 import { PinCardComponent } from '../pin-card/pin-card.component';
 import { UserService, UserType } from '../user.service';
+import { RouterModule } from '@angular/router';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 @Component({
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     PinCardComponent,
     NzGridModule,
     NzSkeletonModule,
     NzCardModule,
     NzSpaceModule,
     NzTypographyModule,
+    NzIconModule,
+    NzButtonModule,
     PaddedPageContentComponent,
   ],
   selector: 'app-user-profile',

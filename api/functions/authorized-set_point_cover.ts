@@ -13,7 +13,7 @@ const handler: Handler = withAuth0(
     // try {
     const pointId: string = event.queryStringParameters!['id']!;
 
-    const user = await userFromSub(context)
+    const user = await userFromSub(context);
 
     const { point, user: publisher } =
       await client.db.users_points.getFirstOrThrow({
@@ -43,20 +43,25 @@ const handler: Handler = withAuth0(
 
     const cover = XataFile.fromBuffer(webpBuff, {
       mediaType: 'image/webp',
-      enablePublicUrl: true,
+      signedUrlTimeout: 600
     });
 
     if (cover.size! > 3e6) {
       return { statusCode: 400, body: 'File size exceeded.' };
     }
 
-    const savedPoint = await client.db.points.update(pointId, {
+    await client.db.points.update(pointId, {
       cover,
+    });
+
+    const withCover = await client.db.points.getFirstOrThrow({
+      filter: { id: pointId },
+      columns: ['cover.signedUrl'],
     });
 
     return {
       statusCode: 200,
-      body: JSON.stringify(savedPoint?.cover),
+      body: JSON.stringify(withCover.cover),
     };
     // } catch (e) {
     //   console.error(e);

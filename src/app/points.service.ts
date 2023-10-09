@@ -18,7 +18,7 @@ import type { ArtFormsRecord, PointsRecord, UsersPointsRecord } from 'xata';
 import { LocationService } from './location.service';
 import { UserService } from './user.service';
 
-type PointsResult = {
+export type PointsResult = {
   hasNextPage: boolean;
   data: JSONData<PointsRecord>[];
 };

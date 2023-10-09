@@ -53,7 +53,7 @@ const handler: Handler = withAuth0(
       filter: { id },
       columns: [
         'address',
-        'cover',
+        'cover.signedUrl',
         'description',
         'location_description',
         'title',

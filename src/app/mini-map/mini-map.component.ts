@@ -58,7 +58,7 @@ export class MiniMapComponent implements OnInit, OnDestroy, OnChanges {
   point?: [number, number];
 
   @Input('animateCursor')
-  animateCursor?: boolean
+  animateCursor?: boolean;
 
   @Output('pointChange')
   pointChange = new EventEmitter<[number, number]>();
@@ -100,8 +100,8 @@ export class MiniMapComponent implements OnInit, OnDestroy, OnChanges {
       this.mapRef?.mapInstance.setCenter(changes['point'].currentValue);
     }
 
-    if(changes['point'].firstChange) {
-      this.initialPosition = changes['point'].currentValue
+    if (changes['point'].firstChange) {
+      this.initialPosition = changes['point'].currentValue;
 
       if (changes['point'].currentValue) {
         this.initialZoom = [12.17];
@@ -118,13 +118,23 @@ export class MiniMapComponent implements OnInit, OnDestroy, OnChanges {
   onZoom(ev: MapChangeEvent) {
     if (this.mapRef?.mapInstance && ev.originalEvent) {
       this.zoomSync.setZoom(this.mapRef.mapInstance.getZoom());
+      this.location.adjust_bounds(
+        this.mapRef.mapInstance.getBounds().toArray()
+      );
     }
     return false;
   }
   onMove(ev: MapChangeEvent, final = true) {
-    const center = this.mapRef?.mapInstance.getCenter().toArray() as [number, number];
+    const center = this.mapRef?.mapInstance.getCenter().toArray() as [
+      number,
+      number
+    ];
     if (center && ev.originalEvent && final) {
       this.pointChange.emit(center);
+      this.mapRef &&
+        this.location.adjust_bounds(
+          this.mapRef.mapInstance.getBounds().toArray()
+        );
     }
     if (this.animateCursor) {
       this.point = center;

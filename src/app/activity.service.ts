@@ -8,6 +8,7 @@ export enum EActivity {
   EditPin,
   FlagPin,
   ViewPin,
+  Search
 }
 
 @Injectable({

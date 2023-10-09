@@ -1,11 +1,13 @@
 <div *ngIf="!data" nzDirection="vertical" class="pin-layout">
-  <nz-skeleton-element
-    nzType="image"
-    [nzActive]="true"
-    nz-col
-    nzSpan="24"
-    [ngStyle]="{ 'aspect-ratio': coverRatio, width: '100%' }"
-  ></nz-skeleton-element>
+  <div [ngStyle]="{ 'aspect-ratio': coverRatio, width: '100%' }">
+    <nz-skeleton-element
+      nzType="image"
+      [nzActive]="true"
+      nz-col
+      nzSpan="24"
+      [ngStyle]="{width: '100%', height: '100%'}"
+    ></nz-skeleton-element>
+  </div>
   <app-padded-page-content [narrow]="!isFullPage">
     <nz-skeleton
       [nzActive]="true"
@@ -47,7 +49,7 @@
     <app-cover-image
       nz-col
       nzSpan="24"
-      [src]="data.cover!.url"
+      [src]="data.cover?.signedUrl!"
       alt="Cover image of {{ data.title }}"
     />
     <app-padded-page-content [narrow]="!isFullPage">

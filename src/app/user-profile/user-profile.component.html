@@ -2,17 +2,47 @@
   <h2 nz-typography>Pins owned by {{ userName }}</h2>
   <ng-container *ngIf="userData; else skeletonTemplate">
     <div nz-row [nzGutter]="[16, 24]">
-      <div nz-col [nzSpan]="6" *ngFor="let d of userData.ownerships">
-        <app-pin-card [data]="d"></app-pin-card>
-      </div>
+      <app-pin-card
+        nz-col
+        [nzSpan]="6"
+        *ngFor="let d of userData.ownerships"
+        [data]="d.point"
+        [showExtra]="'bottom'"
+      >
+        <a
+          [routerLink]="['/', 'map', 'pin', d.point?.id!]"
+          nz-button
+          nzType="link"
+        >
+          Show on map <i nz-icon nzType="environment"></i>
+        </a>
+        <a [routerLink]="['/', 'pin', d.point?.id!]" nz-button nzType="link">
+          Open page <i nz-icon nzType="select"></i>
+        </a>
+      </app-pin-card>
     </div>
   </ng-container>
   <h2 nz-typography>Pins where {{ userName }} contributes</h2>
   <ng-container *ngIf="userData; else skeletonTemplate">
     <div nz-row [nzGutter]="[16, 24]">
-      <div nz-col [nzSpan]="6" *ngFor="let d of userData.contributions">
-        <app-pin-card [data]="d"></app-pin-card>
-      </div>
+      <app-pin-card
+        nz-col
+        [nzSpan]="6"
+        *ngFor="let d of userData.contributions"
+        [data]="d.point"
+        [showExtra]="'bottom'"
+      >
+        <a
+          [routerLink]="['/', 'map', 'pin', d.point?.id!]"
+          nz-button
+          nzType="link"
+        >
+          Show on map <i nz-icon nzType="environment"></i>
+        </a>
+        <a [routerLink]="['/', 'pin', d.point?.id!]" nz-button nzType="link">
+          Open page <i nz-icon nzType="select"></i>
+        </a>
+      </app-pin-card>
     </div>
   </ng-container>
 </app-padded-page-content>

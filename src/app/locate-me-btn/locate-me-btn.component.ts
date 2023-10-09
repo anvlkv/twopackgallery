@@ -14,6 +14,7 @@ import {
   BehaviorSubject,
   Subject,
   Subscription,
+  combineLatest,
   filter,
   map,
   of,
@@ -30,6 +31,7 @@ import {
   NzNotificationModule,
   NzNotificationService,
 } from 'ng-zorro-antd/notification';
+import { LngLat, LngLatBounds } from 'mapbox-gl';
 
 export const LOCATION_CONSENT_KEY = 'locationPermission';
 export type Consent = { consent: 'accept' | 'deny' };
@@ -58,6 +60,7 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
   );
 
   locating = false;
+  globalView = false;
 
   subs: Subscription[] = [];
 
@@ -77,6 +80,20 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.location.startTrackingLocation();
         })
+    );
+
+    this.subs.push(
+      combineLatest({
+        zoom: this.zoomSync.zoom.pipe(map(({ value }) => value)),
+        location: this.location.runningLocation,
+        bounds: this.location.currentBounds,
+      }).subscribe(({ zoom, location, bounds }) => {
+        this.globalView =
+          zoom > 12.17 &&
+          new LngLatBounds(bounds as [number, number, number, number]).contains(
+            location
+          );
+      })
     );
   }
 
@@ -149,5 +166,11 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
     } else {
       return of(true);
     }
+  }
+
+  handleZoomOut(ev: MouseEvent) {
+    this.zoomSync.setZoom(.1217);
+    this.globalView = false
+    return false;
   }
 }

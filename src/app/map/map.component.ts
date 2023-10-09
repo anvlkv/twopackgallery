@@ -363,8 +363,15 @@ export class MapComponent implements OnInit, OnDestroy {
     this.browserLocation.replaceState(path, params.toString());
   }
   private clearUrlMapView() {
-    const path = this.browserLocation.path().split('?')[0];
-    this.browserLocation.replaceState(path);
+    const [path, query] = this.browserLocation.path().split('?');
+
+    const params = new URLSearchParams(query);
+
+    params.delete('lng');
+    params.delete('lat');
+    params.delete('zm');
+
+    this.browserLocation.replaceState(path, params.toString());
   }
 
   ngOnDestroy(): void {

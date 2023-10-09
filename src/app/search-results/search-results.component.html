@@ -1,9 +1,69 @@
-<app-padded-page-content [narrow]="!isFullPage"> 
+<app-padded-page-content [narrow]="!isFullPage">
   <app-search></app-search>
   <nz-divider></nz-divider>
-  <nz-empty [nzNotFoundImage]="nothingFoundTemplate" nzNotFoundContent="Try searching for pins 📍, art forms, artist, cities..."></nz-empty>
+  <ng-container [ngSwitch]="state">
+    <nz-empty
+      *ngSwitchCase="'empty'"
+      [nzNotFoundImage]="emptyQuery"
+      nzNotFoundContent="Try searching for pins 📍, art forms, artist..."
+    ></nz-empty>
+    <nz-empty
+      *ngSwitchCase="'hasQuery'"
+      [nzNotFoundImage]="pendingQuery"
+      nzNotFoundContent="Loading your results..."
+    ></nz-empty>
+    <nz-empty
+      *ngSwitchCase="'hasError'"
+      [nzNotFoundImage]="errorQuery"
+      [nzNotFoundContent]="errorContent"
+    ></nz-empty>
+    <div nz-row *ngSwitchDefault>
+      <app-pin-card
+        nz-col
+        nzXs="24"
+        *ngFor="let pin of _state.data"
+        [highlight]="selectedPin === pin.id"
+        [data]="pin"
+        [showExtra]="'top'"
+        [nzHoverable]="true"
+        (onClick)="onClickCard($event)"
+      >
+        <a *ngIf="!isFullPage" [routerLink]="['/', 'pin', pin.id]" target="_blank" nz-button nzType="link">
+          View page <i nz-icon nzType="select"></i>
+        </a>
+        <a *ngIf="isFullPage" [routerLink]="['/', 'map', 'pin', pin.id]" target="_blank" nz-button nzType="link">
+          View on map <i nz-icon nzType="environment"></i>
+        </a>
+      </app-pin-card>
+    </div>
+  </ng-container>
 </app-padded-page-content>
 
-<ng-template #nothingFoundTemplate>
-  <i nz-icon nzType="search" [ngStyle]="{'font-size': '100px', 'opacity':.25, 'line-height': 1}"></i>
+<ng-template #errorContent>
+  <p nz-typography>
+    Something went wrong when running your request. Please try again or try
+    searching for something else...
+  </p>
+  <button nz-button nzType="primary" nzGhost (click)="retry()">
+    Try again
+  </button>
+</ng-template>
+
+<ng-template #errorQuery>
+  <i nz-icon nzType="close-circle" nzDanger class="empty-state-icon"></i>
+</ng-template>
+<ng-template #pendingQuery>
+  <nz-spin nzSimple [nzIndicator]="indicatorTemplate"></nz-spin>
+  <ng-template #indicatorTemplate
+    ><i nz-icon class="empty-state-icon" nzType="loading"></i
+  ></ng-template>
+</ng-template>
+<ng-template #emptyQuery>
+  <i
+    nz-icon
+    nzType="compass"
+    nzTheme="twotone"
+    class="empty-state-icon"
+    [nzTwotoneColor]="'#EB6FF6'"
+  ></i>
 </ng-template>
