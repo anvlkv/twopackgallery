@@ -203,6 +203,7 @@
             "routes": [
               "/",
               "/map",
+              "/pin/*",
               "/error",
               "/authorize",
               "/welcome"
