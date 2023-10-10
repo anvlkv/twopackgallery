@@ -7,31 +7,30 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
+import { LngLatBounds } from 'mapbox-gl';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
+import {
+  NzNotificationModule,
+  NzNotificationService,
+} from 'ng-zorro-antd/notification';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import {
   BehaviorSubject,
   Subject,
   Subscription,
   combineLatest,
+  distinctUntilChanged,
   filter,
   map,
   of,
-  skip,
   switchMap,
-  take,
   tap,
 } from 'rxjs';
 import { BrowserStorageService } from '../browser-storage.service';
 import { LocationService } from '../location.service';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { ZoomSyncService } from '../zoom-sync.service';
-import {
-  NzNotificationModule,
-  NzNotificationService,
-} from 'ng-zorro-antd/notification';
-import { LngLat, LngLatBounds } from 'mapbox-gl';
 
 export const LOCATION_CONSENT_KEY = 'locationPermission';
 export type Consent = { consent: 'accept' | 'deny' };
@@ -79,6 +78,7 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
         .pipe(filter((consent) => consent?.consent === 'accept'))
         .subscribe(() => {
           this.location.startTrackingLocation();
+          this.ch.detectChanges();
         })
     );
 
@@ -86,15 +86,19 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
       combineLatest({
         zoom: this.zoomSync.zoom.pipe(map(({ value }) => value)),
         location: this.location.runningLocation,
-        bounds: this.location.currentBounds.pipe(filter(b => b.length > 0)),
-      }).subscribe(({ zoom, location, bounds }) => {
-        this.globalView =
-          zoom > 12.17 &&
-          new LngLatBounds(
-            [bounds[0], bounds[1]],
-            [bounds[2], bounds[3]]
-          ).contains(location);
+        bounds: this.location.currentBounds.pipe(filter((b) => b.length > 0)),
       })
+        .pipe(
+          map(({ zoom, location, bounds }) => {
+            const lnLtBounds = new LngLatBounds(bounds[0], bounds[1]);
+            return zoom >= 12.17 && lnLtBounds.contains(location);
+          }),
+          distinctUntilChanged()
+        )
+        .subscribe((globalView) => {
+          this.globalView = globalView;
+          this.ch.detectChanges();
+        })
     );
   }
 
@@ -158,10 +162,11 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
 
       return consent$.pipe(
         tap((value) => {
-          this.storage.set<Consent>(LOCATION_CONSENT_KEY, {
+          const consent: Consent = {
             consent: value ? 'accept' : 'deny',
-          });
-          this.locationConsent.next(this.storage.get(LOCATION_CONSENT_KEY));
+          };
+          this.storage.set<Consent>(LOCATION_CONSENT_KEY, consent);
+          this.locationConsent.next(consent);
         })
       );
     } else {

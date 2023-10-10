@@ -1,6 +1,7 @@
 import { withAuth0 } from '@netlify/auth0';
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import { withAuth0Token } from 'api/utils/auth0';
+import { EPointStatus } from 'api/utils/point_status';
 import { sendEmail, EMailBox } from 'api/utils/send_email';
 import { userFromSub } from 'api/utils/sub';
 import { UserPointStatus } from 'src/app/point.types';
@@ -16,7 +17,7 @@ const handler: Handler = withAuth0(
     const { reason } = JSON.parse(event.body!);
 
     if (!reason?.length || !user) {
-      throw new Error('missing data')
+      throw new Error('missing data');
     }
 
     await withAuth0Token({
@@ -47,9 +48,12 @@ const handler: Handler = withAuth0(
     for (let { id, point, status } of points) {
       if (status === UserPointStatus.Owner) {
         transactions.push({
-          delete: {
+          update: {
             table: 'points',
             id: point!.id,
+            fields: {
+              status: 'user_deleted',
+            },
           },
         });
         owned_count++;
@@ -63,6 +67,25 @@ const handler: Handler = withAuth0(
         },
       });
     }
+
+    const af_points = await client.db.art_forms_points
+      .filter({
+        'point.id': {
+          $any: points
+            .filter(({ status }) => status === UserPointStatus.Owner)
+            .map(({ point }) => point!.id),
+        },
+      })
+      .getAll({ columns: ['id'] });
+
+    transactions.push(
+      ...af_points.map(({ id }) => ({
+        delete: {
+          table: 'art_forms_points' as any,
+          id,
+        },
+      }))
+    );
 
     transactions.push({
       delete: {
