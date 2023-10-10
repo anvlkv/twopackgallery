@@ -10,10 +10,20 @@
   [nzFileListRender]="fileListTemplate"
   [nzDisabled]="disabled"
 >
-  <div class="ant-btn ant-btn-dashed ant-btn-lg" *ngIf="!pictureUrl">
+<div class="ant-btn ant-btn-dashed ant-btn-lg" *ngIf="!pictureUrl">
+  <nz-spin
+    *ngIf="reading; else button"
+    nzSimple
+    [nzIndicator]="indicatorTemplate"
+  ></nz-spin>
+  <ng-template #indicatorTemplate
+    ><i nz-icon nzType="loading"></i
+  ></ng-template>
+  <ng-template #button>
     <i class="upload-icon" nz-icon nzType="plus"></i>
     <div class="ant-upload-text">Upload a map tile image</div>
-  </div>
+  </ng-template>
+</div>
 </nz-upload>
 
 <ng-template #fileListTemplate>

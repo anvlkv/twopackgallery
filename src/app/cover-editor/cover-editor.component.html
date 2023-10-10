@@ -11,8 +11,18 @@
   [nzDisabled]="disabled"
 >
   <div class="ant-btn ant-btn-dashed ant-btn-lg" *ngIf="!pictureUrl">
-    <i class="upload-icon" nz-icon nzType="plus"></i>
-    <div class="ant-upload-text">Upload a cover image</div>
+    <nz-spin
+      *ngIf="reading; else button"
+      nzSimple
+      [nzIndicator]="indicatorTemplate"
+    ></nz-spin>
+    <ng-template #indicatorTemplate
+      ><i nz-icon nzType="loading"></i
+    ></ng-template>
+    <ng-template #button>
+      <i class="upload-icon" nz-icon nzType="plus"></i>
+      <div class="ant-upload-text">Upload a cover image</div>
+    </ng-template>
   </div>
 </nz-upload>
 
@@ -58,6 +68,7 @@
       nz-button
       nzSize="small"
       (click)="clearImage()"
+      [disabled]="disabled"
       nz-tooltip="Replace image"
     >
       <i nz-icon nzType="redo"></i>

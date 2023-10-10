@@ -3,6 +3,7 @@ import { Component, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { ImageCropperModule } from 'ngx-image-cropper';
@@ -11,12 +12,15 @@ import { CoverEditorComponent } from '../cover-editor/cover-editor.component';
 @Component({
   selector: 'app-tile-editor',
   standalone: true,
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
     NzUploadModule,
     ImageCropperModule,
     NzButtonModule,
     NzIconModule,
-    NzToolTipModule,],
+    NzSpinModule,
+    NzToolTipModule,
+  ],
   templateUrl: './tile-editor.component.html',
   styleUrls: ['./tile-editor.component.scss'],
   providers: [
@@ -28,9 +32,9 @@ import { CoverEditorComponent } from '../cover-editor/cover-editor.component';
   ],
 })
 export class TileEditorComponent extends CoverEditorComponent {
-  override coverRatio: { W_RATIO: number; H_RATIO: number; STR: string; } = {
+  override coverRatio: { W_RATIO: number; H_RATIO: number; STR: string } = {
     W_RATIO: 1,
     H_RATIO: 1,
-    STR: '1 / 1'
+    STR: '1 / 1',
   };
 }

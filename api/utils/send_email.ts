@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 export enum EMailBox {
   Hello = 'hello',
   Support = 'support',
@@ -13,7 +11,7 @@ export async function sendEmail<D = any>(
   parameters: D,
   bcc = false
 ) {
-  const sender = `${from}@${process.env['NETLIFY_EMAILS_MAILGUN_DOMAIN']}`;
+  const sender = `twopack.gallery | ${from} <${from}@${process.env['NETLIFY_EMAILS_MAILGUN_DOMAIN']}>`;
   // TODO: get stage url
   const templateUrl = `${process.env['URL']}/.netlify/functions/emails/${template}`;
 
