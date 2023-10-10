@@ -1,0 +1,27 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column width="420px">
+        <mj-text font-size="20px" align="center" line-height="1.2">You just created a new pin 📍"{{location_name}}"</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column width="420px" background-color="#f0f0f0" border-radius="30px" padding="20px">
+        <mj-text line-height="1.7">Hi {{user_name}},
+          <br />
+          You've just created your pin 📍<a href="{{location_url}}">{{location_name}}</a>
+          at twopack.gallery.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column width="420px">
+        <mj-text line-height="1.2" font-style="italic">
+          A tool for those who hunts for works art and those who create them
+          <br/>
+          <a href="https://twopack.gallery">twopack.gallery</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

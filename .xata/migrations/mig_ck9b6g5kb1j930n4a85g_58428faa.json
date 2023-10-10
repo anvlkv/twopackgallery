@@ -1,0 +1,16 @@
+{
+  "id": "mig_ck9b6g5kb1j930n4a85g",
+  "parentID": "mig_ck9b6d0oj0i1n5mtkaqg",
+  "checksum": "1:58428faa2acb4b5de4d1f07a57dbb80216cb8ba9d64c049fe3a468693f761f41",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "lat",
+          "type": "float"
+        },
+        "table": "points"
+      }
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+<app-padded-page-content [narrow]="!isFullPage">
+  <nz-steps [nzCurrent]="currentStep.i" nzDirection="vertical">
+    <nz-step
+      nzTitle="Location"
+      [nzDescription]="LocationDescriptionTemplate"
+    ></nz-step>
+    <nz-step
+      nzTitle="Title"
+      [nzDescription]="TitleDescriptionTemplate"
+    ></nz-step>
+    <nz-step
+      nzTitle="Cover"
+      [nzDescription]="CoverDescriptionTemplate"
+    ></nz-step>
+    <nz-step
+      nzTitle="Map tile"
+      [nzDescription]="MapTileDescriptionTemplate"
+    ></nz-step>
+    <nz-step
+      nzTitle="Publish"
+      [nzDescription]="PublishDescriptionTemplate"
+    ></nz-step>
+  </nz-steps>
+</app-padded-page-content>
+
+<ng-template #LocationDescriptionTemplate>
+  <div class="step-description">Geographical location of your new pin 📍</div>
+  <div class="step-unfold" *ngIf="currentStep.id === 'location'">
+    <div nz-form>
+      <nz-form-item>
+        <app-address [formControl]="pinForm.controls['address']"></app-address>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-alert
+          nzType="info"
+          nzMessage="Drag the map to adjust location"
+          nzDescription="Alternatively manually edit the address"
+        ></nz-alert>
+      </nz-form-item>
+      <nz-form-item *ngIf="isFullPage">
+        <app-mini-map
+          [animateCursor]="true"
+          [point]="minMapLocation"
+          (pointChange)="onMiniMapLocationChange($event)"
+        ></app-mini-map>
+      </nz-form-item>
+      <nz-form-item class="status-control">
+        <nz-form-label nzFor="visitors"
+          >Does this pin 📍 accept real world visitors?</nz-form-label
+        >
+        <nz-form-control>
+          <nz-switch
+            nzId="visitors"
+            [formControl]="pinForm.controls['visitors']"
+            nzCheckedChildren="Yes"
+          ></nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngIf="pinForm.controls['visitors'].value">
+        <textarea
+          nz-input
+          placeholder="How to get there? (or leave empty)"
+          [formControl]="pinForm.controls['location_description']"
+          [nzAutosize]="{ minRows: 2, maxRows: 7 }"
+        ></textarea>
+      </nz-form-item>
+      <ng-container [ngTemplateOutlet]="doneButton"></ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #TitleDescriptionTemplate>
+  <div class="step-description">
+    Public view of your pin. Personalize your pin 📍 title and description
+  </div>
+  <div class="step-unfold" *ngIf="currentStep.id === 'title'">
+    <div nz-form>
+      <nz-form-item>
+        <nz-form-control nzErrorTip="Please enter a unique name for your pin">
+          <nz-input-group>
+            <input
+              nz-input
+              nzSize="large"
+              placeholder="Pin 📍 title"
+              [formControl]="pinForm.controls['title']"
+            />
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-control
+          nzErrorTip="Please select at least one, and no more than 5 art forms for your pin"
+        >
+          <nz-select
+            nzAllowClear
+            nzShowSearch
+            nzMode="multiple"
+            nzPlaceHolder="Art form"
+            [nzCustomTemplate]="valueTemplate"
+            [formControl]="pinForm.controls['art_forms']"
+            [nzLoading]="loadingArtForms"
+            [nzOptions]="artFormsList"
+          >
+          </nz-select>
+          <ng-template #valueTemplate let-selected>
+            <div class="ant-select-selection-item-content">
+              {{ selected.nzLabel }}
+            </div>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <textarea
+          nz-input
+          placeholder="Pin 📍 description (or leave empty)"
+          [formControl]="pinForm.controls['description']"
+          [nzAutosize]="{ minRows: 2, maxRows: 7 }"
+        ></textarea>
+      </nz-form-item>
+      <ng-container [ngTemplateOutlet]="doneButton"></ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #CoverDescriptionTemplate>
+  <div class="step-description">
+    Public view of your pin 📍. Personalize your cover
+  </div>
+  <div class="step-unfold" *ngIf="currentStep.id === 'cover'">
+    <app-cover-editor
+      [formControl]="pinForm.controls['cover']"
+    ></app-cover-editor>
+    <ng-container [ngTemplateOutlet]="doneButton"></ng-container>
+  </div>
+</ng-template>
+
+<ng-template #MapTileDescriptionTemplate>
+  <div class="step-description">
+    Public view of your pin 📍. Personalize your map tile
+  </div>
+  <div class="step-unfold" *ngIf="currentStep.id === 'tile'">
+    <app-tile-editor [formControl]="pinForm.controls['tile']"></app-tile-editor>
+    <ng-container [ngTemplateOutlet]="doneButton"></ng-container>
+  </div>
+</ng-template>
+
+<ng-template #PublishDescriptionTemplate>
+  <div class="step-description">Publish your pin 📍 or save as draft</div>
+  <div class="step-unfold" *ngIf="currentStep.id === 'publish'">
+    <div nz-form>
+      <nz-form-item class="status-control">
+        <nz-form-label nzFor="status"
+          >Should this pin 📍 be publicly visible on the map?</nz-form-label
+        >
+        <nz-form-control>
+          <nz-switch
+            nzId="status"
+            [formControl]="pinForm.controls['published']"
+            nzCheckedChildren="Yes"
+          ></nz-switch>
+        </nz-form-control>
+        <nz-alert
+          *ngIf="!(user.verified | async)"
+          nzType="warning"
+          nzMessage="Make sure your account is verified before you can publish"
+          [nzAction]="verifyAccountLink"
+        ></nz-alert>
+        <ng-template #verifyAccountLink>
+          <a routerLink="/account" target="_blank">Go to my account</a>
+        </ng-template>
+      </nz-form-item>
+      <nz-form-item class="status-control">
+        <nz-form-label nzFor="anonymous"
+          >Hide your personal
+          <app-user-tag [user]="user.user | async" /> tag?</nz-form-label
+        >
+        <nz-form-control>
+          <nz-switch
+            nzId="anonymous"
+            [formControl]="pinForm.controls['anonymous']"
+            nzCheckedChildren="Yes"
+          ></nz-switch>
+        </nz-form-control>
+        <nz-alert
+          *ngIf="
+            !(user.user | async)?.user?.tag &&
+            !pinForm.controls['anonymous'].value
+          "
+          nzType="warning"
+          nzMessage="Your account doesn't seem to have a personal tag yet. Let's create one"
+          [nzDescription]="editTag"
+        ></nz-alert>
+        <ng-template #editTag>
+          <nz-form-item>
+            <nz-form-label nzFor="tag">Tag</nz-form-label>
+            <nz-form-control
+              nzErrorTip="A tag must be unique and may only contain letters a-z and digits"
+            >
+              <nz-input-group [nzPrefix]="'@'">
+                <input
+                  nz-input
+                  (input)="handleTagInput($event)"
+                  [formControl]="tagControl"
+                  name="tag"
+                  id="tag"
+                />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-template>
+      </nz-form-item>
+      <nz-divider></nz-divider>
+      <legend>
+        <small *ngIf="pinForm.controls['published'].value">
+          By publishing this pin 📍 on twopack.gallery map, you confirm it
+          features the chosen art form, is safe for visitors, and that you are
+          the exhibiting artist. Please note, irrelevant or unsafe pins 📍 will
+          be removed from public display.
+        </small>
+      </legend>
+      <ng-container [ngTemplateOutlet]="doneButton"></ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #doneButton>
+  <div class="form-actions">
+    <button
+      nz-button
+      nzType="primary"
+      [disabled]="!isStepValid"
+      nzSize="large"
+      (click)="completeStep($event)"
+      [nzLoading]="saving"
+    >
+      <ng-container *ngIf="currentStep.id !== 'publish'; else publishTemplate">
+        Done
+      </ng-container>
+      <ng-template #publishTemplate>
+        <ng-container
+          *ngIf="pinForm.controls['published'].value; else draftTemplate"
+        >
+          Publish
+        </ng-container>
+        <ng-template #draftTemplate> Save draft </ng-template>
+      </ng-template>
+    </button>
+    <button nz-button nzSize="large" (click)="popStep($event)">
+      <ng-container *ngIf="currentStep.i > 0; else cancelTemplate">
+        Go back
+      </ng-container>
+      <ng-template #cancelTemplate> Cancel </ng-template>
+    </button>
+  </div>
+</ng-template>

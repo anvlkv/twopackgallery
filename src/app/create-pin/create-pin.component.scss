@@ -1,0 +1,45 @@
+nz-steps {
+  padding-top: 1rem;
+}
+
+// .step-description {
+
+// }
+.step-unfold {
+  margin-top: .75rem;
+}
+
+.status-control {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  nz-form-label {
+    flex-grow: 0;
+  }
+  nz-form-control {
+    // flex-grow: 1;
+    
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+}
+
+app-cover-editor, app-tile-editor {
+  margin-bottom: .75rem;
+  width: 100%;
+  height: auto;
+  min-height: 100px
+}
+
+nz-alert, app-address {
+  width: 100%;
+}
+
+app-mini-map {
+  width: 100%;
+  height: 50vh;
+}
+
+legend {
+  margin-bottom: .75rem;
+}

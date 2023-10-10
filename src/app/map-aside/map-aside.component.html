@@ -1,0 +1,33 @@
+<aside>
+  <app-create-pin-btn
+    *ngIf="!noCreate"
+    [nzSize]="buttonSize"
+  ></app-create-pin-btn>
+  <app-locate-me-btn [nzSize]="buttonSize"></app-locate-me-btn>
+  <button
+    nz-button
+    [nzSize]="buttonSize"
+    nzShape="circle"
+    nz-tooltip
+    nzTooltipTitle="Zoom in map view"
+    nzTooltipPlacement="left"
+    (mousedown)="handlePlus($event)"
+    (mouseup)="endZoomHandle($event)"
+    [disabled]="!canZoomIn"
+  >
+    <span nz-icon nzType="plus"></span>
+  </button>
+  <button
+    nz-button
+    [nzSize]="buttonSize"
+    nz-tooltip
+    nzTooltipTitle="Zoom out map view"
+    nzTooltipPlacement="left"
+    nzShape="circle"
+    (mousedown)="handleMinus($event)"
+    (mouseup)="endZoomHandle($event)"
+    [disabled]="!canZoomOut"
+  >
+    <span nz-icon nzType="minus"></span>
+  </button>
+</aside>

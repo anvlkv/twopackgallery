@@ -1,0 +1,66 @@
+<nz-upload
+  class="cover-uploader"
+  nzName="cover"
+  nzListType="picture"
+  [(nzFileList)]="coverFile"
+  [nzBeforeUpload]="beforeUploadCover"
+  [nzShowUploadList]="false"
+  [nzFileType]="'image/png,image/jpeg,image/gif,image/bmp'"
+  [nzMultiple]="false"
+  [nzFileListRender]="fileListTemplate"
+  [nzDisabled]="disabled"
+>
+  <div class="ant-btn ant-btn-dashed ant-btn-lg" *ngIf="!pictureUrl">
+    <i class="upload-icon" nz-icon nzType="plus"></i>
+    <div class="ant-upload-text">Cover image</div>
+  </div>
+</nz-upload>
+
+<ng-template #fileListTemplate>
+  <ng-container *ngIf="imageCropped; else imageCropper">
+    <app-cover-image
+      *ngIf="pictureUrl"
+      [src]="pictureUrl"
+      [b64]="!!(fb64 | async)"
+      [ngStyle]="{ width: width + 'px' }"
+    />
+  </ng-container>
+
+  <ng-template #imageCropper>
+    <image-cropper
+      *ngIf="pictureUrl"
+      [imageBase64]="pictureUrl"
+      [aspectRatio]="coverRatio.W_RATIO / coverRatio.H_RATIO"
+      [maintainAspectRatio]="true"
+      [allowMoveImage]="true"
+      (cropperReady)="onCropperReady()"
+      (loadImageFailed)="onImageLoadFailed()"
+      (imageCropped)="onImageCropped($event)"
+      [nz-tooltip]="cropperHint"
+      [nzTooltipVisible]="!croppedImage"
+      nzTooltipPlacement="bottom"
+      [ngStyle]="{ width: width + 'px', 'min-height': '100%' }"
+    >
+    </image-cropper>
+  </ng-template>
+
+  <nz-button-group class="cropper-actions" *ngIf="pictureUrl">
+    <button
+      *ngIf="croppedImage && !imageCropped"
+      nz-button
+      nzType="primary"
+      nzSize="small"
+      (click)="acceptCropped()"
+    >
+      <i nz-icon nzType="check-circle"></i> Done
+    </button>
+    <button
+      nz-button
+      nzSize="small"
+      (click)="clearImage()"
+      nz-tooltip="Replace image"
+    >
+      <i nz-icon nzType="redo"></i>
+    </button>
+  </nz-button-group>
+</ng-template>

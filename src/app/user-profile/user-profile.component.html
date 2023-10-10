@@ -1,0 +1,66 @@
+<app-padded-page-content>
+  <h2 nz-typography>Pins owned by {{ userName }}</h2>
+  <ng-container *ngIf="userData; else skeletonTemplate">
+    <div nz-row [nzGutter]="[16, 24]">
+      <app-pin-card
+        nz-col
+        [nzSpan]="6"
+        *ngFor="let d of userData.ownerships"
+        [data]="d.point"
+        [showExtra]="'bottom'"
+      >
+        <a
+          [routerLink]="['/', 'map', 'pin', d.point?.id!]"
+          nz-button
+          nzType="link"
+        >
+          Show on map <i nz-icon nzType="environment"></i>
+        </a>
+        <a [routerLink]="['/', 'pin', d.point?.id!]" nz-button nzType="link">
+          Open page <i nz-icon nzType="select"></i>
+        </a>
+      </app-pin-card>
+    </div>
+  </ng-container>
+  <h2 nz-typography>Pins where {{ userName }} contributes</h2>
+  <ng-container *ngIf="userData; else skeletonTemplate">
+    <div nz-row [nzGutter]="[16, 24]">
+      <app-pin-card
+        nz-col
+        [nzSpan]="6"
+        *ngFor="let d of userData.contributions"
+        [data]="d.point"
+        [showExtra]="'bottom'"
+      >
+        <a
+          [routerLink]="['/', 'map', 'pin', d.point?.id!]"
+          nz-button
+          nzType="link"
+        >
+          Show on map <i nz-icon nzType="environment"></i>
+        </a>
+        <a [routerLink]="['/', 'pin', d.point?.id!]" nz-button nzType="link">
+          Open page <i nz-icon nzType="select"></i>
+        </a>
+      </app-pin-card>
+    </div>
+  </ng-container>
+</app-padded-page-content>
+
+<ng-template #skeletonTemplate>
+  <div nz-row [nzGutter]="[16, 24]">
+    <div *ngFor="let i of [].constructor(5)" nz-col [nzSpan]="6">
+      <nz-card [nzCover]="skeletonCoverTemplate" class="pin-card">
+        <nz-skeleton [nzActive]="true"></nz-skeleton>
+      </nz-card>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #skeletonCoverTemplate let-content>
+  <nz-skeleton-element
+    nzType="image"
+    [ngStyle]="{ width: '100%', 'aspect-ratio': coverRatio }"
+    [nzActive]="true"
+  ></nz-skeleton-element>
+</ng-template>

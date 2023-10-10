@@ -1,0 +1,112 @@
+<nz-card
+  *ngIf="isCard; else headerTemplate"
+  [nzBodyStyle]="{ padding: 0 }"
+  class="user-card"
+>
+  <ng-container [ngTemplateOutlet]="contentTemplate"></ng-container>
+</nz-card>
+
+<ng-container
+  *ngIf="!mobile && isCard"
+  [ngTemplateOutlet]="ngContentTemplate"
+></ng-container>
+
+<ng-template #ngContentTemplate>
+  <ng-content></ng-content>
+</ng-template>
+
+<ng-template #headerTemplate>
+  <ng-container [ngTemplateOutlet]="contentTemplate"></ng-container>
+</ng-template>
+
+<ng-template #contentTemplate>
+  <div
+    nz-space
+    nzDirection="horizontal"
+    [nzSplit]="splitTemplate"
+    nzAlign="center"
+    class="header-space"
+  >
+    <ng-container *nzSpaceItem [ngTemplateOutlet]="logoTemplate"></ng-container>
+    <ng-container *nzSpaceItem>
+      <ng-container *ngIf="auth.isAuthenticated$ | async; else logInTemplate">
+        <ng-container *ngIf="auth.user$ | async as user">
+          <button
+            nz-button
+            nzType="text"
+            [nzSize]="isCard ? 'small' : 'large'"
+            nz-dropdown
+            [nzDropdownMenu]="userMenu"
+            [nzTrigger]="'click'"
+            class="user-menu-btn"
+          >
+            <app-avatar
+              class="avatar"
+              [size]="isCard ? 'small' : 'default'"
+            ></app-avatar>
+            <p *ngIf="!mobile" nz-typography>{{ userName }}</p>
+          </button>
+          <nz-dropdown-menu #userMenu="nzDropdownMenu">
+            <nav nz-menu>
+              <a nz-menu-item routerLink="/profile"
+                >Profile page &nbsp;<small>(private)</small></a
+              >
+              <nz-divider nz-menu-divider></nz-divider>
+              <a nz-menu-item routerLink="/account">Manage account</a>
+              <nz-divider nz-menu-divider></nz-divider>
+              <a nz-menu-item routerLink="/feedback">Feedback and support</a>
+              <nz-divider nz-menu-divider></nz-divider>
+              <a *ngIf="mobile" nz-menu-item nzWarning (click)="logout($event)">
+                Log out
+              </a>
+            </nav>
+          </nz-dropdown-menu>
+        </ng-container>
+        <ng-container *ngIf="!mobile">
+          <button
+            *nzSpaceItem
+            nz-button
+            [nzSize]="isCard ? 'small' : 'default'"
+            (click)="logout($event)"
+          >
+            Log out
+          </button>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+    <ng-container *ngIf="mobile || !isCard">
+      <ng-container
+        *nzSpaceItem
+        [ngTemplateOutlet]="ngContentTemplate"
+      ></ng-container>
+    </ng-container>
+  </div>
+</ng-template>
+
+<ng-template #logoTemplate>
+  <a [routerLink]="logoLink" class="logo">
+    <h1 nz-typography>
+      <img
+        src="/assets/favicon/mstile-310x310.png"
+        [ngClass]="{ card: isCard }"
+      />
+      twopack.gallery<sup><i>⍺</i></sup>
+    </h1>
+  </a>
+</ng-template>
+
+<ng-template #logInTemplate>
+  <button
+    nz-button
+    nzType="primary"
+    [nzSize]="isCard ? 'small' : 'default'"
+    (click)="login($event)"
+    [nzLoading]="auth.isLoading$ | async"
+  >
+    Log in
+  </button>
+</ng-template>
+
+<ng-template #splitTemplate>
+  <nz-divider nzType="vertical" nzDashed></nz-divider>
+</ng-template>

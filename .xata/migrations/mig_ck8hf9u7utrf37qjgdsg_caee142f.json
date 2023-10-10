@@ -1,0 +1,11 @@
+{
+  "id": "mig_ck8hf9u7utrf37qjgdsg",
+  "checksum": "1:caee142f86be1c6a457d5e3c481fa61937e7cd2d8ac8025ea61abce0e595e9fe",
+  "operations": [
+    {
+      "addTable": {
+        "table": "points"
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column width="420px">
+        <mj-text font-size="20px" align="center" line-height="1.2">You just delted your account at twopack.gallery</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column width="420px" background-color="#f0f0f0" border-radius="30px" padding="20px">
+        <mj-text line-height="1.7">
+          <p>Hi {{user_name}},</p>
+          <p>You've just deleted your account
+            at twopack.gallery.</p>
+          <p>
+            Which means we went ahead and removed:
+          </p>
+          <ul>
+            <li>
+              your credentials from our 3rd party authenticator
+            </li>
+            <li>
+              your personal tag and profile picture
+            </li>
+            <li>
+              all your {{owned_count}} pins 📍 ownership records
+            </li>
+            <li>
+              all interactions with other {{other_count}} pins 📍
+            </li>
+          </ul>
+          <p>The information contained in your {{owned_count}} owned pins 📍 will be reviewed and deleted within two weeks.</p>
+          <p>This also means your email address will be prevented from creating a new account until we have a chat.</p>
+          <p>Should there be anything we can do for you, don't hesitate to reply to this email</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column width="420px">
+        <mj-text line-height="1.2" font-style="italic">
+          A tool for those who hunts for works art and those who create them
+          <br />
+          <a href="https://twopack.gallery">twopack.gallery</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

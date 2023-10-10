@@ -1,0 +1,18 @@
+{
+  "id": "mig_ckcpeun245agoehqdpvg",
+  "parentID": "mig_ckcpenv245agoehqdpug",
+  "checksum": "1:d7f9ff970cc4530ce14503e0c8887a97e9d3f43715a8a967dcc63944fdba4054",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "feedback_type",
+          "type": "string",
+          "notNull": true,
+          "defaultValue": "issue"
+        },
+        "table": "feedback"
+      }
+    }
+  ]
+}

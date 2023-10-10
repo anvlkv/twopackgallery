@@ -1,0 +1,19 @@
+{
+  "id": "mig_ckg4nkhf6euat44954g0",
+  "parentID": "mig_ckg4ne8hjvtp4n6kh42g",
+  "checksum": "1:3e122b293bac21b7a007dbae9ae15077f2b572423d23b676b5b40b3a2ad94f87",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "user",
+          "type": "link",
+          "link": {
+            "table": "users"
+          }
+        },
+        "table": "users_points"
+      }
+    }
+  ]
+}

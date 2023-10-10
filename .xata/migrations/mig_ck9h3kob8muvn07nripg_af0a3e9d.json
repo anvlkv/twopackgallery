@@ -1,0 +1,19 @@
+{
+  "id": "mig_ck9h3kob8muvn07nripg",
+  "parentID": "mig_ck9h3b0b8muvn07nriog",
+  "checksum": "1:af0a3e9dfb1012e555a1fb5d49ee428ee44f97555e07f1c3f546cf1e18eadc9a",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "publisher",
+          "type": "link",
+          "link": {
+            "table": "users"
+          }
+        },
+        "table": "points"
+      }
+    }
+  ]
+}

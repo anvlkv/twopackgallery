@@ -1,0 +1,36 @@
+:host {
+  display: block;
+  background-image: linear-gradient(to bottom, #1f0221, black 59%);
+}
+
+.cta-group {
+  display: flex;
+  margin-top: 0.75rem;
+  flex-direction: column;
+  [nz-button] {
+    &:first-child {
+      margin-bottom: 0.75rem;
+    }
+  }
+  
+  @media (min-width: 480px) {
+    transform: scale(1.5, 1.5);
+    transform-origin: center center;
+  }
+
+  @media (min-width: 820px) {
+    flex-direction: row;
+    [nz-button] {
+      &:first-child {
+        margin-bottom: 0;
+        margin-right: 0.75rem;
+      }
+    }
+  }
+}
+
+
+[nz-typography] {
+  max-width: 793.07px;
+  width: auto;
+}

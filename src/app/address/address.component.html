@@ -1,0 +1,108 @@
+<i nz-icon nzType="environment"></i>
+<app-view-address [address]="geoAddress"></app-view-address>
+<button
+  nz-button
+  nz-popover
+  [nzType]="isVagueGeoAddress ? 'primary' : 'default'"
+  nz-tooltip
+  nzPopoverTitle="Specify exact address"
+  nzTooltipTitle="Specify exact address"
+  nzTooltipPlacement="left"
+  [(nzPopoverVisible)]="formVisible"
+  (nzPopoverVisibleChange)="togglePopover($event)"
+  nzPopoverTrigger="click"
+  [nzPopoverContent]="contentTemplate"
+>
+  <span nz-icon nzType="edit"></span>
+</button>
+
+<ng-template #contentTemplate>
+  <form
+    nz-form
+    [ngStyle]="{ 'min-width': '320px' }"
+    [nzLayout]="'vertical'"
+    [formGroup]="addressForm"
+    (ngSubmit)="onSubmit()"
+  >
+    <nz-form-control>
+      <nz-input-group>
+        <input
+          nz-input
+          placeholder="Address line 1"
+          formControlName="address_1"
+        />
+      </nz-input-group>
+    </nz-form-control>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <input
+            nz-input
+            placeholder="Address line 2"
+            formControlName="address_2"
+          />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <input nz-input placeholder="City" formControlName="place" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <input nz-input placeholder="Region" formControlName="region" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-select
+          formControlName="code"
+          nzShowSearch
+          nzPlaceHolder="Country"
+          [nzOptions]="countryOptions"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <input nz-input placeholder="Postcode" formControlName="postcode" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item
+      *ngIf="addressForm.errors && addressForm.errors['NothingFound']"
+    >
+      <nz-alert
+        nzType="warning"
+        [nzMessage]="addressForm.errors['NothingFound']"
+        nzShowIcon
+      ></nz-alert>
+    </nz-form-item>
+    <div class="form-actions">
+      <button
+        nz-button
+        nzType="primary"
+        nzGhost
+        type="submit"
+        [disabled]="!addressForm.valid"
+        [nzLoading]="addressForm.pending"
+      >
+        Done
+      </button>
+      <button
+        nz-button
+        nzGhost
+        *ngIf="addressForm.errors && addressForm.errors['NothingFound']"
+        (click)="onSubmitVague($event)"
+      >
+        Use this address anyway
+      </button>
+    </div>
+  </form>
+</ng-template>

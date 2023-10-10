@@ -1,0 +1,12 @@
+{
+  "id": "mig_ck9b7bgoj0i1n5mtkav0",
+  "parentID": "mig_ck9b6s5kb1j930n4a88g",
+  "checksum": "1:6b8e137b2626bdf4cdcce0cea04260b556799e195f9f5cfde1104845ef71bdda",
+  "operations": [
+    {
+      "addTable": {
+        "table": "art_forms"
+      }
+    }
+  ]
+}

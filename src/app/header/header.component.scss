@@ -1,0 +1,43 @@
+.user-card {
+  padding: 0.25rem;
+  border-radius: 1.5rem;
+  [nz-button] {
+    border-radius: .75rem;
+  }
+}
+
+[nz-typography] {
+  margin-bottom: 0;
+}
+
+.user-menu-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.avatar {
+  margin-right: .75rem;
+}
+
+.header-space {
+  min-width: 100%;
+  justify-content: space-between;
+}
+
+.logo {
+  h1 {
+    font-weight: normal;
+    img {
+      display: inline-block;
+      height: 3rem;
+      width: 3rem;
+      margin-left: .25rem;
+      &.card {
+        height: 1.25rem;
+        width: 1.25rem;
+      }
+    }
+  }
+}
+

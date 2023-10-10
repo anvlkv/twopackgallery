@@ -1,0 +1,195 @@
+<div
+  nz-form
+  [nzLayout]="'vertical'"
+  [formGroup]="pinForm"
+  (ngSubmit)="onSubmit()"
+>
+  <nz-form-item class="cover">
+    <app-cover-editor
+      formControlName="cover"
+      [ngStyle]="{ 'aspect-ratio': coverRatio.STR }"
+    ></app-cover-editor>
+  </nz-form-item>
+  <app-padded-page-content [narrow]="!isFullPage">
+    <nz-form-item>
+      <nz-form-control nzErrorTip="Please make sure the address is complete">
+        <app-address formControlName="address"></app-address>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="isFullPage">
+      <app-mini-map
+        [point]="minMapLocation"
+        (pointChange)="onMiniMapLocationChange($event)"
+        [animateCursor]="true"
+      ></app-mini-map>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control nzErrorTip="Please enter a unique name for your pin 📍">
+        <nz-input-group>
+          <input
+            nz-input
+            nzSize="large"
+            placeholder="Pin 📍 title"
+            formControlName="title"
+          />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control
+        nzErrorTip="Please select at least one, and no more than 5 art forms for your pin"
+      >
+        <nz-select
+          nzAllowClear
+          nzShowSearch
+          nzMode="multiple"
+          nzPlaceHolder="Art form"
+          [nzCustomTemplate]="valueTemplate"
+          formControlName="art_forms"
+          [nzLoading]="loadingArtForms"
+          [nzOptions]="artFormsList"
+        >
+        </nz-select>
+        <ng-template #valueTemplate let-selected>
+          <div class="ant-select-selection-item-content">
+            {{ selected.nzLabel }}
+          </div>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <textarea
+        nz-input
+        placeholder="Pin 📍 description (or leave empty)"
+        formControlName="description"
+        [nzAutosize]="{ minRows: 2, maxRows: 7 }"
+      ></textarea>
+    </nz-form-item>
+    <nz-form-item>
+      <textarea
+        nz-input
+        placeholder="How to get there? (or leave empty)"
+        formControlName="location_description"
+        [nzAutosize]="{ minRows: 2, maxRows: 7 }"
+      ></textarea>
+    </nz-form-item>
+    <nz-form-item class="status-control">
+      <nz-form-label nzFor="visitors"
+        >Does this pin 📍 accept real world visitors?</nz-form-label
+      >
+      <nz-form-control>
+        <nz-switch
+          nzId="visitors"
+          formControlName="visitors"
+          nzCheckedChildren="Yes"
+        ></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item class="status-control">
+      <nz-form-label nzFor="status"
+        >Should this pin 📍 be publicly visible on the map?</nz-form-label
+      >
+      <nz-form-control>
+        <nz-switch
+          nzId="status"
+          formControlName="published"
+          nzCheckedChildren="Yes"
+        ></nz-switch>
+      </nz-form-control>
+      <nz-alert
+        *ngIf="!(user.verified | async)"
+        nzType="warning"
+        nzMessage="Make sure your account is verified before you can publish"
+        [nzAction]="verifyAccountLink"
+      ></nz-alert>
+      <ng-template #verifyAccountLink>
+        <a routerLink="/account" target="_blank">Go to my account</a>
+      </ng-template>
+    </nz-form-item>
+    <nz-form-item class="status-control">
+      <nz-form-label nzFor="anonymous"
+        >Hide your personal
+        <app-user-tag [user]="user.user | async" /> tag?</nz-form-label
+      >
+      <nz-form-control>
+        <nz-switch
+          nzId="anonymous"
+          formControlName="anonymous"
+          nzCheckedChildren="Yes"
+        ></nz-switch>
+      </nz-form-control>
+      <nz-alert
+        *ngIf="
+          !(user.user | async)?.user?.tag &&
+          !pinForm.controls['anonymous'].value
+        "
+        nzType="warning"
+        nzMessage="Your account doesn't seem to have a personal tag yet. Pins created with public tag will be shown as anonymous"
+        [nzAction]="editTag"
+      ></nz-alert>
+      <ng-template #editTag>
+        <a routerLink="/account" target="_blank">Go to my account</a>
+      </ng-template>
+    </nz-form-item>
+    <nz-divider></nz-divider>
+    <legend>
+      <small *ngIf="pinForm.controls['published'].value" 📍>
+        By publishing this pin 📍 on twopack.gallery map, you confirm it
+        features the chosen art form, is safe for visitors, and that you are the
+        exhibiting artist. Please note, irrelevant or unsafe pins 📍 will be
+        removed from public display.
+      </small>
+      <div class="form-actions">
+        <nz-button-group>
+          <button
+            nz-button
+            nzSize="large"
+            nzType="primary"
+            type="submit"
+            [disabled]="!pinForm.valid || !pinForm.dirty"
+            [nzLoading]="saving"
+            (click)="onSubmit()"
+          >
+            {{ id ? "Update pin 📍" : "Create pin  📍" }}
+          </button>
+          <ng-container *ngIf="id">
+            <button
+              nz-button
+              nz-dropdown
+              nzSize="large"
+              nzType="primary"
+              nzGhost
+              [nzDropdownMenu]="menu"
+              nzTrigger="click"
+              nzPlacement="topRight"
+              [ngStyle]="{ 'flex-grow': 0 }"
+            >
+              <i nz-icon nzType="up"></i>
+            </button>
+            <nz-dropdown-menu #menu>
+              <div nz-menu>
+                <button
+                  nz-menu-item
+                  nzDanger
+                  nzSize="large"
+                  nzType="primary"
+                  (click)="onDelete($event)"
+                >
+                  Delete location
+                </button>
+              </div>
+            </nz-dropdown-menu>
+          </ng-container>
+        </nz-button-group>
+        <button
+          nz-button
+          nzSize="large"
+          nzType="default"
+          (click)="onCancel($event)"
+        >
+          Cancel
+        </button>
+      </div>
+    </legend>
+  </app-padded-page-content>
+</div>

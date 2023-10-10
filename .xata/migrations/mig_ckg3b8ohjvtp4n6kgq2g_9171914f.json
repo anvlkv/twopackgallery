@@ -1,0 +1,18 @@
+{
+  "id": "mig_ckg3b8ohjvtp4n6kgq2g",
+  "parentID": "mig_ckg3b3ohjvtp4n6kgq1g",
+  "checksum": "1:9171914f40d189f8ab224784734c8b44c2829038d58bd744bcaf56b315ebb310",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "status",
+          "type": "string",
+          "notNull": true,
+          "defaultValue": "draft"
+        },
+        "table": "points"
+      }
+    }
+  ]
+}

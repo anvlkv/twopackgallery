@@ -1,0 +1,18 @@
+{
+  "id": "mig_ckcpgenes1c46u46f0c0",
+  "parentID": "mig_ckcpfcnes1c46u46f0b0",
+  "checksum": "1:276c024e8a17d263aae8a592a03e36b202714064b74c1333beb0434c29ad9aa6",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "status",
+          "type": "string",
+          "notNull": true,
+          "defaultValue": "published"
+        },
+        "table": "points"
+      }
+    }
+  ]
+}

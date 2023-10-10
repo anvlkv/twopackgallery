@@ -1,0 +1,27 @@
+<button
+  *ngIf="!globalView; else globalViewTemplate"
+  nz-button
+  nzShape="circle"
+  [nzSize]="nzSize || 'default'"
+  nz-tooltip
+  nzTooltipTitle="Locate me"
+  nzTooltipPlacement="left"
+  [nzLoading]="locating"
+  (click)="handleAim($event)"
+>
+  <span nz-icon nzType="aim"></span>
+</button>
+
+<ng-template #globalViewTemplate>
+  <button
+  nz-button
+  nzShape="circle"
+  [nzSize]="nzSize || 'default'"
+  nz-tooltip
+  nzTooltipTitle="Zoom out to planet view"
+  nzTooltipPlacement="left"
+  (click)="handleZoomOut($event)"
+>
+  <span nz-icon nzType="global"></span>
+</button>
+</ng-template>

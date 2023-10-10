@@ -1,0 +1,17 @@
+{
+  "id": "mig_ck9b7j5kb1j930n4a8n0",
+  "parentID": "mig_ck9b7bgoj0i1n5mtkav0",
+  "checksum": "1:d5f740a53ec579b51cb4eca98ed002399ed058e999cbe990b5febdace740f0c7",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "name",
+          "type": "string",
+          "unique": true
+        },
+        "table": "art_forms"
+      }
+    }
+  ]
+}

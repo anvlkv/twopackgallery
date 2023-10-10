@@ -1,0 +1,17 @@
+
+[nz-form] {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: .75rem;
+}
+
+nz-divider {
+  margin-top: auto;
+}
+
+.form-actions {
+  margin-bottom: 0;
+}

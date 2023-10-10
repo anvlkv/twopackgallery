@@ -1,0 +1,34 @@
+<nz-card
+  [nzCover]="coverTemplate"
+  [nzExtra]="showExtra === 'top' ? extraTemplate : undefined"
+  [nzActions]="showExtra === 'bottom' ? [extraTemplate] : []"
+  [nzHoverable]="nzHoverable"
+  [nzBorderless]="true"
+  [nzSize]="'small'"
+  [ngClass]="{highlight}"
+>
+  <nz-card-meta
+    [nzTitle]="titleTemplate"
+    [nzDescription]="data?.description ? descriptionTemplate : null"
+  ></nz-card-meta>
+</nz-card>
+
+<ng-template #descriptionTemplate>
+  <div style="width: 100%" (click)="onClick($event)">
+    {{ data?.description }}
+  </div>
+</ng-template>
+<ng-template #titleTemplate>
+  <div style="width: 100%" (click)="onClick($event)">
+    {{ data?.title }}
+  </div>
+</ng-template>
+<ng-template #coverTemplate>
+  <div style="width: 100%" (click)="onClick($event)">
+    <app-cover-image [src]="data?.cover.signedUrl!"></app-cover-image>
+  </div>
+</ng-template>
+
+<ng-template #extraTemplate>
+  <ng-content></ng-content>
+</ng-template>

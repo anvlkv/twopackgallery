@@ -1,0 +1,149 @@
+<div *ngIf="!data" nzDirection="vertical" class="pin-layout">
+  <div [ngStyle]="{ 'aspect-ratio': coverRatio, width: '100%' }">
+    <nz-skeleton-element
+      nzType="image"
+      [nzActive]="true"
+      nz-col
+      nzSpan="24"
+      [ngStyle]="{width: '100%', height: '100%'}"
+    ></nz-skeleton-element>
+  </div>
+  <app-padded-page-content [narrow]="!isFullPage">
+    <nz-skeleton
+      [nzActive]="true"
+      [nzParagraph]="false"
+      [nzTitle]="{ width: '100%' }"
+    ></nz-skeleton>
+    <nz-space nzDirection="horizontal">
+      <nz-skeleton-element
+        *nzSpaceItem
+        nzType="button"
+        [nzActive]="true"
+      ></nz-skeleton-element>
+      <nz-skeleton-element
+        *nzSpaceItem
+        nzType="button"
+        [nzActive]="true"
+      ></nz-skeleton-element>
+      <nz-skeleton-element
+        *nzSpaceItem
+        nzType="button"
+        [nzActive]="true"
+      ></nz-skeleton-element>
+    </nz-space>
+    <nz-skeleton
+      [nzActive]="true"
+      [nzParagraph]="{ rows: 4 }"
+      [nzTitle]="false"
+    ></nz-skeleton>
+    <nz-skeleton
+      [nzActive]="true"
+      [nzParagraph]="{ rows: 3 }"
+      [nzTitle]="false"
+    ></nz-skeleton>
+  </app-padded-page-content>
+</div>
+
+<ng-container *ngIf="data">
+  <div class="pin-layout">
+    <app-cover-image
+      nz-col
+      nzSpan="24"
+      [src]="data.cover?.signedUrl!"
+      alt="Cover image of {{ data.title }}"
+    />
+    <app-padded-page-content [narrow]="!isFullPage">
+      <div nz-row nzAlign="middle" class="title-group">
+        <h2 nz-col nzSpan="21" nz-typography>
+          {{ data.title }}
+          <small
+            >by <app-user-tag [user]="data.publisher"></app-user-tag
+          ></small>
+        </h2>
+        <a
+          *ngIf="isFullPage"
+          nz-col
+          nzSpan="3"
+          nz-button
+          nzType="link"
+          [routerLink]="['/', 'map', 'pin', data.id]"
+        >
+          <i nz-icon nzType="environment"></i>
+        </a>
+      </div>
+      <nz-space nzDirection="horizontal" [nzWrap]="true" class="art-forms">
+        <ng-container *ngFor="let af of data.art_forms">
+          <nz-tag *nzSpaceItem>
+            {{ af.name }}
+          </nz-tag>
+        </ng-container>
+      </nz-space>
+      <ng-container *ngIf="data.description">
+        <p nz-typography>
+          {{ data.description }}
+        </p>
+      </ng-container>
+      <ng-container *ngIf="data.visitors; else noVisitor">
+        <app-view-address
+          *ngIf="data.address"
+          [address]="data.address"
+        ></app-view-address>
+        <ng-container *ngIf="data.location_description">
+          <h4 nz-typography>How to get there</h4>
+          <p nz-typography>
+            {{ data.location_description }}
+          </p>
+        </ng-container>
+      </ng-container>
+      <ng-template #noVisitor>
+        <p nz-typography>
+          Does not accept visitors.
+        </p>
+      </ng-template>
+      <ng-container *ngIf="isFullPage">
+        <app-mini-map [point]="mapPoint"></app-mini-map>
+      </ng-container>
+
+      <nz-divider></nz-divider>
+      <div class="form-actions">
+        <button
+          *ngIf="(auth.isAuthenticated$ | async) === false"
+          id="edit-btn"
+          nz-button
+          nzGhost
+          nzSize="large"
+          (click)="logIn($event)"
+        >
+          Log in to interact with pins
+        </button>
+        <a
+          *ngIf="canEdit"
+          id="edit-btn"
+          nz-button
+          nzGhost
+          nzSize="large"
+          [routerLink]="['edit']"
+          [nzType]="data.status === 'draft' ? 'primary' : 'default'"
+        >
+          <ng-container *ngIf="data.status === 'published'; else draftButton"
+            >Edit</ng-container
+          >
+          <ng-template #draftButton>Edit and publish</ng-template>
+        </a>
+        <a
+          *ngIf="canFlag"
+          id="flag-btn"
+          nz-tooltip
+          nzTooltipTitle="Flag issues with this location"
+          nzTooltipPlacement="left"
+          nz-button
+          nzGhost
+          nzSize="large"
+          [routerLink]="['flag']"
+        >
+          <i nz-icon nzType="flag"></i>
+        </a>
+      </div>
+    </app-padded-page-content>
+  </div>
+</ng-container>

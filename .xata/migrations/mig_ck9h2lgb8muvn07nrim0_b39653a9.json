@@ -1,0 +1,16 @@
+{
+  "id": "mig_ck9h2lgb8muvn07nrim0",
+  "parentID": "mig_ck9b9grn7f6dq1bl77i0",
+  "checksum": "1:b39653a92b0eafd5aeb569fb80fff082ddd97914b21a44c9eccc0dcc95b4fbc8",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "address",
+          "type": "json"
+        },
+        "table": "points"
+      }
+    }
+  ]
+}

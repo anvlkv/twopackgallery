@@ -1,0 +1,27 @@
+:host {
+  display: block;
+}
+
+nz-card {
+  position: relative;
+  &.highlight {
+    box-shadow: 0 0 3px 3px #f6eb6f;
+    z-index: 2;
+  }
+  ::ng-deep {
+    .ant-card-head {
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 2;
+      border: none;
+      text-shadow: -2px 2px 1px #211f02;
+      font-weight: bold;
+      padding: 0;
+      min-height: auto;
+      .ant-card-extra {
+        padding: 0;
+      }
+    }
+  }
+}

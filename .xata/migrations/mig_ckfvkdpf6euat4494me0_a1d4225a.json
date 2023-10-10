@@ -1,0 +1,16 @@
+{
+  "id": "mig_ckfvkdpf6euat4494me0",
+  "parentID": "mig_ckcpgenes1c46u46f0c0",
+  "checksum": "1:a1d4225aa5f5b3f01bad91c347a7dc40d19d5e7ae260c6759538c832a6a3acb3",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "status",
+          "type": "string"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

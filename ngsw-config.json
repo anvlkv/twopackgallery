@@ -1,0 +1,94 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/favicon/favicon.ico",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "art_forms",
+      "version": 1,
+      "urls": ["/.netlify/functions/art_forms_list"],
+      "cacheConfig": {
+        "maxAge": "3d",
+        "maxSize": 30000,
+        "strategy": "performance"
+      }
+    },
+    {
+      "name": "points",
+      "version": 2,
+      "urls": ["/.netlify/functions/points"],
+      "cacheQueryOptions": {
+        "ignoreSearch": false
+      },
+      "cacheConfig": {
+        "maxAge": "6h",
+        "maxSize": 30000,
+        "strategy": "freshness"
+      }
+    },
+    {
+      "name": "point_description",
+      "version": 2,
+      "urls": ["/.netlify/functions/point_description"],
+      "cacheQueryOptions": {
+        "ignoreSearch": false
+      },
+      "cacheConfig": {
+        "maxAge": "1h",
+        "maxSize": 30000,
+        "strategy": "freshness"
+      }
+    },
+    {
+      "name": "search_init_data",
+      "version": 1,
+      "urls": ["/.netlify/functions/search_init_data"],
+      "cacheQueryOptions": {
+        "ignoreSearch": false
+      },
+      "cacheConfig": {
+        "maxAge": "1d",
+        "maxSize": 30000,
+        "strategy": "performance"
+      }
+    },
+    {
+      "name": "search_results",
+      "version": 1,
+      "urls": ["/.netlify/functions/search"],
+      "cacheQueryOptions": {
+        "ignoreSearch": false
+      },
+      "cacheConfig": {
+        "maxAge": "3h",
+        "maxSize": 30000,
+        "strategy": "freshness"
+      }
+    }
+  ]
+}

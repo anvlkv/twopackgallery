@@ -1,0 +1,18 @@
+{
+  "id": "mig_ckce72npa1e4ojndsb2g",
+  "parentID": "mig_ckce6s7es1c46u46dong",
+  "checksum": "1:1d24709bb2ae11e774bf49e98f285803cd95ef7730c01e3e97fb7ca89ac1c917",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "name",
+          "type": "string",
+          "notNull": true,
+          "defaultValue": "anonymous"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

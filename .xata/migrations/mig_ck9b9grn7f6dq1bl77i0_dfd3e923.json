@@ -1,0 +1,14 @@
+{
+  "id": "mig_ck9b9grn7f6dq1bl77i0",
+  "parentID": "mig_ck9b9agoj0i1n5mtkbq0",
+  "checksum": "1:dfd3e9238855a657f08c5ca27e144175ecec050c343f46bb8e776d5760eeac8e",
+  "operations": [
+    {
+      "renameColumn": {
+        "newName": "longitude",
+        "oldName": "lan",
+        "table": "points"
+      }
+    }
+  ]
+}

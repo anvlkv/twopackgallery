@@ -1,0 +1,15 @@
+:host {
+  position: relative;
+  display: block;
+}
+mgl-map {
+  width: 100%;
+  height: 100%;
+}
+
+.map-loading-cursor {
+  position: absolute;
+  top: calc(50vh - 1rem);
+  left: calc(50vw - 1rem);
+  z-index: 2;
+}

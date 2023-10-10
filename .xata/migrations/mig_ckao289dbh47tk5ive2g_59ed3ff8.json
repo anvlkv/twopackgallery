@@ -1,0 +1,13 @@
+{
+  "id": "mig_ckao289dbh47tk5ive2g",
+  "parentID": "mig_ckao279dbh47tk5ive1g",
+  "checksum": "1:59ed3ff87796433a72e10ac3ff48bc394f92a26455c941500c8d5f39d5f640e3",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "description",
+        "table": "flags"
+      }
+    }
+  ]
+}
