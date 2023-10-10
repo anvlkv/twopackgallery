@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   OnDestroy,
@@ -17,6 +19,7 @@ import { ImageCroppedEvent, ImageCropperModule } from 'ngx-image-cropper';
 import { BehaviorSubject, Subscription, filter, from, map, noop } from 'rxjs';
 import { CoverImageComponent } from '../cover-image/cover-image.component';
 import { COVER_RATIO } from '../cover-image/consts';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 export type Cover =
   | string
@@ -30,11 +33,12 @@ export type Cover =
   imports: [
     CommonModule,
     NzUploadModule,
-    CoverImageComponent,
     ImageCropperModule,
     NzButtonModule,
     NzIconModule,
     NzToolTipModule,
+    NzSpinModule,
+    CoverImageComponent,
   ],
   selector: 'app-cover-editor',
   templateUrl: './cover-editor.component.html',
@@ -46,6 +50,7 @@ export type Cover =
       multi: true,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CoverEditorComponent
   implements ControlValueAccessor, OnInit, OnDestroy, AfterViewInit
@@ -55,7 +60,7 @@ export class CoverEditorComponent
     mediaType: string;
     base64Content: string;
   } | null>(null);
-  
+
   coverFile: NzUploadFile[] = [];
   coverRatio = COVER_RATIO;
   imageCropped = true;
@@ -64,10 +69,12 @@ export class CoverEditorComponent
   croppedImage?: Blob;
   width = 0;
   disabled = false;
+  reading = false;
 
   constructor(
     private notification: NzNotificationService,
-    private el: ElementRef<HTMLDivElement>
+    private el: ElementRef<HTMLDivElement>,
+    private ch: ChangeDetectorRef
   ) {}
 
   writeValue(obj: Cover): void {
@@ -76,8 +83,9 @@ export class CoverEditorComponent
       this.imageCropped = true;
     } else {
       this.imageCropped = false;
-      this.fb64.next(obj)
+      this.fb64.next(obj);
     }
+    this.ch.detectChanges();
   }
 
   private _onChange: (value: Cover) => void = noop;
@@ -90,12 +98,14 @@ export class CoverEditorComponent
   }
   setDisabledState?(isDisabled: boolean): void {
     this.disabled = isDisabled;
+    this.ch.detectChanges();
   }
 
   ngOnInit(): void {
     this.subs.push(
       this.fb64.pipe(filter(Boolean)).subscribe((d) => {
         this.pictureUrl = `data:${d!.mediaType};base64,${d!.base64Content}`;
+        this.ch.detectChanges();
       })
     );
 
@@ -107,6 +117,7 @@ export class CoverEditorComponent
         )
         .subscribe((data) => {
           this._onChange(data);
+          this.ch.detectChanges();
         })
     );
   }
@@ -117,6 +128,7 @@ export class CoverEditorComponent
 
   ngAfterViewInit(): void {
     this.width = this.el.nativeElement.clientWidth;
+    this.ch.detectChanges()
   }
 
   onCropperReady() {
@@ -133,14 +145,17 @@ export class CoverEditorComponent
 
   onImageCropped(ev: ImageCroppedEvent) {
     this.croppedImage = ev.blob || undefined;
+    this.ch.detectChanges()
   }
 
   clearImage() {
     this.pictureUrl = undefined;
     this.fb64.next(null);
     this.coverFile = [];
-    this.imageCropped = true;
+    this.imageCropped = false;
     this._onTouched();
+        this.ch.detectChanges()
+
     return false;
   }
 
@@ -167,7 +182,11 @@ export class CoverEditorComponent
           };
         })
       )
-      .subscribe((d) => this.fb64.next(d));
+      .subscribe((d) => {
+        this.fb64.next(d)
+        this.reading = false;
+        this.ch.detectChanges()
+      });
   }
 
   beforeUploadCover = (file: NzUploadFile) => {
@@ -176,6 +195,8 @@ export class CoverEditorComponent
     const data = file as unknown as File;
     this.fb64FromArrayBuffer(data, data.type);
     this._onTouched();
+    this.reading = true;
+    this.ch.detectChanges();
     return false;
   };
 }
