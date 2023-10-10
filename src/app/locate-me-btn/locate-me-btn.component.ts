@@ -86,13 +86,14 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
       combineLatest({
         zoom: this.zoomSync.zoom.pipe(map(({ value }) => value)),
         location: this.location.runningLocation,
-        bounds: this.location.currentBounds,
+        bounds: this.location.currentBounds.pipe(filter(b => b.length > 0)),
       }).subscribe(({ zoom, location, bounds }) => {
         this.globalView =
           zoom > 12.17 &&
-          new LngLatBounds(bounds as [number, number, number, number]).contains(
-            location
-          );
+          new LngLatBounds(
+            [bounds[0], bounds[1]],
+            [bounds[2], bounds[3]]
+          ).contains(location);
       })
     );
   }
@@ -169,8 +170,8 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
   }
 
   handleZoomOut(ev: MouseEvent) {
-    this.zoomSync.setZoom(.1217);
-    this.globalView = false
+    this.zoomSync.setZoom(0.1217);
+    this.globalView = false;
     return false;
   }
 }

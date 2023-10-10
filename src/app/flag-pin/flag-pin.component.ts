@@ -109,8 +109,8 @@ export class FlagPinComponent implements OnInit, OnDestroy {
         next: () => {
           this.saving = false;
           this.notification.warning(
-            'Location flagged',
-            `Location "${this.pin!.title}" flagged successfully.`
+            'Pin 📍 flagged',
+            `Pin 📍 "${this.pin!.title}" flagged.`
           );
           this.flagPinForm.markAsPristine();
           this.router.navigate(['/map'], {
