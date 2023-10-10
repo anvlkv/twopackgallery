@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -28,6 +35,7 @@ import {
   Observable,
   Subject,
   Subscription,
+  combineLatest,
   filter,
   map,
   of,
@@ -80,6 +88,7 @@ import { UserTagComponent } from '../user-tag/user-tag.component';
   selector: 'app-pin-editor',
   templateUrl: './pin-editor.component.html',
   styleUrls: ['./pin-editor.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PinEditorComponent implements OnInit, OnDestroy {
   title: string;
@@ -136,6 +145,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
     private points: PointsService,
     private notification: NzNotificationService,
     private modal: NzModalService,
+    private ch: ChangeDetectorRef,
     public fb: FormBuilder,
     public location: LocationService,
     public activity: ActivityService,
@@ -200,8 +210,8 @@ export class PinEditorComponent implements OnInit, OnDestroy {
           this.hasDefinedAddress = Boolean(point.address);
           this.pinForm.reset({
             address: point.address as Address,
-            cover: point.cover?.url,
-            tile: point.tile?.url,
+            cover: point.cover?.signedUrl,
+            tile: point.tile?.signedUrl,
             title: point.title as string,
             description: point.description as string,
             location_description: point.location_description as string,
@@ -218,6 +228,12 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             point.latitude as number,
           ]);
           this.pinForm.enable();
+
+          if (!this.user.verified.getValue()) {
+            this.pinForm.controls['published'].disable();
+          } else {
+            this.pinForm.controls['published'].enable();
+          }
         })
       );
       this.leave = this.activity.startActivity(EActivity.EditPin);
@@ -294,6 +310,15 @@ export class PinEditorComponent implements OnInit, OnDestroy {
         this.minMapLocation = [longitude || 0, latitude || 0];
       })
     );
+
+    this.subs.push(
+      combineLatest({
+        value: this.pinForm.valueChanges,
+        status: this.pinForm.statusChanges,
+      }).subscribe(() => {
+        this.ch.detectChanges();
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -331,7 +356,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             this.saving = false;
             this.notification.success(
               "You've just added a new pin!",
-              `Pin "${point!.title}" added successfully.`
+              `Pin 📍 "${point!.title}" added.`
             );
             this.router.navigate(['pin', point!.id], {
               replaceUrl: true,
@@ -365,7 +390,7 @@ export class PinEditorComponent implements OnInit, OnDestroy {
             this.saving = false;
             this.notification.success(
               'Changes saved.',
-              `Location "${updatedPoint.title}" updated successfully.`
+              `Pin 📍 "${updatedPoint.title}" updated.`
             );
             this.pinForm.markAsPristine();
             this.router.navigate(['map', 'pin', updatedPoint.id], {
@@ -401,8 +426,8 @@ export class PinEditorComponent implements OnInit, OnDestroy {
         next: (deletedPoint) => {
           this.saving = false;
           this.notification.success(
-            'Location deleted',
-            `Location "${deletedPoint.title}" deleted successfully.`
+            'Pin 📍 deleted',
+            `Pin 📍 "${deletedPoint.title}" deleted.`
           );
           this.pinForm.markAsPristine();
           this.router.navigate(['/map'], {
