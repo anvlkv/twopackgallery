@@ -206,7 +206,9 @@
               "/pin/*",
               "/error",
               "/authorize",
-              "/welcome"
+              "/welcome",
+              "/search",
+              "/$page"
             ],
             "guessRoutes": false
           },

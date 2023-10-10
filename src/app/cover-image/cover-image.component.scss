@@ -11,3 +11,9 @@ img, nz-skeleton-element {
 img.loading {
   opacity: 0;
 }
+
+nz-skeleton-element {
+  position: absolute;
+  top:0;
+  left: 0;
+}

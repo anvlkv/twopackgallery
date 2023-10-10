@@ -7,17 +7,14 @@ import {
   BehaviorSubject,
   NEVER,
   Observable,
-  Subscription,
   catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
   from,
-  interval,
   map,
   skip,
-  switchMap,
-  take
+  take,
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -43,7 +40,7 @@ export class LocationService {
   private runningLocation$ = new BehaviorSubject<[number, number] | undefined>(
     undefined
   );
-  private watchLocationSubscription?: Subscription;
+  private watchLocation?: any;
 
   runningLocation: Observable<[number, number]> = this.runningLocation$.pipe(
     filter(Boolean)
@@ -96,16 +93,34 @@ export class LocationService {
   }
 
   public startTrackingLocation() {
-    this.watchLocationSubscription = interval(3000)
-      .pipe(switchMap(() => from(this.geoLocation())))
-      .subscribe(([lng, lat]) => {
-        this.runningLocation$.next([lng, lat]);
-      });
+    if (isPlatformBrowser(this.platformId)) {
+      if (navigator.geolocation) {
+        this.watchLocation = navigator.geolocation.watchPosition(
+          (geolocation) => {
+            this.runningLocation$.next([
+              geolocation.coords.longitude,
+              geolocation.coords.latitude,
+            ]);
+          },
+          () => {},
+          {
+            maximumAge: 30000,
+            enableHighAccuracy: false,
+          }
+        );
+      }
+    }
   }
 
   public stopTrackingLocation() {
-    this.watchLocationSubscription &&
-      this.watchLocationSubscription.unsubscribe();
+    if (
+      isPlatformBrowser(this.platformId) &&
+      this.watchLocation !== undefined
+    ) {
+      if (navigator.geolocation) {
+        navigator.geolocation.clearWatch(this.watchLocation);
+      }
+    }
   }
 
   private locateIp() {

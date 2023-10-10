@@ -11,54 +11,82 @@ const client = getXataClient();
 const handler: Handler = withAuth0(
   async (event: HandlerEvent, context: HandlerContext) => {
     // try {
-      const user = await userFromSub(context)
+    const user = await userFromSub(context);
 
-      const { reason } = JSON.parse(event.body!);
+    const { reason } = JSON.parse(event.body!);
 
-      await client.db.feedback.create({
-        feedback_type: 'delete',
-        user_email: user!.email,
-        description: reason,
-      });
+    if (!reason?.length || !user) {
+      throw new Error('missing data')
+    }
 
-      await withAuth0Token({
-        url: `/api/v2/users/${user!.user_id}`,
-        method: 'DELETE',
-      });
+    await withAuth0Token({
+      url: `/api/v2/users/${user.user_id}`,
+      method: 'DELETE',
+    });
 
-      const ownedPoints = await client.db.users_points
-        .filter({ user, status: UserPointStatus.Owner })
-        .getAll({ columns: ['id', 'point.id'] });
-
-      for (let { id: ownership_id, point } of ownedPoints) {
-        await client.db.points.update({ id: (point as any).id, status: 'user_deleted' });
-        await client.db.users_points.delete(ownership_id);
-      }
-
-      const otherPoints = await client.db.users_points
-        .filter({ user })
-        .getAll({ columns: ['id'] });
-
-      for (let {id} of otherPoints) {
-        await client.db.users_points.delete(id);
-      }
-
-      await client.db.users.deleteOrThrow(user!);
-
-      const sendResult = await sendEmail(
-        EMailBox.Support,
-        user!.email!,
-        `Bye ${user!.name} 😢`,
-        'deleted_account',
-        {
-          user_name: user!.name,
-          owned_count: ownedPoints.length,
-          other_count: otherPoints.length,
+    const transactions: Parameters<typeof client.transactions.run>[0] = [
+      {
+        insert: {
+          table: 'feedback',
+          record: {
+            feedback_type: 'delete',
+            user_email: user.email,
+            description: reason,
+          },
         },
-        true
-      );
+      },
+    ];
 
-      return { statusCode: 200, body: '' };
+    const points = await client.db.users_points
+      .filter({ user })
+      .getAll({ columns: ['id', 'point.id', 'status'] });
+
+    let owned_count = 0,
+      other_count = 0;
+
+    for (let { id, point, status } of points) {
+      if (status === UserPointStatus.Owner) {
+        transactions.push({
+          delete: {
+            table: 'points',
+            id: point!.id,
+          },
+        });
+        owned_count++;
+      } else {
+        other_count++;
+      }
+      transactions.push({
+        delete: {
+          table: 'users_points',
+          id: id,
+        },
+      });
+    }
+
+    transactions.push({
+      delete: {
+        table: 'users',
+        id: user.id,
+      },
+    });
+
+    await client.transactions.run(transactions);
+
+    const sendResult = await sendEmail(
+      EMailBox.Support,
+      user.email!,
+      `Bye ${user.name} 🥲`,
+      'deleted_account',
+      {
+        user_name: user!.name,
+        owned_count,
+        other_count,
+      },
+      true
+    );
+
+    return { statusCode: 200, body: '' };
     // } catch (e) {
     //   console.error(e);
     //   return { statusCode: 500, body: 'Could not update user.' };
@@ -75,4 +103,4 @@ export { handler };
 
 export const config = {
   type: 'experimental-background',
-}
+};

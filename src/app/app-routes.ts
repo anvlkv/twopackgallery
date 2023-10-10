@@ -134,6 +134,13 @@ export const appRoutes: Routes = [
       ),
   },
   {
+    path: '$page',
+    loadComponent: () =>
+      import('./page-layout/page-layout.component').then(
+        (mod) => mod.PageLayoutComponent
+      ),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./page-not-found/page-not-found.component').then(

@@ -19,6 +19,18 @@ command = "npm run prerender:stage"
   from = "/map/*"
   to = "/map/index.html"
   status = 200
+[[redirects]]
+  from = "/profile"
+  to = "/$page/index.html"
+  status = 200
+[[redirects]]
+  from = "/account"
+  to = "/$page/index.html"
+  status = 200
+[[redirects]]
+  from = "/feedback"
+  to = "/$page/index.html"
+  status = 200
 
 [functions]
 directory = "api/functions"
