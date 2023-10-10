@@ -36,7 +36,7 @@ export class LocationService {
     undefined
   );
   private currentAccuracy$ = new BehaviorSubject(0);
-  private currentBounds$ = new BehaviorSubject([] as number[]);
+  private currentBounds$ = new BehaviorSubject([] as number[][]);
   private runningLocation$ = new BehaviorSubject<[number, number] | undefined>(
     undefined
   );
@@ -49,7 +49,7 @@ export class LocationService {
     filter(Boolean),
     distinctUntilChanged(deepEqual)
   );
-  currentBounds: Observable<number[]> = this.currentBounds$.pipe(
+  currentBounds: Observable<[number, number][]> = this.currentBounds$.pipe(
     distinctUntilChanged(deepEqual)
   );
 
@@ -144,7 +144,7 @@ export class LocationService {
   }
 
   public adjust_bounds(value: number[][]) {
-    this.currentBounds$.next(value.flatMap((v) => v));
+    this.currentBounds$.next(value);
   }
 
   public reverseGeoCode(value: [number, number]) {

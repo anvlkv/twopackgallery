@@ -74,13 +74,13 @@ export class PointsService {
           return this.http.get<PointsResult>(url).pipe(
             tap(({ hasNextPage }) => {
               if (!hasNextPage) {
-                this.addChecked(0, -90, 360, 90);
-                this.addChecked(-180, -90, 180, 90);
+                this.addChecked([[0, -90], [360, 90]]);
+                this.addChecked([[-180, -90], [180, 90]]);
               }
             }),
             map(({ data }) => data)
           );
-        } else if (this.isContainedBound(...bounds)) {
+        } else if (this.isContainedBound(bounds)) {
           return of([]);
         } else {
           const exclude = this.allPointsSnapshot?.map(({ id }) => id) || [];
@@ -95,7 +95,7 @@ export class PointsService {
           return d$.pipe(
             tap(({ hasNextPage }) => {
               if (!hasNextPage) {
-                this.addChecked(...bounds);
+                this.addChecked(bounds);
               }
             }),
             map(({ data }) => data)
@@ -267,7 +267,7 @@ export class PointsService {
   };
 
   private isContainedBound(
-    ...[minLng, minLat, maxLng, maxLat]: number[]
+    [[minLng, minLat], [maxLng, maxLat]]: number[][]
   ): boolean {
     const boundsKey = `${minLng};${minLat};${maxLng};${maxLat};`;
     if (this.checkedBounds.has(boundsKey)) {
@@ -282,7 +282,7 @@ export class PointsService {
     });
   }
 
-  private addChecked(...[minLng, minLat, maxLng, maxLat]: number[]) {
+  private addChecked([[minLng, minLat], [maxLng, maxLat]]: number[][]) {
     const boundsKey = `${minLng};${minLat};${maxLng};${maxLat};`;
     const sw = new LngLat(minLng, minLat);
     const ne = new LngLat(maxLng, maxLat);
