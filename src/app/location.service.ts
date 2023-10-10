@@ -61,8 +61,11 @@ export class LocationService {
   public locate() {
     from(this.geoLocation())
       .pipe(catchError(() => this.locateIp()))
-      .subscribe((d) => {
-        this.currentLocation$.next(d);
+      .subscribe({
+        next: (d) => {
+          this.currentLocation$.next(d);
+        },
+        error: (e) => this.currentLocation$.error(e),
       });
 
     return this.currentLocation$.pipe(skip(1), take(1));

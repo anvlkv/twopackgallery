@@ -78,6 +78,7 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
         .pipe(filter((consent) => consent?.consent === 'accept'))
         .subscribe(() => {
           this.location.startTrackingLocation();
+          this.ch.detectChanges();
         })
     );
 
@@ -161,10 +162,11 @@ export class LocateMeBtnComponent implements OnInit, OnDestroy {
 
       return consent$.pipe(
         tap((value) => {
-          this.storage.set<Consent>(LOCATION_CONSENT_KEY, {
+          const consent: Consent = {
             consent: value ? 'accept' : 'deny',
-          });
-          this.locationConsent.next(this.storage.get(LOCATION_CONSENT_KEY));
+          };
+          this.storage.set<Consent>(LOCATION_CONSENT_KEY, consent);
+          this.locationConsent.next(consent);
         })
       );
     } else {
