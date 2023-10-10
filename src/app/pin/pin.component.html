@@ -71,7 +71,7 @@
           <i nz-icon nzType="environment"></i>
         </a>
       </div>
-      <nz-space nzDirection="horizontal" class="art-forms">
+      <nz-space nzDirection="horizontal" [nzWrap]="true" class="art-forms">
         <ng-container *ngFor="let af of data.art_forms">
           <nz-tag *nzSpaceItem>
             {{ af.name }}
@@ -83,7 +83,7 @@
           {{ data.description }}
         </p>
       </ng-container>
-      <ng-container *ngIf="data.visitors">
+      <ng-container *ngIf="data.visitors; else noVisitor">
         <app-view-address
           *ngIf="data.address"
           [address]="data.address"
@@ -95,6 +95,11 @@
           </p>
         </ng-container>
       </ng-container>
+      <ng-template #noVisitor>
+        <p nz-typography>
+          Does not accept visitors.
+        </p>
+      </ng-template>
       <ng-container *ngIf="isFullPage">
         <app-mini-map [point]="mapPoint"></app-mini-map>
       </ng-container>

@@ -73,9 +73,9 @@ export class MapAsideComponent implements OnInit, OnDestroy {
     ev.stopPropagation();
     ev.preventDefault();
     this.endZoomHandle(ev);
-    this.zoomSync.zoomIn(0.3);
+    this.zoomSync.zoomIn(0.75);
     this.handleZoomSub = timer(0, 700).subscribe((i) => {
-      this.zoomSync.zoomIn(0.3 * i);
+      this.zoomSync.zoomIn(0.75 * i);
       if (!this.canZoomIn) {
         this.endZoomHandle();
       }
@@ -86,9 +86,9 @@ export class MapAsideComponent implements OnInit, OnDestroy {
     ev.stopPropagation();
     ev.preventDefault();
     this.endZoomHandle(ev);
-    this.zoomSync.zoomOut(0.3);
+    this.zoomSync.zoomOut(0.75);
     this.handleZoomSub = timer(0, 700).subscribe((i) => {
-      this.zoomSync.zoomOut(0.3 * i);
+      this.zoomSync.zoomOut(0.75 * i);
       if (!this.canZoomOut) {
         this.endZoomHandle();
       }
